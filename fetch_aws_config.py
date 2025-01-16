@@ -32,7 +32,8 @@ def find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=''):
             # Check if the cluster has the desired team tag
             for tag in tags:
                 if tag['key'] == team_tag_key and tag['value'] == team_tag_value:
-                    return cluster_arn
+                    cluster_name = cluster_arn.split('/')[-1]  # Extract cluster name from ARN
+                    return cluster_name, cluster_arn
 
         print(f"No ECS cluster found for {team_tag_key} = {team_tag_value}")
         return None
@@ -41,7 +42,7 @@ def find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=''):
         sys.exit(1)
 
 
-def fetch_ecs_service_config(cluster_arn):
+def fetch_ecs_service_config(cluster_arn, cluster_name):
     """
     Fetches the configuration of all ECS services running in the given cluster,
     filters out 'events' and 'deployments' from the service response.
@@ -64,7 +65,9 @@ def fetch_ecs_service_config(cluster_arn):
                 # Remove 'events' and 'deployments' from the service configuration
                 service_config.pop('events', None)
                 service_config.pop('deployments', None)
-                all_service_configs[service_arn] = service_config
+                service_name = service_config.get('serviceName', service_arn)
+                service_key = f"{cluster_name}/{service_name}"
+                all_service_configs[service_key] = service_config
 
         return all_service_configs
     except Exception as e:
@@ -150,8 +153,8 @@ if __name__ == "__main__":
 
     try:
         # Fetch ECS Configurations
-        cluster_arn = find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
-        ecs_config = fetch_ecs_service_config(cluster_arn) if cluster_arn else {}
+        cluster_name, cluster_arn = find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
+        ecs_config = fetch_ecs_service_config(cluster_arn, cluster_name) if cluster_arn else {}
 
         # Fetch RDS Configurations
         rds_config = fetch_rds_config(ApplicationShortName)

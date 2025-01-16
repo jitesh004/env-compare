@@ -62,11 +62,732 @@
         
     
             <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
+            <h3 style="text-decoration: underline;">Comparison Report - RDS - ciem-aur-idm</h3>
+            <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
+            <div style="display: flex; gap: 12px">
+                <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 48</p>
+                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> 0</p>
+                <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> 0</p>
+                <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> 1</p>
+            </div>
+            
+            <table>
+                <tr>
+                    <th>Key</th>
+                    <th>DEVL</th>
+                    <th>TEST</th>
+                    <th>Comparison</th>
+                    <th>Status</th>
+                </tr>
+                
+                <tr class="equal">
+                    <td>AllocatedStorage</td>
+                    <td><pre>1</pre></td>
+                    <td><pre>1</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>AssociatedRoles</td>
+                    <td><pre>[]</pre></td>
+                    <td><pre>[]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>AutoMinorVersionUpgrade</td>
+                    <td><pre>true</pre></td>
+                    <td><pre>true</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>AvailabilityZone</td>
+                    <td><pre>&quot;us-east-1b&quot;</pre></td>
+                    <td><pre>&quot;us-east-1b&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>BackupRetentionPeriod</td>
+                    <td><pre>1</pre></td>
+                    <td><pre>1</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>BackupTarget</td>
+                    <td><pre>&quot;region&quot;</pre></td>
+                    <td><pre>&quot;region&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>CACertificateIdentifier</td>
+                    <td><pre>&quot;rds-ca-rsa2048-g1&quot;</pre></td>
+                    <td><pre>&quot;rds-ca-rsa2048-g1&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>CertificateDetails</td>
+                    <td><pre>{
+  &quot;CAIdentifier&quot;: &quot;rds-ca-rsa2048-g1&quot;,
+  &quot;ValidTill&quot;: &quot;2025-11-05T06:00:13+00:00&quot;
+}</pre></td>
+                    <td><pre>{
+  &quot;CAIdentifier&quot;: &quot;rds-ca-rsa2048-g1&quot;,
+  &quot;ValidTill&quot;: &quot;2025-11-05T06:00:13+00:00&quot;
+}</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>CopyTagsToSnapshot</td>
+                    <td><pre>true</pre></td>
+                    <td><pre>true</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>CustomerOwnedIpEnabled</td>
+                    <td><pre>false</pre></td>
+                    <td><pre>false</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DBClusterIdentifier</td>
+                    <td><pre>&quot;ciem-clu-idm&quot;</pre></td>
+                    <td><pre>&quot;ciem-clu-idm&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DBInstanceArn</td>
+                    <td><pre>&quot;arn:aws:rds:us-east-1:920887439016:db:ciem-aur-idm&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:rds:us-east-1:920887439016:db:ciem-aur-idm&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DBInstanceClass</td>
+                    <td><pre>&quot;db.r6g.4xlarge&quot;</pre></td>
+                    <td><pre>&quot;db.r6g.4xlarge&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DBInstanceIdentifier</td>
+                    <td><pre>&quot;ciem-aur-idm&quot;</pre></td>
+                    <td><pre>&quot;ciem-aur-idm&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DbInstancePort</td>
+                    <td><pre>0</pre></td>
+                    <td><pre>0</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DBInstanceStatus</td>
+                    <td><pre>&quot;available&quot;</pre></td>
+                    <td><pre>&quot;available&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DbiResourceId</td>
+                    <td><pre>&quot;db-HZWXLNU3KNPZNWRSTEMNVK7QIY&quot;</pre></td>
+                    <td><pre>&quot;db-HZWXLNU3KNPZNWRSTEMNVK7QIY&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DBName</td>
+                    <td><pre>&quot;idm&quot;</pre></td>
+                    <td><pre>&quot;idm&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DBParameterGroups</td>
+                    <td><pre>[
+  {
+    &quot;DBParameterGroupName&quot;: &quot;asap-yapr-infra-rdsresourcesinfa-125f4k7onliu7-fnmauroral13dbprm-7ffqb19nn6c4&quot;,
+    &quot;ParameterApplyStatus&quot;: &quot;in-sync&quot;
+  }
+]</pre></td>
+                    <td><pre>[
+  {
+    &quot;DBParameterGroupName&quot;: &quot;asap-yapr-infra-rdsresourcesinfa-125f4k7onliu7-fnmauroral13dbprm-7ffqb19nn6c4&quot;,
+    &quot;ParameterApplyStatus&quot;: &quot;in-sync&quot;
+  }
+]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DBSecurityGroups</td>
+                    <td><pre>[]</pre></td>
+                    <td><pre>[]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DBSubnetGroup</td>
+                    <td><pre>{
+  &quot;DBSubnetGroupName&quot;: &quot;subnetgrp-devl-etss-data&quot;,
+  &quot;DBSubnetGroupDescription&quot;: &quot;subnetgrp-devl-etss-data&quot;,
+  &quot;VpcId&quot;: &quot;vpc-03658014c9685c12a&quot;,
+  &quot;SubnetGroupStatus&quot;: &quot;Complete&quot;,
+  &quot;Subnets&quot;: [
+    {
+      &quot;SubnetIdentifier&quot;: &quot;subnet-08d911a355bc914c4&quot;,
+      &quot;SubnetAvailabilityZone&quot;: {
+        &quot;Name&quot;: &quot;us-east-1b&quot;
+      },
+      &quot;SubnetOutpost&quot;: {},
+      &quot;SubnetStatus&quot;: &quot;Active&quot;
+    },
+    {
+      &quot;SubnetIdentifier&quot;: &quot;subnet-0cd9665f1dbf5a66d&quot;,
+      &quot;SubnetAvailabilityZone&quot;: {
+        &quot;Name&quot;: &quot;us-east-1c&quot;
+      },
+      &quot;SubnetOutpost&quot;: {},
+      &quot;SubnetStatus&quot;: &quot;Active&quot;
+    },
+    {
+      &quot;SubnetIdentifier&quot;: &quot;subnet-0843da4834f931437&quot;,
+      &quot;SubnetAvailabilityZone&quot;: {
+        &quot;Name&quot;: &quot;us-east-1d&quot;
+      },
+      &quot;SubnetOutpost&quot;: {},
+      &quot;SubnetStatus&quot;: &quot;Active&quot;
+    },
+    {
+      &quot;SubnetIdentifier&quot;: &quot;subnet-06f4e0b0f189d1b15&quot;,
+      &quot;SubnetAvailabilityZone&quot;: {
+        &quot;Name&quot;: &quot;us-east-1a&quot;
+      },
+      &quot;SubnetOutpost&quot;: {},
+      &quot;SubnetStatus&quot;: &quot;Active&quot;
+    }
+  ]
+}</pre></td>
+                    <td><pre>{
+  &quot;DBSubnetGroupName&quot;: &quot;subnetgrp-devl-etss-data&quot;,
+  &quot;DBSubnetGroupDescription&quot;: &quot;subnetgrp-devl-etss-data&quot;,
+  &quot;VpcId&quot;: &quot;vpc-03658014c9685c12a&quot;,
+  &quot;SubnetGroupStatus&quot;: &quot;Complete&quot;,
+  &quot;Subnets&quot;: [
+    {
+      &quot;SubnetIdentifier&quot;: &quot;subnet-08d911a355bc914c4&quot;,
+      &quot;SubnetAvailabilityZone&quot;: {
+        &quot;Name&quot;: &quot;us-east-1b&quot;
+      },
+      &quot;SubnetOutpost&quot;: {},
+      &quot;SubnetStatus&quot;: &quot;Active&quot;
+    },
+    {
+      &quot;SubnetIdentifier&quot;: &quot;subnet-0cd9665f1dbf5a66d&quot;,
+      &quot;SubnetAvailabilityZone&quot;: {
+        &quot;Name&quot;: &quot;us-east-1c&quot;
+      },
+      &quot;SubnetOutpost&quot;: {},
+      &quot;SubnetStatus&quot;: &quot;Active&quot;
+    },
+    {
+      &quot;SubnetIdentifier&quot;: &quot;subnet-0843da4834f931437&quot;,
+      &quot;SubnetAvailabilityZone&quot;: {
+        &quot;Name&quot;: &quot;us-east-1d&quot;
+      },
+      &quot;SubnetOutpost&quot;: {},
+      &quot;SubnetStatus&quot;: &quot;Active&quot;
+    },
+    {
+      &quot;SubnetIdentifier&quot;: &quot;subnet-06f4e0b0f189d1b15&quot;,
+      &quot;SubnetAvailabilityZone&quot;: {
+        &quot;Name&quot;: &quot;us-east-1a&quot;
+      },
+      &quot;SubnetOutpost&quot;: {},
+      &quot;SubnetStatus&quot;: &quot;Active&quot;
+    }
+  ]
+}</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DedicatedLogVolume</td>
+                    <td><pre>false</pre></td>
+                    <td><pre>false</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DeletionProtection</td>
+                    <td><pre>false</pre></td>
+                    <td><pre>false</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>DomainMemberships</td>
+                    <td><pre>[]</pre></td>
+                    <td><pre>[]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>Endpoint</td>
+                    <td><pre>{
+  &quot;Address&quot;: &quot;ciem-aur-idm.cry2hpdiahot.us-east-1.rds.amazonaws.com&quot;,
+  &quot;Port&quot;: 5432,
+  &quot;HostedZoneId&quot;: &quot;Z2R2ITUGPM61AM&quot;
+}</pre></td>
+                    <td><pre>{
+  &quot;Address&quot;: &quot;ciem-aur-idm.cry2hpdiahot.us-east-1.rds.amazonaws.com&quot;,
+  &quot;Port&quot;: 5432,
+  &quot;HostedZoneId&quot;: &quot;Z2R2ITUGPM61AM&quot;
+}</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>Engine</td>
+                    <td><pre>&quot;aurora-postgresql&quot;</pre></td>
+                    <td><pre>&quot;aurora-postgresql&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>EngineVersion</td>
+                    <td><pre>&quot;13.12&quot;</pre></td>
+                    <td><pre>&quot;13.12&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>IAMDatabaseAuthenticationEnabled</td>
+                    <td><pre>false</pre></td>
+                    <td><pre>false</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="blue">
+                    <td>InstanceCreateTime</td>
+                    <td><pre>&quot;2021-02-03T01:29:48.404000+00:00&quot;</pre></td>
+                    <td><pre>&quot;2021-02-03T01:28.404000+00:00&quot;</pre></td>
+                    <td><pre>root: 2021-02-03T01:29:48 =&gt; 2021-02-03T01:28</pre></td>
+                    <td class="status">Values differ as expected for environments</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>KmsKeyId</td>
+                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/bfcf20d2-c2e3-41e2-af94-3496b4322c77&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/bfcf20d2-c2e3-41e2-af94-3496b4322c77&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>LicenseModel</td>
+                    <td><pre>&quot;postgresql-license&quot;</pre></td>
+                    <td><pre>&quot;postgresql-license&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>MasterUsername</td>
+                    <td><pre>&quot;rdsadm&quot;</pre></td>
+                    <td><pre>&quot;rdsadm&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>MonitoringInterval</td>
+                    <td><pre>0</pre></td>
+                    <td><pre>0</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>MultiAZ</td>
+                    <td><pre>false</pre></td>
+                    <td><pre>false</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>NetworkType</td>
+                    <td><pre>&quot;IPV4&quot;</pre></td>
+                    <td><pre>&quot;IPV4&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>OptionGroupMemberships</td>
+                    <td><pre>[
+  {
+    &quot;OptionGroupName&quot;: &quot;default:aurora-postgresql-13&quot;,
+    &quot;Status&quot;: &quot;in-sync&quot;
+  }
+]</pre></td>
+                    <td><pre>[
+  {
+    &quot;OptionGroupName&quot;: &quot;default:aurora-postgresql-13&quot;,
+    &quot;Status&quot;: &quot;in-sync&quot;
+  }
+]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>PendingModifiedValues</td>
+                    <td><pre>{}</pre></td>
+                    <td><pre>{}</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>PerformanceInsightsEnabled</td>
+                    <td><pre>true</pre></td>
+                    <td><pre>true</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>PerformanceInsightsKMSKeyId</td>
+                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/a45acbb1-304e-4963-a0f9-ddfde263de09&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/a45acbb1-304e-4963-a0f9-ddfde263de09&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>PerformanceInsightsRetentionPeriod</td>
+                    <td><pre>7</pre></td>
+                    <td><pre>7</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>PreferredBackupWindow</td>
+                    <td><pre>&quot;03:16-03:46&quot;</pre></td>
+                    <td><pre>&quot;03:16-03:46&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>PreferredMaintenanceWindow</td>
+                    <td><pre>&quot;tue:06:00-tue:06:30&quot;</pre></td>
+                    <td><pre>&quot;tue:06:00-tue:06:30&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>PromotionTier</td>
+                    <td><pre>1</pre></td>
+                    <td><pre>1</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>PubliclyAccessible</td>
+                    <td><pre>false</pre></td>
+                    <td><pre>false</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>ReadReplicaDBInstanceIdentifiers</td>
+                    <td><pre>[]</pre></td>
+                    <td><pre>[]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>StorageEncrypted</td>
+                    <td><pre>true</pre></td>
+                    <td><pre>true</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>StorageType</td>
+                    <td><pre>&quot;aurora&quot;</pre></td>
+                    <td><pre>&quot;aurora&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>TagList</td>
+                    <td><pre>[
+  {
+    &quot;Key&quot;: &quot;test-map-dbf&quot;,
+    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:cloudformation:stack-name&quot;,
+    &quot;Value&quot;: &quot;SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;ApplicationName&quot;,
+    &quot;Value&quot;: &quot;Customer Identity and Entitlement Management CIEM&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;ProvisioningVersion&quot;,
+    &quot;Value&quot;: &quot;v3&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:cloudformation:stack-id&quot;,
+    &quot;Value&quot;: &quot;arn:aws:cloudformation:us-east-1:920887439016:stack/SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG/a7327be0-65bd-11eb-a88b-1203def09227&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;Lifecycle&quot;,
+    &quot;Value&quot;: &quot;devl-etss&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:servicecatalog:portfolioArn&quot;,
+    &quot;Value&quot;: &quot;arn:aws:catalog:us-east-1:920887439016:portfolio/port-hbmzk26pnp6au&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;ApplicationShortName&quot;,
+    &quot;Value&quot;: &quot;ciem&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;AppCode&quot;,
+    &quot;Value&quot;: &quot;GDX&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:servicecatalog:productArn&quot;,
+    &quot;Value&quot;: &quot;arn:aws:catalog:us-east-1:920887439016:product/prod-nsabqjm3docwc&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;map-migrated&quot;,
+    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:servicecatalog:provisioningPrincipalArn&quot;,
+    &quot;Value&quot;: &quot;arn:aws:sts::920887439016:assumed-role/DEVL-ETSS-CIEM-DEVOPS/bennett_miller@fanniemae.com&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;test-map-migrated&quot;,
+    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;CostCenter&quot;,
+    &quot;Value&quot;: &quot;878&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;Environment&quot;,
+    &quot;Value&quot;: &quot;Development&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;FnmaAuroraBackup&quot;,
+    &quot;Value&quot;: &quot;none&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:cloudformation:logical-id&quot;,
+    &quot;Value&quot;: &quot;DatabaseRsrc&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;ProjectCode&quot;,
+    &quot;Value&quot;: &quot;D20ISCMRAM&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;AssetID&quot;,
+    &quot;Value&quot;: &quot;MSR03675&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:servicecatalog:provisioningArtifactIdentifier&quot;,
+    &quot;Value&quot;: &quot;pa-nu5xensj54bhk&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:servicecatalog:provisionedProductArn&quot;,
+    &quot;Value&quot;: &quot;arn:aws:servicecatalog:us-east-1:920887439016:stack/identity-management-rds/pp-3thptakumnocg&quot;
+  }
+]</pre></td>
+                    <td><pre>[
+  {
+    &quot;Key&quot;: &quot;test-map-dbf&quot;,
+    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:cloudformation:stack-name&quot;,
+    &quot;Value&quot;: &quot;SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;ApplicationName&quot;,
+    &quot;Value&quot;: &quot;Customer Identity and Entitlement Management CIEM&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;ProvisioningVersion&quot;,
+    &quot;Value&quot;: &quot;v3&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:cloudformation:stack-id&quot;,
+    &quot;Value&quot;: &quot;arn:aws:cloudformation:us-east-1:920887439016:stack/SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG/a7327be0-65bd-11eb-a88b-1203def09227&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;Lifecycle&quot;,
+    &quot;Value&quot;: &quot;devl-etss&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:servicecatalog:portfolioArn&quot;,
+    &quot;Value&quot;: &quot;arn:aws:catalog:us-east-1:920887439016:portfolio/port-hbmzk26pnp6au&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;ApplicationShortName&quot;,
+    &quot;Value&quot;: &quot;ciem&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;AppCode&quot;,
+    &quot;Value&quot;: &quot;GDX&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:servicecatalog:productArn&quot;,
+    &quot;Value&quot;: &quot;arn:aws:catalog:us-east-1:920887439016:product/prod-nsabqjm3docwc&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;map-migrated&quot;,
+    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:servicecatalog:provisioningPrincipalArn&quot;,
+    &quot;Value&quot;: &quot;arn:aws:sts::920887439016:assumed-role/DEVL-ETSS-CIEM-DEVOPS/bennett_miller@fanniemae.com&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;test-map-migrated&quot;,
+    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;CostCenter&quot;,
+    &quot;Value&quot;: &quot;878&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;Environment&quot;,
+    &quot;Value&quot;: &quot;Development&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;FnmaAuroraBackup&quot;,
+    &quot;Value&quot;: &quot;none&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:cloudformation:logical-id&quot;,
+    &quot;Value&quot;: &quot;DatabaseRsrc&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;ProjectCode&quot;,
+    &quot;Value&quot;: &quot;D20ISCMRAM&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;AssetID&quot;,
+    &quot;Value&quot;: &quot;MSR03675&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:servicecatalog:provisioningArtifactIdentifier&quot;,
+    &quot;Value&quot;: &quot;pa-nu5xensj54bhk&quot;
+  },
+  {
+    &quot;Key&quot;: &quot;aws:servicecatalog:provisionedProductArn&quot;,
+    &quot;Value&quot;: &quot;arn:aws:servicecatalog:us-east-1:920887439016:stack/identity-management-rds/pp-3thptakumnocg&quot;
+  }
+]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>VpcSecurityGroups</td>
+                    <td><pre>[
+  {
+    &quot;VpcSecurityGroupId&quot;: &quot;sg-0f37b56193f924583&quot;,
+    &quot;Status&quot;: &quot;active&quot;
+  },
+  {
+    &quot;VpcSecurityGroupId&quot;: &quot;sg-09af5d65989cc36cb&quot;,
+    &quot;Status&quot;: &quot;active&quot;
+  },
+  {
+    &quot;VpcSecurityGroupId&quot;: &quot;sg-09764d1748d67682d&quot;,
+    &quot;Status&quot;: &quot;active&quot;
+  }
+]</pre></td>
+                    <td><pre>[
+  {
+    &quot;VpcSecurityGroupId&quot;: &quot;sg-0f37b56193f924583&quot;,
+    &quot;Status&quot;: &quot;active&quot;
+  },
+  {
+    &quot;VpcSecurityGroupId&quot;: &quot;sg-09af5d65989cc36cb&quot;,
+    &quot;Status&quot;: &quot;active&quot;
+  },
+  {
+    &quot;VpcSecurityGroupId&quot;: &quot;sg-09764d1748d67682d&quot;,
+    &quot;Status&quot;: &quot;active&quot;
+  }
+]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+            </table>
+            
+            <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
             <h3 style="text-decoration: underline;">Comparison Report - parameterStore</h3>
             <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
             <div style="display: flex; gap: 12px">
                 <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 60</p>
-                <p><strong><span style="color: #4db022;">&#9679;</span> Undefined Variables:</strong> 0</p>
+                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> 0</p>
                 <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> 1</p>
                 <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> 1</p>
             </div>
@@ -579,732 +1300,11 @@
             </table>
             
             <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
-            <h3 style="text-decoration: underline;">Comparison Report - RDS - ciem-aur-idm</h3>
-            <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
-            <div style="display: flex; gap: 12px">
-                <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 48</p>
-                <p><strong><span style="color: #4db022;">&#9679;</span> Undefined Variables:</strong> 0</p>
-                <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> 0</p>
-                <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> 1</p>
-            </div>
-            
-            <table>
-                <tr>
-                    <th>Key</th>
-                    <th>DEVL</th>
-                    <th>TEST</th>
-                    <th>Comparison</th>
-                    <th>Status</th>
-                </tr>
-                
-                <tr class="equal">
-                    <td>AllocatedStorage</td>
-                    <td><pre>1</pre></td>
-                    <td><pre>1</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>AssociatedRoles</td>
-                    <td><pre>[]</pre></td>
-                    <td><pre>[]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>AutoMinorVersionUpgrade</td>
-                    <td><pre>true</pre></td>
-                    <td><pre>true</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>AvailabilityZone</td>
-                    <td><pre>&quot;us-east-1b&quot;</pre></td>
-                    <td><pre>&quot;us-east-1b&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>BackupRetentionPeriod</td>
-                    <td><pre>1</pre></td>
-                    <td><pre>1</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>BackupTarget</td>
-                    <td><pre>&quot;region&quot;</pre></td>
-                    <td><pre>&quot;region&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>CACertificateIdentifier</td>
-                    <td><pre>&quot;rds-ca-rsa2048-g1&quot;</pre></td>
-                    <td><pre>&quot;rds-ca-rsa2048-g1&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>CertificateDetails</td>
-                    <td><pre>{
-  &quot;CAIdentifier&quot;: &quot;rds-ca-rsa2048-g1&quot;,
-  &quot;ValidTill&quot;: &quot;2025-11-05T06:00:13+00:00&quot;
-}</pre></td>
-                    <td><pre>{
-  &quot;CAIdentifier&quot;: &quot;rds-ca-rsa2048-g1&quot;,
-  &quot;ValidTill&quot;: &quot;2025-11-05T06:00:13+00:00&quot;
-}</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>CopyTagsToSnapshot</td>
-                    <td><pre>true</pre></td>
-                    <td><pre>true</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>CustomerOwnedIpEnabled</td>
-                    <td><pre>false</pre></td>
-                    <td><pre>false</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DBClusterIdentifier</td>
-                    <td><pre>&quot;ciem-clu-idm&quot;</pre></td>
-                    <td><pre>&quot;ciem-clu-idm&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DBInstanceArn</td>
-                    <td><pre>&quot;arn:aws:rds:us-east-1:920887439016:db:ciem-aur-idm&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:rds:us-east-1:920887439016:db:ciem-aur-idm&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DBInstanceClass</td>
-                    <td><pre>&quot;db.r6g.4xlarge&quot;</pre></td>
-                    <td><pre>&quot;db.r6g.4xlarge&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DBInstanceIdentifier</td>
-                    <td><pre>&quot;ciem-aur-idm&quot;</pre></td>
-                    <td><pre>&quot;ciem-aur-idm&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DbInstancePort</td>
-                    <td><pre>0</pre></td>
-                    <td><pre>0</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DBInstanceStatus</td>
-                    <td><pre>&quot;available&quot;</pre></td>
-                    <td><pre>&quot;available&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DbiResourceId</td>
-                    <td><pre>&quot;db-HZWXLNU3KNPZNWRSTEMNVK7QIY&quot;</pre></td>
-                    <td><pre>&quot;db-HZWXLNU3KNPZNWRSTEMNVK7QIY&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DBName</td>
-                    <td><pre>&quot;idm&quot;</pre></td>
-                    <td><pre>&quot;idm&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DBParameterGroups</td>
-                    <td><pre>[
-  {
-    &quot;DBParameterGroupName&quot;: &quot;asap-yapr-infra-rdsresourcesinfa-125f4k7onliu7-fnmauroral13dbprm-7ffqb19nn6c4&quot;,
-    &quot;ParameterApplyStatus&quot;: &quot;in-sync&quot;
-  }
-]</pre></td>
-                    <td><pre>[
-  {
-    &quot;DBParameterGroupName&quot;: &quot;asap-yapr-infra-rdsresourcesinfa-125f4k7onliu7-fnmauroral13dbprm-7ffqb19nn6c4&quot;,
-    &quot;ParameterApplyStatus&quot;: &quot;in-sync&quot;
-  }
-]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DBSecurityGroups</td>
-                    <td><pre>[]</pre></td>
-                    <td><pre>[]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DBSubnetGroup</td>
-                    <td><pre>{
-  &quot;DBSubnetGroupName&quot;: &quot;subnetgrp-devl-etss-data&quot;,
-  &quot;DBSubnetGroupDescription&quot;: &quot;subnetgrp-devl-etss-data&quot;,
-  &quot;VpcId&quot;: &quot;vpc-03658014c9685c12a&quot;,
-  &quot;SubnetGroupStatus&quot;: &quot;Complete&quot;,
-  &quot;Subnets&quot;: [
-    {
-      &quot;SubnetIdentifier&quot;: &quot;subnet-08d911a355bc914c4&quot;,
-      &quot;SubnetAvailabilityZone&quot;: {
-        &quot;Name&quot;: &quot;us-east-1b&quot;
-      },
-      &quot;SubnetOutpost&quot;: {},
-      &quot;SubnetStatus&quot;: &quot;Active&quot;
-    },
-    {
-      &quot;SubnetIdentifier&quot;: &quot;subnet-0cd9665f1dbf5a66d&quot;,
-      &quot;SubnetAvailabilityZone&quot;: {
-        &quot;Name&quot;: &quot;us-east-1c&quot;
-      },
-      &quot;SubnetOutpost&quot;: {},
-      &quot;SubnetStatus&quot;: &quot;Active&quot;
-    },
-    {
-      &quot;SubnetIdentifier&quot;: &quot;subnet-0843da4834f931437&quot;,
-      &quot;SubnetAvailabilityZone&quot;: {
-        &quot;Name&quot;: &quot;us-east-1d&quot;
-      },
-      &quot;SubnetOutpost&quot;: {},
-      &quot;SubnetStatus&quot;: &quot;Active&quot;
-    },
-    {
-      &quot;SubnetIdentifier&quot;: &quot;subnet-06f4e0b0f189d1b15&quot;,
-      &quot;SubnetAvailabilityZone&quot;: {
-        &quot;Name&quot;: &quot;us-east-1a&quot;
-      },
-      &quot;SubnetOutpost&quot;: {},
-      &quot;SubnetStatus&quot;: &quot;Active&quot;
-    }
-  ]
-}</pre></td>
-                    <td><pre>{
-  &quot;DBSubnetGroupName&quot;: &quot;subnetgrp-devl-etss-data&quot;,
-  &quot;DBSubnetGroupDescription&quot;: &quot;subnetgrp-devl-etss-data&quot;,
-  &quot;VpcId&quot;: &quot;vpc-03658014c9685c12a&quot;,
-  &quot;SubnetGroupStatus&quot;: &quot;Complete&quot;,
-  &quot;Subnets&quot;: [
-    {
-      &quot;SubnetIdentifier&quot;: &quot;subnet-08d911a355bc914c4&quot;,
-      &quot;SubnetAvailabilityZone&quot;: {
-        &quot;Name&quot;: &quot;us-east-1b&quot;
-      },
-      &quot;SubnetOutpost&quot;: {},
-      &quot;SubnetStatus&quot;: &quot;Active&quot;
-    },
-    {
-      &quot;SubnetIdentifier&quot;: &quot;subnet-0cd9665f1dbf5a66d&quot;,
-      &quot;SubnetAvailabilityZone&quot;: {
-        &quot;Name&quot;: &quot;us-east-1c&quot;
-      },
-      &quot;SubnetOutpost&quot;: {},
-      &quot;SubnetStatus&quot;: &quot;Active&quot;
-    },
-    {
-      &quot;SubnetIdentifier&quot;: &quot;subnet-0843da4834f931437&quot;,
-      &quot;SubnetAvailabilityZone&quot;: {
-        &quot;Name&quot;: &quot;us-east-1d&quot;
-      },
-      &quot;SubnetOutpost&quot;: {},
-      &quot;SubnetStatus&quot;: &quot;Active&quot;
-    },
-    {
-      &quot;SubnetIdentifier&quot;: &quot;subnet-06f4e0b0f189d1b15&quot;,
-      &quot;SubnetAvailabilityZone&quot;: {
-        &quot;Name&quot;: &quot;us-east-1a&quot;
-      },
-      &quot;SubnetOutpost&quot;: {},
-      &quot;SubnetStatus&quot;: &quot;Active&quot;
-    }
-  ]
-}</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DedicatedLogVolume</td>
-                    <td><pre>false</pre></td>
-                    <td><pre>false</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DeletionProtection</td>
-                    <td><pre>false</pre></td>
-                    <td><pre>false</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>DomainMemberships</td>
-                    <td><pre>[]</pre></td>
-                    <td><pre>[]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>Endpoint</td>
-                    <td><pre>{
-  &quot;Address&quot;: &quot;ciem-aur-idm.cry2hpdiahot.us-east-1.rds.amazonaws.com&quot;,
-  &quot;Port&quot;: 5432,
-  &quot;HostedZoneId&quot;: &quot;Z2R2ITUGPM61AM&quot;
-}</pre></td>
-                    <td><pre>{
-  &quot;Address&quot;: &quot;ciem-aur-idm.cry2hpdiahot.us-east-1.rds.amazonaws.com&quot;,
-  &quot;Port&quot;: 5432,
-  &quot;HostedZoneId&quot;: &quot;Z2R2ITUGPM61AM&quot;
-}</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>Engine</td>
-                    <td><pre>&quot;aurora-postgresql&quot;</pre></td>
-                    <td><pre>&quot;aurora-postgresql&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>EngineVersion</td>
-                    <td><pre>&quot;13.12&quot;</pre></td>
-                    <td><pre>&quot;13.12&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>IAMDatabaseAuthenticationEnabled</td>
-                    <td><pre>false</pre></td>
-                    <td><pre>false</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="blue">
-                    <td>InstanceCreateTime</td>
-                    <td><pre>&quot;2021-02-03T01:29:48.404000+00:00&quot;</pre></td>
-                    <td><pre>&quot;2021-02-03T01:28.404000+00:00&quot;</pre></td>
-                    <td><pre>root: 2021-02-03T01:29:48.404000+00:00 =&gt; 2021-02-03T01:28.404000+00:00</pre></td>
-                    <td class="status">Values differ as expected for environments</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>KmsKeyId</td>
-                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/bfcf20d2-c2e3-41e2-af94-3496b4322c77&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/bfcf20d2-c2e3-41e2-af94-3496b4322c77&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>LicenseModel</td>
-                    <td><pre>&quot;postgresql-license&quot;</pre></td>
-                    <td><pre>&quot;postgresql-license&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>MasterUsername</td>
-                    <td><pre>&quot;rdsadm&quot;</pre></td>
-                    <td><pre>&quot;rdsadm&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>MonitoringInterval</td>
-                    <td><pre>0</pre></td>
-                    <td><pre>0</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>MultiAZ</td>
-                    <td><pre>false</pre></td>
-                    <td><pre>false</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>NetworkType</td>
-                    <td><pre>&quot;IPV4&quot;</pre></td>
-                    <td><pre>&quot;IPV4&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>OptionGroupMemberships</td>
-                    <td><pre>[
-  {
-    &quot;OptionGroupName&quot;: &quot;default:aurora-postgresql-13&quot;,
-    &quot;Status&quot;: &quot;in-sync&quot;
-  }
-]</pre></td>
-                    <td><pre>[
-  {
-    &quot;OptionGroupName&quot;: &quot;default:aurora-postgresql-13&quot;,
-    &quot;Status&quot;: &quot;in-sync&quot;
-  }
-]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>PendingModifiedValues</td>
-                    <td><pre>{}</pre></td>
-                    <td><pre>{}</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>PerformanceInsightsEnabled</td>
-                    <td><pre>true</pre></td>
-                    <td><pre>true</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>PerformanceInsightsKMSKeyId</td>
-                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/a45acbb1-304e-4963-a0f9-ddfde263de09&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/a45acbb1-304e-4963-a0f9-ddfde263de09&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>PerformanceInsightsRetentionPeriod</td>
-                    <td><pre>7</pre></td>
-                    <td><pre>7</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>PreferredBackupWindow</td>
-                    <td><pre>&quot;03:16-03:46&quot;</pre></td>
-                    <td><pre>&quot;03:16-03:46&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>PreferredMaintenanceWindow</td>
-                    <td><pre>&quot;tue:06:00-tue:06:30&quot;</pre></td>
-                    <td><pre>&quot;tue:06:00-tue:06:30&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>PromotionTier</td>
-                    <td><pre>1</pre></td>
-                    <td><pre>1</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>PubliclyAccessible</td>
-                    <td><pre>false</pre></td>
-                    <td><pre>false</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>ReadReplicaDBInstanceIdentifiers</td>
-                    <td><pre>[]</pre></td>
-                    <td><pre>[]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>StorageEncrypted</td>
-                    <td><pre>true</pre></td>
-                    <td><pre>true</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>StorageType</td>
-                    <td><pre>&quot;aurora&quot;</pre></td>
-                    <td><pre>&quot;aurora&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>TagList</td>
-                    <td><pre>[
-  {
-    &quot;Key&quot;: &quot;test-map-dbf&quot;,
-    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:cloudformation:stack-name&quot;,
-    &quot;Value&quot;: &quot;SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;ApplicationName&quot;,
-    &quot;Value&quot;: &quot;Customer Identity and Entitlement Management CIEM&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;ProvisioningVersion&quot;,
-    &quot;Value&quot;: &quot;v3&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:cloudformation:stack-id&quot;,
-    &quot;Value&quot;: &quot;arn:aws:cloudformation:us-east-1:920887439016:stack/SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG/a7327be0-65bd-11eb-a88b-1203def09227&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;Lifecycle&quot;,
-    &quot;Value&quot;: &quot;devl-etss&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:servicecatalog:portfolioArn&quot;,
-    &quot;Value&quot;: &quot;arn:aws:catalog:us-east-1:920887439016:portfolio/port-hbmzk26pnp6au&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;ApplicationShortName&quot;,
-    &quot;Value&quot;: &quot;ciem&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;AppCode&quot;,
-    &quot;Value&quot;: &quot;GDX&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:servicecatalog:productArn&quot;,
-    &quot;Value&quot;: &quot;arn:aws:catalog:us-east-1:920887439016:product/prod-nsabqjm3docwc&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;map-migrated&quot;,
-    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:servicecatalog:provisioningPrincipalArn&quot;,
-    &quot;Value&quot;: &quot;arn:aws:sts::920887439016:assumed-role/DEVL-ETSS-CIEM-DEVOPS/bennett_miller@fanniemae.com&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;test-map-migrated&quot;,
-    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;CostCenter&quot;,
-    &quot;Value&quot;: &quot;878&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;Environment&quot;,
-    &quot;Value&quot;: &quot;Development&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;FnmaAuroraBackup&quot;,
-    &quot;Value&quot;: &quot;none&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:cloudformation:logical-id&quot;,
-    &quot;Value&quot;: &quot;DatabaseRsrc&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;ProjectCode&quot;,
-    &quot;Value&quot;: &quot;D20ISCMRAM&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;AssetID&quot;,
-    &quot;Value&quot;: &quot;MSR03675&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:servicecatalog:provisioningArtifactIdentifier&quot;,
-    &quot;Value&quot;: &quot;pa-nu5xensj54bhk&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:servicecatalog:provisionedProductArn&quot;,
-    &quot;Value&quot;: &quot;arn:aws:servicecatalog:us-east-1:920887439016:stack/identity-management-rds/pp-3thptakumnocg&quot;
-  }
-]</pre></td>
-                    <td><pre>[
-  {
-    &quot;Key&quot;: &quot;test-map-dbf&quot;,
-    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:cloudformation:stack-name&quot;,
-    &quot;Value&quot;: &quot;SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;ApplicationName&quot;,
-    &quot;Value&quot;: &quot;Customer Identity and Entitlement Management CIEM&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;ProvisioningVersion&quot;,
-    &quot;Value&quot;: &quot;v3&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:cloudformation:stack-id&quot;,
-    &quot;Value&quot;: &quot;arn:aws:cloudformation:us-east-1:920887439016:stack/SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG/a7327be0-65bd-11eb-a88b-1203def09227&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;Lifecycle&quot;,
-    &quot;Value&quot;: &quot;devl-etss&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:servicecatalog:portfolioArn&quot;,
-    &quot;Value&quot;: &quot;arn:aws:catalog:us-east-1:920887439016:portfolio/port-hbmzk26pnp6au&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;ApplicationShortName&quot;,
-    &quot;Value&quot;: &quot;ciem&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;AppCode&quot;,
-    &quot;Value&quot;: &quot;GDX&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:servicecatalog:productArn&quot;,
-    &quot;Value&quot;: &quot;arn:aws:catalog:us-east-1:920887439016:product/prod-nsabqjm3docwc&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;map-migrated&quot;,
-    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:servicecatalog:provisioningPrincipalArn&quot;,
-    &quot;Value&quot;: &quot;arn:aws:sts::920887439016:assumed-role/DEVL-ETSS-CIEM-DEVOPS/bennett_miller@fanniemae.com&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;test-map-migrated&quot;,
-    &quot;Value&quot;: &quot;d-server-00kh95ofjv6man&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;CostCenter&quot;,
-    &quot;Value&quot;: &quot;878&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;Environment&quot;,
-    &quot;Value&quot;: &quot;Development&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;FnmaAuroraBackup&quot;,
-    &quot;Value&quot;: &quot;none&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:cloudformation:logical-id&quot;,
-    &quot;Value&quot;: &quot;DatabaseRsrc&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;ProjectCode&quot;,
-    &quot;Value&quot;: &quot;D20ISCMRAM&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;AssetID&quot;,
-    &quot;Value&quot;: &quot;MSR03675&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:servicecatalog:provisioningArtifactIdentifier&quot;,
-    &quot;Value&quot;: &quot;pa-nu5xensj54bhk&quot;
-  },
-  {
-    &quot;Key&quot;: &quot;aws:servicecatalog:provisionedProductArn&quot;,
-    &quot;Value&quot;: &quot;arn:aws:servicecatalog:us-east-1:920887439016:stack/identity-management-rds/pp-3thptakumnocg&quot;
-  }
-]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>VpcSecurityGroups</td>
-                    <td><pre>[
-  {
-    &quot;VpcSecurityGroupId&quot;: &quot;sg-0f37b56193f924583&quot;,
-    &quot;Status&quot;: &quot;active&quot;
-  },
-  {
-    &quot;VpcSecurityGroupId&quot;: &quot;sg-09af5d65989cc36cb&quot;,
-    &quot;Status&quot;: &quot;active&quot;
-  },
-  {
-    &quot;VpcSecurityGroupId&quot;: &quot;sg-09764d1748d67682d&quot;,
-    &quot;Status&quot;: &quot;active&quot;
-  }
-]</pre></td>
-                    <td><pre>[
-  {
-    &quot;VpcSecurityGroupId&quot;: &quot;sg-0f37b56193f924583&quot;,
-    &quot;Status&quot;: &quot;active&quot;
-  },
-  {
-    &quot;VpcSecurityGroupId&quot;: &quot;sg-09af5d65989cc36cb&quot;,
-    &quot;Status&quot;: &quot;active&quot;
-  },
-  {
-    &quot;VpcSecurityGroupId&quot;: &quot;sg-09764d1748d67682d&quot;,
-    &quot;Status&quot;: &quot;active&quot;
-  }
-]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-            </table>
-            
-            <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
             <h3 style="text-decoration: underline;">Comparison Report - ECS - arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2</h3>
             <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
             <div style="display: flex; gap: 12px">
                 <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 22</p>
-                <p><strong><span style="color: #4db022;">&#9679;</span> Undefined Variables:</strong> 0</p>
+                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> 0</p>
                 <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> 4</p>
                 <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> 0</p>
             </div>
@@ -1510,7 +1510,7 @@
                     <td>platformVersion</td>
                     <td><pre>&quot;1.4.0&quot;</pre></td>
                     <td><pre>&quot;5.4.0&quot;</pre></td>
-                    <td><pre>root: 1.4.0 =&gt; 5.4.0</pre></td>
+                    <td><pre>root: 1 =&gt; 5</pre></td>
                     <td class="status">Unexpected difference, please review</td>
                 </tr>
                 
@@ -1593,7 +1593,7 @@
             <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
             <div style="display: flex; gap: 12px">
                 <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 22</p>
-                <p><strong><span style="color: #4db022;">&#9679;</span> Undefined Variables:</strong> 0</p>
+                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> 0</p>
                 <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> 1</p>
                 <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> 3</p>
             </div>
@@ -1619,7 +1619,7 @@
                     <td>createdAt</td>
                     <td><pre>&quot;2020-12-17T16:12:06.965000-06:00&quot;</pre></td>
                     <td><pre>&quot;2020-12-17T16:12:06.965000-00&quot;</pre></td>
-                    <td><pre>root: 2020-12-17T16:12:06.965000-06:00 =&gt; 2020-12-17T16:12:06.965000-00</pre></td>
+                    <td><pre>root: 965000-06:00 =&gt; 965000-00</pre></td>
                     <td class="status">Values differ as expected for environments</td>
                 </tr>
                 
@@ -1815,7 +1815,7 @@
                     <td>roleArn</td>
                     <td><pre>&quot;arn:aws:iam::920887439016:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS&quot;</pre></td>
                     <td><pre>&quot;arn:aws:iam::9208874316:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS&quot;</pre></td>
-                    <td><pre>root: arn:aws:iam::920887439016:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS =&gt; arn:aws:iam::9208874316:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS</pre></td>
+                    <td><pre>root: arn:aws:iam::920887439016:role/aws-service-role/ecs =&gt; arn:aws:iam::9208874316:role/aws-service-role/ecs</pre></td>
                     <td class="status">Values differ as expected for environments</td>
                 </tr>
                 

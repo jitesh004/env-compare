@@ -98,9 +98,9 @@ def extract_diff(diff, value1, value2, key_path):
     def format_key(path):
         return (
             path.replace("root.", "")
-            .replace("[", ".")
-            .replace("]", "")
-            .replace("", "")
+            .replace("root[", "[")
+            .replace("]", "]")
+            .replace("'", "")
         )
 
     def handle_nested_diffs(old_value, new_value, base_key=""):
@@ -131,7 +131,15 @@ def extract_diff(diff, value1, value2, key_path):
                     nested_key = f"{base_key}[{i}]" if base_key else str(i)
                     diffs.append(f"{nested_key}: {old_value[i]} was removed")
         else:
-            diffs.append(f"{base_key}: {old_value} => {new_value}")
+            if isinstance(old_value, str) and isinstance(new_value, str):
+                old_parts = old_value.split(".")
+                new_parts = new_value.split(".")
+                differences = [
+                    f"{o} => {n}" for o, n in zip(old_parts, new_parts) if o != n
+                ]
+                diffs.extend([f"{base_key}: {diff}" for diff in differences])
+            else:
+                diffs.append(f"{base_key}: {old_value} => {new_value}")
         return diffs
 
     if "values_changed" in diff:
@@ -142,7 +150,7 @@ def extract_diff(diff, value1, value2, key_path):
             new_value = change["new_value"]
             key = format_key(path)
             diffs.extend(handle_nested_diffs(old_value, new_value, key))
-        return "".join(diffs)
+        return "\n".join(diffs)
     elif "iterable_item_removed" in diff or "iterable_item_added" in diff:
         diffs = []
         for change_type in ["iterable_item_removed", "iterable_item_added"]:
@@ -152,7 +160,7 @@ def extract_diff(diff, value1, value2, key_path):
                     diffs.append(
                         f"{key}: {change} was {change_type.replace('iterable_item_', '')}"
                     )
-        return "".join(diffs)
+        return "\n".join(diffs)
     else:
         return f"{value1} => {value2}"
 
@@ -310,15 +318,20 @@ def write_comparison_to_html(
             <p><strong>Comparing Files:</strong> {file1_path} & {file2_path}</p>
             <div style="display: flex; gap: 12px">
                 <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> {summary['equal']}</p>
-                <p><strong><span style="color: #4db022;">&#9679;</span> Undefined Variables:</strong> {summary['undefined']}</p>
+                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> {summary['undefined']}</p>
                 <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> {summary['red']}</p>
                 <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> {summary['blue']}</p>
             </div>
             """
+        else:
+            legend_html = f"""
+                <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
+                <h3 style="text-decoration: underline;">Comparison Report - {file_name}</h3>
+            """
 
         if missing_in_env:
             rows = f"<p style='color:red;'>File <strong>{file_name}</strong> is missing in {missing_in_env.upper()}</p>"
-            table = f"<div>{rows}</div>"
+            table = f"""<div>{rows}</div>"""
         else:
             rows = ""
             for comparison in comparison_results:
@@ -352,7 +365,7 @@ def write_comparison_to_html(
             </table>
             """
 
-        html_content = f"{legend_html}{table}"
+        html_content = f"""{legend_html}{table}"""
 
         with open("temp.html", "a") as file:
             file.write(html_content)
