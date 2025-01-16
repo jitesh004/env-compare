@@ -1,0 +1,391 @@
+{
+  "ecs": {
+    "arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock": {
+      "serviceArn": "arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock",
+      "serviceName": "forgerock",
+      "clusterArn": "arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm",
+      "loadBalancers": [
+        {
+          "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:920887439016:targetgroup/ciem-ecs-idm/60b9213b8f963e3f",
+          "containerName": "ciem-ecos-rpproxy",
+          "containerPort": 443
+        }
+      ],
+      "serviceRegistries": [],
+      "status": "ACTIVE",
+      "desiredCount": 3,
+      "runningCount": 3,
+      "pendingCount": 0,
+      "launchType": "FARGATE",
+      "platformVersion": "1.4.0",
+      "platformFamily": "Linux",
+      "taskDefinition": "arn:aws:ecs:us-east-1:920887439016:task-definition/forgerock:2076",
+      "deploymentConfiguration": {
+        "deploymentCircuitBreaker": {
+          "enable": false,
+          "rollback": false
+        },
+        "maximumPercent": 200,
+        "minimumHealthyPercent": 100
+      },
+      "roleArn": "arn:aws:iam::920887439016:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
+      "createdAt": "2020-12-17T16:12:06.965000-06:00",
+      "placementConstraints": [],
+      "placementStrategy": [],
+      "networkConfiguration": {
+        "awsvpcConfiguration": {
+          "subnets": [
+            "subnet-0085b9c90100fa410",
+            "subnet-03864767845e67755",
+            "subnet-09b1ebbe94d5f960e",
+            "subnet-0e8fafec42cfdd15f"
+          ],
+          "securityGroups": [
+            "sg-0d8e887593f3fc074",
+            "sg-016b0a72d2dfd9602",
+            "sg-0c74bd273af88d9ce"
+          ],
+          "assignPublicIp": "DISABLED"
+        }
+      },
+      "healthCheckGracePeriodSeconds": 0,
+      "schedulingStrategy": "REPLICA",
+      "deploymentController": {
+        "type": "ECS"
+      },
+      "createdBy": "arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy",
+      "enableECSManagedTags": false,
+      "propagateTags": "SERVICE",
+      "enableExecuteCommand": true
+    },
+    "arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2": {
+      "serviceArn": "arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2",
+      "serviceName": "forgerock2",
+      "clusterArn": "arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm",
+      "loadBalancers": [
+        {
+          "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:920887439016:targetgroup/ciem-ecs-idm/60b9213b8f963e3f",
+          "containerName": "ciem-ecos-rpproxy",
+          "containerPort": 443
+        }
+      ],
+      "serviceRegistries": [],
+      "status": "ACTIVE",
+      "desiredCount": 3,
+      "runningCount": 3,
+      "pendingCount": 0,
+      "launchType": "FARGATE",
+      "platformVersion": "1.4.0",
+      "platformFamily": "Linux",
+      "taskDefinition": "arn:aws:ecs:us-east-1:920887439016:task-definition/forgerock:2345",
+      "deploymentConfiguration": {
+        "deploymentCircuitBreaker": {
+          "enable": false,
+          "rollback": false
+        },
+        "maximumPercent": 200,
+        "minimumHealthyPercent": 12
+      },
+      "roleArn": "arn:aws:iam::920887439016:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
+      "createdAt": "2020-12-17T16:12:06.965000-06:00",
+      "placementConstraints": [],
+      "placementStrategy": [],
+      "networkConfiguration": {
+        "awsvpcConfiguration": {
+          "subnets": [
+            "subnet-0085b9c90100fa410",
+            "subnet-03864767845e67755",
+            "subnet-09b1ebbe94d5f960e",
+            "subnet-0e8fafec42cfdd15f"
+          ],
+          "securityGroups": [
+            "sg-0d8e887593f3fc074",
+            "sg-016b0a72d2dfd9602",
+            "sg-0c74bd273af88d9ce"
+          ],
+          "assignPublicIp": "DISABLED"
+        }
+      },
+      "healthCheckGracePeriodSeconds": 0,
+      "schedulingStrategy": "REPLICA",
+      "deploymentController": {
+        "type": "ECS"
+      },
+      "createdBy": "arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy",
+      "enableECSManagedTags": false,
+      "propagateTags": "SERVICE",
+      "enableExecuteCommand": true
+    }
+  },
+  "rds": {
+    "ciem-aur-idm": {
+      "DBInstanceIdentifier": "ciem-aur-idm",
+      "DBInstanceClass": "db.r6g.4xlarge",
+      "Engine": "aurora-postgresql",
+      "DBInstanceStatus": "available",
+      "MasterUsername": "rdsadm",
+      "DBName": "idm",
+      "Endpoint": {
+        "Address": "ciem-aur-idm.cry2hpdiahot.us-east-1.rds.amazonaws.com",
+        "Port": 5432,
+        "HostedZoneId": "Z2R2ITUGPM61AM"
+      },
+      "AllocatedStorage": 1,
+      "InstanceCreateTime": "2021-02-03T01:29:48.404000+00:00",
+      "PreferredBackupWindow": "03:16-03:46",
+      "BackupRetentionPeriod": 1,
+      "DBSecurityGroups": [],
+      "VpcSecurityGroups": [
+        {
+          "VpcSecurityGroupId": "sg-0f37b56193f924583",
+          "Status": "active"
+        },
+        {
+          "VpcSecurityGroupId": "sg-09af5d65989cc36cb",
+          "Status": "active"
+        },
+        {
+          "VpcSecurityGroupId": "sg-09764d1748d67682d",
+          "Status": "active"
+        }
+      ],
+      "DBParameterGroups": [
+        {
+          "DBParameterGroupName": "asap-yapr-infra-rdsresourcesinfa-125f4k7onliu7-fnmauroral13dbprm-7ffqb19nn6c4",
+          "ParameterApplyStatus": "in-sync"
+        }
+      ],
+      "AvailabilityZone": "us-east-1b",
+      "DBSubnetGroup": {
+        "DBSubnetGroupName": "subnetgrp-devl-etss-data",
+        "DBSubnetGroupDescription": "subnetgrp-devl-etss-data",
+        "VpcId": "vpc-03658014c9685c12a",
+        "SubnetGroupStatus": "Complete",
+        "Subnets": [
+          {
+            "SubnetIdentifier": "subnet-08d911a355bc914c4",
+            "SubnetAvailabilityZone": {
+              "Name": "us-east-1b"
+            },
+            "SubnetOutpost": {},
+            "SubnetStatus": "Active"
+          },
+          {
+            "SubnetIdentifier": "subnet-0cd9665f1dbf5a66d",
+            "SubnetAvailabilityZone": {
+              "Name": "us-east-1c"
+            },
+            "SubnetOutpost": {},
+            "SubnetStatus": "Active"
+          },
+          {
+            "SubnetIdentifier": "subnet-0843da4834f931437",
+            "SubnetAvailabilityZone": {
+              "Name": "us-east-1d"
+            },
+            "SubnetOutpost": {},
+            "SubnetStatus": "Active"
+          },
+          {
+            "SubnetIdentifier": "subnet-06f4e0b0f189d1b15",
+            "SubnetAvailabilityZone": {
+              "Name": "us-east-1a"
+            },
+            "SubnetOutpost": {},
+            "SubnetStatus": "Active"
+          }
+        ]
+      },
+      "PreferredMaintenanceWindow": "tue:06:00-tue:06:30",
+      "PendingModifiedValues": {},
+      "MultiAZ": false,
+      "EngineVersion": "13.12",
+      "AutoMinorVersionUpgrade": true,
+      "ReadReplicaDBInstanceIdentifiers": [],
+      "LicenseModel": "postgresql-license",
+      "OptionGroupMemberships": [
+        {
+          "OptionGroupName": "default:aurora-postgresql-13",
+          "Status": "in-sync"
+        }
+      ],
+      "PubliclyAccessible": false,
+      "StorageType": "aurora",
+      "DbInstancePort": 0,
+      "DBClusterIdentifier": "ciem-clu-idm",
+      "StorageEncrypted": true,
+      "KmsKeyId": "arn:aws:kms:us-east-1:920887439016:key/bfcf20d2-c2e3-41e2-af94-3496b4322c77",
+      "DbiResourceId": "db-HZWXLNU3KNPZNWRSTEMNVK7QIY",
+      "CACertificateIdentifier": "rds-ca-rsa2048-g1",
+      "DomainMemberships": [],
+      "CopyTagsToSnapshot": true,
+      "MonitoringInterval": 0,
+      "PromotionTier": 1,
+      "DBInstanceArn": "arn:aws:rds:us-east-1:920887439016:db:ciem-aur-idm",
+      "IAMDatabaseAuthenticationEnabled": false,
+      "PerformanceInsightsEnabled": true,
+      "PerformanceInsightsKMSKeyId": "arn:aws:kms:us-east-1:920887439016:key/a45acbb1-304e-4963-a0f9-ddfde263de09",
+      "PerformanceInsightsRetentionPeriod": 7,
+      "DeletionProtection": false,
+      "AssociatedRoles": [],
+      "TagList": [
+        {
+          "Key": "test-map-dbf",
+          "Value": "d-server-00kh95ofjv6man"
+        },
+        {
+          "Key": "aws:cloudformation:stack-name",
+          "Value": "SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG"
+        },
+        {
+          "Key": "ApplicationName",
+          "Value": "Customer Identity and Entitlement Management CIEM"
+        },
+        {
+          "Key": "ProvisioningVersion",
+          "Value": "v3"
+        },
+        {
+          "Key": "aws:cloudformation:stack-id",
+          "Value": "arn:aws:cloudformation:us-east-1:920887439016:stack/SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG/a7327be0-65bd-11eb-a88b-1203def09227"
+        },
+        {
+          "Key": "Lifecycle",
+          "Value": "devl-etss"
+        },
+        {
+          "Key": "aws:servicecatalog:portfolioArn",
+          "Value": "arn:aws:catalog:us-east-1:920887439016:portfolio/port-hbmzk26pnp6au"
+        },
+        {
+          "Key": "ApplicationShortName",
+          "Value": "ciem"
+        },
+        {
+          "Key": "AppCode",
+          "Value": "GDX"
+        },
+        {
+          "Key": "aws:servicecatalog:productArn",
+          "Value": "arn:aws:catalog:us-east-1:920887439016:product/prod-nsabqjm3docwc"
+        },
+        {
+          "Key": "map-migrated",
+          "Value": "d-server-00kh95ofjv6man"
+        },
+        {
+          "Key": "aws:servicecatalog:provisioningPrincipalArn",
+          "Value": "arn:aws:sts::920887439016:assumed-role/DEVL-ETSS-CIEM-DEVOPS/bennett_miller@fanniemae.com"
+        },
+        {
+          "Key": "test-map-migrated",
+          "Value": "d-server-00kh95ofjv6man"
+        },
+        {
+          "Key": "CostCenter",
+          "Value": "878"
+        },
+        {
+          "Key": "Environment",
+          "Value": "Development"
+        },
+        {
+          "Key": "FnmaAuroraBackup",
+          "Value": "none"
+        },
+        {
+          "Key": "aws:cloudformation:logical-id",
+          "Value": "DatabaseRsrc"
+        },
+        {
+          "Key": "ProjectCode",
+          "Value": "D20ISCMRAM"
+        },
+        {
+          "Key": "AssetID",
+          "Value": "MSR03675"
+        },
+        {
+          "Key": "aws:servicecatalog:provisioningArtifactIdentifier",
+          "Value": "pa-nu5xensj54bhk"
+        },
+        {
+          "Key": "aws:servicecatalog:provisionedProductArn",
+          "Value": "arn:aws:servicecatalog:us-east-1:920887439016:stack/identity-management-rds/pp-3thptakumnocg"
+        }
+      ],
+      "CustomerOwnedIpEnabled": false,
+      "BackupTarget": "region",
+      "NetworkType": "IPV4",
+      "CertificateDetails": {
+        "CAIdentifier": "rds-ca-rsa2048-g1",
+        "ValidTill": "2025-11-05T06:00:13+00:00"
+      },
+      "DedicatedLogVolume": false
+    }
+  },
+  "parameterStore": {
+    "/ciem/ais/v3-app-comp-core-lite/Arn": "arn:aws:iam::920887439016:role/ciem-devl-etss-comp-lite",
+    "/ciem/ais/v3-app-comp-core-lite/Name": "ciem-devl-etss-comp-lite",
+    "/ciem/ais/v3-app-comp-core/Arn": "arn:aws:iam::920887439016:role/ciem-devl-etss-comp",
+    "/ciem/ais/v3-app-comp-core/Name": "ciem-devl-etss-comp",
+    "/ciem/ais/v3-app-comp-gitlab-runner/Arn": "arn:aws:iam::920887439016:role/ciem-devl-etss-comp-gitlab-runner",
+    "/ciem/ais/v3-app-comp-gitlab-runner/Name": "ciem-devl-etss-comp-gitlab-runner",
+    "/ciem/ais/v3-app-deploy-cicd/Arn": "arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy",
+    "/ciem/ais/v3-app-deploy-cicd/Name": "ciem-devl-etss-cp-deploy",
+    "/ciem/ais/v3-app-devops-core/Arn": "arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-DEVOPS",
+    "/ciem/ais/v3-app-devops-core/Name": "DEVL-ETSS-CIEM-DEVOPS",
+    "/ciem/ais/v3-app-emr-service-core/Arn": "arn:aws:iam::920887439016:role/ciem-devl-etss-emr-service",
+    "/ciem/ais/v3-app-emr-service-core/Name": "ciem-devl-etss-emr-service",
+    "/ciem/ais/v3-app-execute-cicd/Arn": "arn:aws:iam::920887439016:role/ciem-devl-etss-cp-execute",
+    "/ciem/ais/v3-app-execute-cicd/Name": "ciem-devl-etss-cp-execute",
+    "/ciem/ais/v3-app-integration-core/Arn": "arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-INTEGRATION",
+    "/ciem/ais/v3-app-integration-core/Name": "DEVL-ETSS-CIEM-INTEGRATION",
+    "/ciem/ais/v3-app-machine-core/Arn": "arn:aws:iam::920887439016:role/ciem-devl-etss-machine-role",
+    "/ciem/ais/v3-app-machine-core/Name": "ciem-devl-etss-machine-role",
+    "/ciem/ais/v3-app-recovery-core/Arn": "arn:aws:iam::920887439016:role/ciem-devl-etss-recovery",
+    "/ciem/ais/v3-app-recovery-core/Name": "ciem-devl-etss-recovery",
+    "/ciem/ais/v3-app-release-core/Arn": "arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-RELEASE-MGMT",
+    "/ciem/ais/v3-app-release-core/Name": "DEVL-ETSS-CIEM-RELEASE-MGMT",
+    "/ciem/common/AppCode": "GDX",
+    "/ciem/common/ApplicationShortName": "ciem",
+    "/ciem/common/CostCenter": "878",
+    "/ciem/common/EMMAlertGroup": "GDX_CIEM_DEVL_ETSS_AWS_ALERT",
+    "/ciem/common/KeyPair": "ciem",
+    "/ciem/common/RITM": "",
+    "/ciem/common/ApplicationName": "Customer Identity and Entitlement Management CIEM",
+    "/ciem/common/ApplicationShortNameUpper": "CIEM",
+    "/ciem/common/AssetID": "MSR03675",
+    "/ciem/common/ProjectCode": "D20ISCMRAM",
+    "/ciem/common/kms/ApplicationKeyAlias": "alias/fnma/app/ciem",
+    "/ciem/common/kms/ApplicationKeyArn": "arn:aws:kms:us-east-1:920887439016:key/4c18ddc1-02ad-4374-b9f2-369b6d245c61",
+    "/ciem/common/kms/ApplicationKeyId": "4c18ddc1-02ad-4374-b9f2-369b6d245c61",
+    "/ciem/common/kms/SecretMgrKeyAlias": "ciemsmgr/ciem",
+    "/ciem/common/kms/SecretMgrKeyArn": "arn:aws:kms:us-east-1:920887439016:key/77315cc5-7082-440a-826f-bd18d9fbee74",
+    "/ciem/common/kms/SecretMgrKeyId": "77315cc5-7082-440a-826f-bd18d9fbee74",
+    "/ciem/common/resources/Portfolio": "ciem-devl-etss-portfolio",
+    "/ciem/common/s3/PrivateBucket": "ciem-devl-etss-private-bucket",
+    "/ciem/common/sg/ComputeAdhocId": "sg-06df1ad7bbd0f0400",
+    "/ciem/common/sg/ComputeDefaultId": "sg-09e1eddf58af478f8",
+    "/ciem/common/sg/DataAdhocId": "sg-0d3dfdfd79d6f2d58",
+    "/ciem/common/sg/DataDefaultId": "sg-0f45a606e29a0adbb",
+    "/ciem/common/sg/EfsDefaultId": "sg-084594ced9d253330",
+    "/ciem/common/sg/FrontendAdhocId": "sg-08405a0e6d5a84b2d",
+    "/ciem/common/sg/FrontendDefaultId": "sg-09e1eddf58af478f8",
+    "/ciem/common/sg/FrontendIntegrationId": "sg-062cfbb44f5281755",
+    "/ciem/common/sg/VpcId": "vpc-0365801a4c985c1a2",
+    "/ciem/common/ComputeDefaultId": "sg-016ba72dfd9f9602",
+    "/ciem/common/sg/ComputeLambdaId": "sg-061d5a8b88200d4",
+    "/ciem/common/sns/ApplicationTopicArn": "arn:aws:sns:us-east-1:920887439016:ciem-devl-etss-application-events-topic",
+    "/ciem/common/sns/ApplicationTopicName": "ciem-devl-etss-application-events-topic",
+    "/ciem/eb-app/fridm/ApplicationName": "ciem-eb-fridm",
+    "/ciem/eb-env/ciem-eb-fridm/fridmbe1/ApplicationName": "ciem-eb-fridmbe1",
+    "/ciem/eb-env/ciem-eb-fridm/fridmbe1/EnvironmentName": "ciem-eb-fridmbe1",
+    "/ciem/eb-env/ciem-eb-fridm/fridmbe2/ApplicationName": "ciem-eb-fridmbe2",
+    "/ciem/eb-env/ciem-eb-fridm/fridmbe2/EnvironmentName": "ciem-eb-fridmbe2",
+    "/ciem/eb-env/ciem-eb-fridm/fridmbe3/ApplicationName": "ciem-eb-fridmbe3",
+    "/ciem/eb-env/ciem-eb-fridm/fridmbe3/EnvironmentName": "ciem-eb-fridmbe3",
+    "/ciem/kds/KDS00000001/ConsumerRole": "ciam-devl-etss-kda-CIN-KDA00000001",
+    "/ciem/rds/ciemdevint/WriterInstanceEndpoint": "ciem-aur-idmdevint.cry2hpdiarhot.us-east-1.rds.amazonaws.com"
+  }
+}
