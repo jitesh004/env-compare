@@ -51,18 +51,1160 @@
             margin: 0;
             white-space: break-spaces;
         }
+        /* Tab styles */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #ccc;
+        }
+        .tab-link {
+            background: #f1f1f1;
+            border: 1px solid #ccc;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .tab-link.active {
+            background: #fff;
+            border-bottom: none;
+        }
+        .tab-content {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Accordion styles */
+        .accordion {
+            background-color: #eee;
+            color: #444;
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            transition: 0.4s;
+        }
+        .accordion.active, .accordion:hover {
+            background-color: #ccc;
+        }
+        .panel {
+            padding: 0 10px;
+            display: none;
+            background-color: white;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
-    
+    <div id="summary">
         <h3>Summary</h3>
         <p><strong>Branch:</strong> None</p>
         <p><strong>Latest Commit:</strong> None - None</p>
         <p><strong>Comparing ENVs:</strong> DEVL & TEST</p>
-        
-    
+        </div>
+    <div id="body">
             <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
-            <h3 style="text-decoration: underline;">Comparison Report - RDS - ciem-aur-idm</h3>
+            <h3 style="text-decoration: underline;">Comparison Report - ecs_arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock</h3>
+            <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
+            <div style="display: flex; gap: 12px">
+                <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 22</p>
+                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> 0</p>
+                <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> 1</p>
+                <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> 3</p>
+            </div>
+            
+            <table>
+                <tr>
+                    <th>Key</th>
+                    <th>DEVL</th>
+                    <th>TEST</th>
+                    <th>Comparison</th>
+                    <th>Status</th>
+                </tr>
+                
+                <tr class="equal">
+                    <td>clusterArn</td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="blue">
+                    <td>createdAt</td>
+                    <td><pre>&quot;2020-12-17T16:12:06.965000-06:00&quot;</pre></td>
+                    <td><pre>&quot;2020-12-17T16:12:06.965000-00&quot;</pre></td>
+                    <td><pre>root: 965000-06:00 =&gt; 965000-00</pre></td>
+                    <td class="status">Values differ as expected for environments</td>
+                </tr>
+                
+                <tr class="blue">
+                    <td>createdBy</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:i920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
+                    <td><pre>root: arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy =&gt; arn:aws:i920887439016:role/ciem-devl-etss-cp-deploy</pre></td>
+                    <td class="status">Values differ as expected for environments</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>deploymentConfiguration</td>
+                    <td><pre>{
+  &quot;deploymentCircuitBreaker&quot;: {
+    &quot;enable&quot;: false,
+    &quot;rollback&quot;: false
+  },
+  &quot;maximumPercent&quot;: 200,
+  &quot;minimumHealthyPercent&quot;: 100
+}</pre></td>
+                    <td><pre>{
+  &quot;deploymentCircuitBreaker&quot;: {
+    &quot;enable&quot;: false,
+    &quot;rollback&quot;: false
+  },
+  &quot;maximumPercent&quot;: 200,
+  &quot;minimumHealthyPercent&quot;: 100
+}</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>deploymentController</td>
+                    <td><pre>{
+  &quot;type&quot;: &quot;ECS&quot;
+}</pre></td>
+                    <td><pre>{
+  &quot;type&quot;: &quot;ECS&quot;
+}</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>desiredCount</td>
+                    <td><pre>3</pre></td>
+                    <td><pre>3</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>enableECSManagedTags</td>
+                    <td><pre>false</pre></td>
+                    <td><pre>false</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>enableExecuteCommand</td>
+                    <td><pre>true</pre></td>
+                    <td><pre>true</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>healthCheckGracePeriodSeconds</td>
+                    <td><pre>0</pre></td>
+                    <td><pre>0</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>launchType</td>
+                    <td><pre>&quot;FARGATE&quot;</pre></td>
+                    <td><pre>&quot;FARGATE&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>loadBalancers</td>
+                    <td><pre>[
+  {
+    &quot;targetGroupArn&quot;: &quot;arn:aws:elasticloadbalancing:us-east-1:920887439016:targetgroup/ciem-ecs-idm/60b9213b8f963e3f&quot;,
+    &quot;containerName&quot;: &quot;ciem-ecos-rpproxy&quot;,
+    &quot;containerPort&quot;: 443
+  }
+]</pre></td>
+                    <td><pre>[
+  {
+    &quot;targetGroupArn&quot;: &quot;arn:aws:elasticloadbalancing:us-east-1:920887439016:targetgroup/ciem-ecs-idm/60b9213b8f963e3f&quot;,
+    &quot;containerName&quot;: &quot;ciem-ecos-rpproxy&quot;,
+    &quot;containerPort&quot;: 443
+  }
+]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>networkConfiguration</td>
+                    <td><pre>{
+  &quot;awsvpcConfiguration&quot;: {
+    &quot;subnets&quot;: [
+      &quot;subnet-0085b9c90100fa410&quot;,
+      &quot;subnet-03864767845e67755&quot;,
+      &quot;subnet-09b1ebbe94d5f960e&quot;,
+      &quot;subnet-0e8fafec42cfdd15f&quot;
+    ],
+    &quot;securityGroups&quot;: [
+      &quot;sg-0d8e887593f3fc074&quot;,
+      &quot;sg-016b0a72d2dfd9602&quot;,
+      &quot;sg-0c74bd273af88d9ce&quot;
+    ],
+    &quot;assignPublicIp&quot;: &quot;DISABLED&quot;
+  }
+}</pre></td>
+                    <td><pre>{
+  &quot;awsvpcConfiguration&quot;: {
+    &quot;subnets&quot;: [
+      &quot;subnet-0085b9c90100fa410&quot;,
+      &quot;subnet-03864767845e67755&quot;,
+      &quot;subnet-09b1ebbe94d5f960e&quot;,
+      &quot;subnet-0e8fafec42cfdd15f&quot;
+    ],
+    &quot;securityGroups&quot;: [
+      &quot;sg-0d8e887593f3fc074&quot;,
+      &quot;sg-016b0a72d2dfd9602&quot;,
+      &quot;sg-0c74bd273af88d9ce&quot;
+    ],
+    &quot;assignPublicIp&quot;: &quot;DISABLED&quot;
+  }
+}</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>pendingCount</td>
+                    <td><pre>0</pre></td>
+                    <td><pre>0</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>placementConstraints</td>
+                    <td><pre>[]</pre></td>
+                    <td><pre>[]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>placementStrategy</td>
+                    <td><pre>[]</pre></td>
+                    <td><pre>[]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>platformFamily</td>
+                    <td><pre>&quot;Linux&quot;</pre></td>
+                    <td><pre>&quot;Linux&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>platformVersion</td>
+                    <td><pre>&quot;1.4.0&quot;</pre></td>
+                    <td><pre>&quot;1.4.0&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>propagateTags</td>
+                    <td><pre>&quot;SERVICE&quot;</pre></td>
+                    <td><pre>&quot;SERVICE&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="blue">
+                    <td>roleArn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::9208874316:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS&quot;</pre></td>
+                    <td><pre>root: arn:aws:iam::920887439016:role/aws-service-role/ecs =&gt; arn:aws:iam::9208874316:role/aws-service-role/ecs</pre></td>
+                    <td class="status">Values differ as expected for environments</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>runningCount</td>
+                    <td><pre>3</pre></td>
+                    <td><pre>3</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>schedulingStrategy</td>
+                    <td><pre>&quot;REPLICA&quot;</pre></td>
+                    <td><pre>&quot;REPLICA&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>serviceArn</td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>serviceName</td>
+                    <td><pre>&quot;forgerock&quot;</pre></td>
+                    <td><pre>&quot;forgerock&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>serviceRegistries</td>
+                    <td><pre>[]</pre></td>
+                    <td><pre>[]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="red">
+                    <td>status</td>
+                    <td><pre>&quot;ACTIVE&quot;</pre></td>
+                    <td><pre>&quot;INACTIVE&quot;</pre></td>
+                    <td><pre>root: ACTIVE =&gt; INACTIVE</pre></td>
+                    <td class="status">Unexpected difference, please review</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>taskDefinition</td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:task-definition/forgerock:2076&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:task-definition/forgerock:2076&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+            </table>
+            
+            <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
+            <h3 style="text-decoration: underline;">Comparison Report - ecs_arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2</h3>
+            <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
+            <div style="display: flex; gap: 12px">
+                <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 22</p>
+                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> 0</p>
+                <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> 4</p>
+                <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> 0</p>
+            </div>
+            
+            <table>
+                <tr>
+                    <th>Key</th>
+                    <th>DEVL</th>
+                    <th>TEST</th>
+                    <th>Comparison</th>
+                    <th>Status</th>
+                </tr>
+                
+                <tr class="equal">
+                    <td>clusterArn</td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>createdAt</td>
+                    <td><pre>&quot;2020-12-17T16:12:06.965000-06:00&quot;</pre></td>
+                    <td><pre>&quot;2020-12-17T16:12:06.965000-06:00&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>createdBy</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>deploymentConfiguration</td>
+                    <td><pre>{
+  &quot;deploymentCircuitBreaker&quot;: {
+    &quot;enable&quot;: false,
+    &quot;rollback&quot;: false
+  },
+  &quot;maximumPercent&quot;: 200,
+  &quot;minimumHealthyPercent&quot;: 12
+}</pre></td>
+                    <td><pre>{
+  &quot;deploymentCircuitBreaker&quot;: {
+    &quot;enable&quot;: false,
+    &quot;rollback&quot;: false
+  },
+  &quot;maximumPercent&quot;: 200,
+  &quot;minimumHealthyPercent&quot;: 12
+}</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>deploymentController</td>
+                    <td><pre>{
+  &quot;type&quot;: &quot;ECS&quot;
+}</pre></td>
+                    <td><pre>{
+  &quot;type&quot;: &quot;ECS&quot;
+}</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>desiredCount</td>
+                    <td><pre>3</pre></td>
+                    <td><pre>3</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>enableECSManagedTags</td>
+                    <td><pre>false</pre></td>
+                    <td><pre>false</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>enableExecuteCommand</td>
+                    <td><pre>true</pre></td>
+                    <td><pre>true</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>healthCheckGracePeriodSeconds</td>
+                    <td><pre>0</pre></td>
+                    <td><pre>0</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="red">
+                    <td>launchType</td>
+                    <td><pre>&quot;FARGATE&quot;</pre></td>
+                    <td><pre>&quot;GATE&quot;</pre></td>
+                    <td><pre>root: FARGATE =&gt; GATE</pre></td>
+                    <td class="status">Unexpected difference, please review</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>loadBalancers</td>
+                    <td><pre>[
+  {
+    &quot;targetGroupArn&quot;: &quot;arn:aws:elasticloadbalancing:us-east-1:920887439016:targetgroup/ciem-ecs-idm/60b9213b8f963e3f&quot;,
+    &quot;containerName&quot;: &quot;ciem-ecos-rpproxy&quot;,
+    &quot;containerPort&quot;: 443
+  }
+]</pre></td>
+                    <td><pre>[
+  {
+    &quot;targetGroupArn&quot;: &quot;arn:aws:elasticloadbalancing:us-east-1:920887439016:targetgroup/ciem-ecs-idm/60b9213b8f963e3f&quot;,
+    &quot;containerName&quot;: &quot;ciem-ecos-rpproxy&quot;,
+    &quot;containerPort&quot;: 443
+  }
+]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>networkConfiguration</td>
+                    <td><pre>{
+  &quot;awsvpcConfiguration&quot;: {
+    &quot;subnets&quot;: [
+      &quot;subnet-0085b9c90100fa410&quot;,
+      &quot;subnet-03864767845e67755&quot;,
+      &quot;subnet-09b1ebbe94d5f960e&quot;,
+      &quot;subnet-0e8fafec42cfdd15f&quot;
+    ],
+    &quot;securityGroups&quot;: [
+      &quot;sg-0d8e887593f3fc074&quot;,
+      &quot;sg-016b0a72d2dfd9602&quot;,
+      &quot;sg-0c74bd273af88d9ce&quot;
+    ],
+    &quot;assignPublicIp&quot;: &quot;DISABLED&quot;
+  }
+}</pre></td>
+                    <td><pre>{
+  &quot;awsvpcConfiguration&quot;: {
+    &quot;subnets&quot;: [
+      &quot;subnet-0085b9c90100fa410&quot;,
+      &quot;subnet-03864767845e67755&quot;,
+      &quot;subnet-09b1ebbe94d5f960e&quot;,
+      &quot;subnet-0e8fafec42cfdd15f&quot;
+    ],
+    &quot;securityGroups&quot;: [
+      &quot;sg-0d8e887593f3fc074&quot;,
+      &quot;sg-016b0a72d2dfd9602&quot;,
+      &quot;sg-0c74bd273af88d9ce&quot;
+    ],
+    &quot;assignPublicIp&quot;: &quot;DISABLED&quot;
+  }
+}</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>pendingCount</td>
+                    <td><pre>0</pre></td>
+                    <td><pre>0</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>placementConstraints</td>
+                    <td><pre>[]</pre></td>
+                    <td><pre>[]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>placementStrategy</td>
+                    <td><pre>[]</pre></td>
+                    <td><pre>[]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>platformFamily</td>
+                    <td><pre>&quot;Linux&quot;</pre></td>
+                    <td><pre>&quot;Linux&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="red">
+                    <td>platformVersion</td>
+                    <td><pre>&quot;1.4.0&quot;</pre></td>
+                    <td><pre>&quot;5.4.0&quot;</pre></td>
+                    <td><pre>root: 1 =&gt; 5</pre></td>
+                    <td class="status">Unexpected difference, please review</td>
+                </tr>
+                
+                <tr class="red">
+                    <td>propagateTags</td>
+                    <td><pre>&quot;SERVICE&quot;</pre></td>
+                    <td><pre>&quot;SER&quot;</pre></td>
+                    <td><pre>root: SERVICE =&gt; SER</pre></td>
+                    <td class="status">Unexpected difference, please review</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>roleArn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>runningCount</td>
+                    <td><pre>3</pre></td>
+                    <td><pre>3</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>schedulingStrategy</td>
+                    <td><pre>&quot;REPLICA&quot;</pre></td>
+                    <td><pre>&quot;REPLICA&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>serviceArn</td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>serviceName</td>
+                    <td><pre>&quot;forgerock2&quot;</pre></td>
+                    <td><pre>&quot;forgerock2&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>serviceRegistries</td>
+                    <td><pre>[]</pre></td>
+                    <td><pre>[]</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="red">
+                    <td>status</td>
+                    <td><pre>&quot;ACTIVE&quot;</pre></td>
+                    <td><pre>&quot;INACTIVE&quot;</pre></td>
+                    <td><pre>root: ACTIVE =&gt; INACTIVE</pre></td>
+                    <td class="status">Unexpected difference, please review</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>taskDefinition</td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:task-definition/forgerock:2345&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:task-definition/forgerock:2345&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+            </table>
+            
+            <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
+            <h3 style="text-decoration: underline;">Comparison Report - parameterStore</h3>
+            <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
+            <div style="display: flex; gap: 12px">
+                <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 60</p>
+                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> 0</p>
+                <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> 1</p>
+                <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> 1</p>
+            </div>
+            
+            <table>
+                <tr>
+                    <th>Key</th>
+                    <th>DEVL</th>
+                    <th>TEST</th>
+                    <th>Comparison</th>
+                    <th>Status</th>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-comp-core-lite/Arn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-comp-lite&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-comp-lite&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-comp-core-lite/Name</td>
+                    <td><pre>&quot;ciem-devl-etss-comp-lite&quot;</pre></td>
+                    <td><pre>&quot;ciem-devl-etss-comp-lite&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="blue">
+                    <td>/ciem/ais/v3-app-comp-core/Arn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-comp&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::92088743906:role/ciem-devl-etss-comp&quot;</pre></td>
+                    <td><pre>root: arn:aws:iam::920887439016:role/ciem-devl-etss-comp =&gt; arn:aws:iam::92088743906:role/ciem-devl-etss-comp</pre></td>
+                    <td class="status">Values differ as expected for environments</td>
+                </tr>
+                
+                <tr class="red">
+                    <td>/ciem/ais/v3-app-comp-core/Name</td>
+                    <td><pre>&quot;ciem-devl-etss-comp&quot;</pre></td>
+                    <td><pre>&quot;ciem-devl-etss&quot;</pre></td>
+                    <td><pre>root: ciem-devl-etss-comp =&gt; ciem-devl-etss</pre></td>
+                    <td class="status">Unexpected difference, please review</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-comp-gitlab-runner/Arn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-comp-gitlab-runner&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-comp-gitlab-runner&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-comp-gitlab-runner/Name</td>
+                    <td><pre>&quot;ciem-devl-etss-comp-gitlab-runner&quot;</pre></td>
+                    <td><pre>&quot;ciem-devl-etss-comp-gitlab-runner&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-deploy-cicd/Arn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-deploy-cicd/Name</td>
+                    <td><pre>&quot;ciem-devl-etss-cp-deploy&quot;</pre></td>
+                    <td><pre>&quot;ciem-devl-etss-cp-deploy&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-devops-core/Arn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-DEVOPS&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-DEVOPS&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-devops-core/Name</td>
+                    <td><pre>&quot;DEVL-ETSS-CIEM-DEVOPS&quot;</pre></td>
+                    <td><pre>&quot;DEVL-ETSS-CIEM-DEVOPS&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-emr-service-core/Arn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-emr-service&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-emr-service&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-emr-service-core/Name</td>
+                    <td><pre>&quot;ciem-devl-etss-emr-service&quot;</pre></td>
+                    <td><pre>&quot;ciem-devl-etss-emr-service&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-execute-cicd/Arn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-execute&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-execute&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-execute-cicd/Name</td>
+                    <td><pre>&quot;ciem-devl-etss-cp-execute&quot;</pre></td>
+                    <td><pre>&quot;ciem-devl-etss-cp-execute&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-integration-core/Arn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-INTEGRATION&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-INTEGRATION&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-integration-core/Name</td>
+                    <td><pre>&quot;DEVL-ETSS-CIEM-INTEGRATION&quot;</pre></td>
+                    <td><pre>&quot;DEVL-ETSS-CIEM-INTEGRATION&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-machine-core/Arn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-machine-role&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-machine-role&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-machine-core/Name</td>
+                    <td><pre>&quot;ciem-devl-etss-machine-role&quot;</pre></td>
+                    <td><pre>&quot;ciem-devl-etss-machine-role&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-recovery-core/Arn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-recovery&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-recovery&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-recovery-core/Name</td>
+                    <td><pre>&quot;ciem-devl-etss-recovery&quot;</pre></td>
+                    <td><pre>&quot;ciem-devl-etss-recovery&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-release-core/Arn</td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-RELEASE-MGMT&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-RELEASE-MGMT&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/ais/v3-app-release-core/Name</td>
+                    <td><pre>&quot;DEVL-ETSS-CIEM-RELEASE-MGMT&quot;</pre></td>
+                    <td><pre>&quot;DEVL-ETSS-CIEM-RELEASE-MGMT&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/AppCode</td>
+                    <td><pre>&quot;GDX&quot;</pre></td>
+                    <td><pre>&quot;GDX&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/ApplicationName</td>
+                    <td><pre>&quot;Customer Identity and Entitlement Management CIEM&quot;</pre></td>
+                    <td><pre>&quot;Customer Identity and Entitlement Management CIEM&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/ApplicationShortName</td>
+                    <td><pre>&quot;ciem&quot;</pre></td>
+                    <td><pre>&quot;ciem&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/ApplicationShortNameUpper</td>
+                    <td><pre>&quot;CIEM&quot;</pre></td>
+                    <td><pre>&quot;CIEM&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/AssetID</td>
+                    <td><pre>&quot;MSR03675&quot;</pre></td>
+                    <td><pre>&quot;MSR03675&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/ComputeDefaultId</td>
+                    <td><pre>&quot;sg-016ba72dfd9f9602&quot;</pre></td>
+                    <td><pre>&quot;sg-016ba72dfd9f9602&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/CostCenter</td>
+                    <td><pre>&quot;878&quot;</pre></td>
+                    <td><pre>&quot;878&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/EMMAlertGroup</td>
+                    <td><pre>&quot;GDX_CIEM_DEVL_ETSS_AWS_ALERT&quot;</pre></td>
+                    <td><pre>&quot;GDX_CIEM_DEVL_ETSS_AWS_ALERT&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/KeyPair</td>
+                    <td><pre>&quot;ciem&quot;</pre></td>
+                    <td><pre>&quot;ciem&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/kms/ApplicationKeyAlias</td>
+                    <td><pre>&quot;alias/fnma/app/ciem&quot;</pre></td>
+                    <td><pre>&quot;alias/fnma/app/ciem&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/kms/ApplicationKeyArn</td>
+                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/4c18ddc1-02ad-4374-b9f2-369b6d245c61&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/4c18ddc1-02ad-4374-b9f2-369b6d245c61&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/kms/ApplicationKeyId</td>
+                    <td><pre>&quot;4c18ddc1-02ad-4374-b9f2-369b6d245c61&quot;</pre></td>
+                    <td><pre>&quot;4c18ddc1-02ad-4374-b9f2-369b6d245c61&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/kms/SecretMgrKeyAlias</td>
+                    <td><pre>&quot;ciemsmgr/ciem&quot;</pre></td>
+                    <td><pre>&quot;ciemsmgr/ciem&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/kms/SecretMgrKeyArn</td>
+                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/77315cc5-7082-440a-826f-bd18d9fbee74&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/77315cc5-7082-440a-826f-bd18d9fbee74&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/kms/SecretMgrKeyId</td>
+                    <td><pre>&quot;77315cc5-7082-440a-826f-bd18d9fbee74&quot;</pre></td>
+                    <td><pre>&quot;77315cc5-7082-440a-826f-bd18d9fbee74&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/ProjectCode</td>
+                    <td><pre>&quot;D20ISCMRAM&quot;</pre></td>
+                    <td><pre>&quot;D20ISCMRAM&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/resources/Portfolio</td>
+                    <td><pre>&quot;ciem-devl-etss-portfolio&quot;</pre></td>
+                    <td><pre>&quot;ciem-devl-etss-portfolio&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/RITM</td>
+                    <td><pre>&quot;&quot;</pre></td>
+                    <td><pre>&quot;&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/s3/PrivateBucket</td>
+                    <td><pre>&quot;ciem-devl-etss-private-bucket&quot;</pre></td>
+                    <td><pre>&quot;ciem-devl-etss-private-bucket&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sg/ComputeAdhocId</td>
+                    <td><pre>&quot;sg-06df1ad7bbd0f0400&quot;</pre></td>
+                    <td><pre>&quot;sg-06df1ad7bbd0f0400&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sg/ComputeDefaultId</td>
+                    <td><pre>&quot;sg-09e1eddf58af478f8&quot;</pre></td>
+                    <td><pre>&quot;sg-09e1eddf58af478f8&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sg/ComputeLambdaId</td>
+                    <td><pre>&quot;sg-061d5a8b88200d4&quot;</pre></td>
+                    <td><pre>&quot;sg-061d5a8b88200d4&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sg/DataAdhocId</td>
+                    <td><pre>&quot;sg-0d3dfdfd79d6f2d58&quot;</pre></td>
+                    <td><pre>&quot;sg-0d3dfdfd79d6f2d58&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sg/DataDefaultId</td>
+                    <td><pre>&quot;sg-0f45a606e29a0adbb&quot;</pre></td>
+                    <td><pre>&quot;sg-0f45a606e29a0adbb&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sg/EfsDefaultId</td>
+                    <td><pre>&quot;sg-084594ced9d253330&quot;</pre></td>
+                    <td><pre>&quot;sg-084594ced9d253330&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sg/FrontendAdhocId</td>
+                    <td><pre>&quot;sg-08405a0e6d5a84b2d&quot;</pre></td>
+                    <td><pre>&quot;sg-08405a0e6d5a84b2d&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sg/FrontendDefaultId</td>
+                    <td><pre>&quot;sg-09e1eddf58af478f8&quot;</pre></td>
+                    <td><pre>&quot;sg-09e1eddf58af478f8&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sg/FrontendIntegrationId</td>
+                    <td><pre>&quot;sg-062cfbb44f5281755&quot;</pre></td>
+                    <td><pre>&quot;sg-062cfbb44f5281755&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sg/VpcId</td>
+                    <td><pre>&quot;vpc-0365801a4c985c1a2&quot;</pre></td>
+                    <td><pre>&quot;vpc-0365801a4c985c1a2&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sns/ApplicationTopicArn</td>
+                    <td><pre>&quot;arn:aws:sns:us-east-1:920887439016:ciem-devl-etss-application-events-topic&quot;</pre></td>
+                    <td><pre>&quot;arn:aws:sns:us-east-1:920887439016:ciem-devl-etss-application-events-topic&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/common/sns/ApplicationTopicName</td>
+                    <td><pre>&quot;ciem-devl-etss-application-events-topic&quot;</pre></td>
+                    <td><pre>&quot;ciem-devl-etss-application-events-topic&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/eb-app/fridm/ApplicationName</td>
+                    <td><pre>&quot;ciem-eb-fridm&quot;</pre></td>
+                    <td><pre>&quot;ciem-eb-fridm&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe1/ApplicationName</td>
+                    <td><pre>&quot;ciem-eb-fridmbe1&quot;</pre></td>
+                    <td><pre>&quot;ciem-eb-fridmbe1&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe1/EnvironmentName</td>
+                    <td><pre>&quot;ciem-eb-fridmbe1&quot;</pre></td>
+                    <td><pre>&quot;ciem-eb-fridmbe1&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe2/ApplicationName</td>
+                    <td><pre>&quot;ciem-eb-fridmbe2&quot;</pre></td>
+                    <td><pre>&quot;ciem-eb-fridmbe2&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe2/EnvironmentName</td>
+                    <td><pre>&quot;ciem-eb-fridmbe2&quot;</pre></td>
+                    <td><pre>&quot;ciem-eb-fridmbe2&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe3/ApplicationName</td>
+                    <td><pre>&quot;ciem-eb-fridmbe3&quot;</pre></td>
+                    <td><pre>&quot;ciem-eb-fridmbe3&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe3/EnvironmentName</td>
+                    <td><pre>&quot;ciem-eb-fridmbe3&quot;</pre></td>
+                    <td><pre>&quot;ciem-eb-fridmbe3&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/kds/KDS00000001/ConsumerRole</td>
+                    <td><pre>&quot;ciam-devl-etss-kda-CIN-KDA00000001&quot;</pre></td>
+                    <td><pre>&quot;ciam-devl-etss-kda-CIN-KDA00000001&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+                <tr class="equal">
+                    <td>/ciem/rds/ciemdevint/WriterInstanceEndpoint</td>
+                    <td><pre>&quot;ciem-aur-idmdevint.cry2hpdiarhot.us-east-1.rds.amazonaws.com&quot;</pre></td>
+                    <td><pre>&quot;ciem-aur-idmdevint.cry2hpdiarhot.us-east-1.rds.amazonaws.com&quot;</pre></td>
+                    <td><pre></pre></td>
+                    <td class="status">Equal</td>
+                </tr>
+                
+            </table>
+            
+            <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
+            <h3 style="text-decoration: underline;">Comparison Report - rds_ciem-aur-idm</h3>
             <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
             <div style="display: flex; gap: 12px">
                 <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 48</p>
@@ -781,1101 +1923,35 @@
                 </tr>
                 
             </table>
-            
-            <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
-            <h3 style="text-decoration: underline;">Comparison Report - parameterStore</h3>
-            <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
-            <div style="display: flex; gap: 12px">
-                <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 60</p>
-                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> 0</p>
-                <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> 1</p>
-                <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> 1</p>
-            </div>
-            
-            <table>
-                <tr>
-                    <th>Key</th>
-                    <th>DEVL</th>
-                    <th>TEST</th>
-                    <th>Comparison</th>
-                    <th>Status</th>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-comp-core-lite/Arn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-comp-lite&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-comp-lite&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-comp-core-lite/Name</td>
-                    <td><pre>&quot;ciem-devl-etss-comp-lite&quot;</pre></td>
-                    <td><pre>&quot;ciem-devl-etss-comp-lite&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="blue">
-                    <td>/ciem/ais/v3-app-comp-core/Arn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-comp&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::92088743906:role/ciem-devl-etss-comp&quot;</pre></td>
-                    <td><pre>root: arn:aws:iam::920887439016:role/ciem-devl-etss-comp =&gt; arn:aws:iam::92088743906:role/ciem-devl-etss-comp</pre></td>
-                    <td class="status">Values differ as expected for environments</td>
-                </tr>
-                
-                <tr class="red">
-                    <td>/ciem/ais/v3-app-comp-core/Name</td>
-                    <td><pre>&quot;ciem-devl-etss-comp&quot;</pre></td>
-                    <td><pre>&quot;ciem-devl-etss&quot;</pre></td>
-                    <td><pre>root: ciem-devl-etss-comp =&gt; ciem-devl-etss</pre></td>
-                    <td class="status">Unexpected difference, please review</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-comp-gitlab-runner/Arn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-comp-gitlab-runner&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-comp-gitlab-runner&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-comp-gitlab-runner/Name</td>
-                    <td><pre>&quot;ciem-devl-etss-comp-gitlab-runner&quot;</pre></td>
-                    <td><pre>&quot;ciem-devl-etss-comp-gitlab-runner&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-deploy-cicd/Arn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-deploy-cicd/Name</td>
-                    <td><pre>&quot;ciem-devl-etss-cp-deploy&quot;</pre></td>
-                    <td><pre>&quot;ciem-devl-etss-cp-deploy&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-devops-core/Arn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-DEVOPS&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-DEVOPS&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-devops-core/Name</td>
-                    <td><pre>&quot;DEVL-ETSS-CIEM-DEVOPS&quot;</pre></td>
-                    <td><pre>&quot;DEVL-ETSS-CIEM-DEVOPS&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-emr-service-core/Arn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-emr-service&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-emr-service&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-emr-service-core/Name</td>
-                    <td><pre>&quot;ciem-devl-etss-emr-service&quot;</pre></td>
-                    <td><pre>&quot;ciem-devl-etss-emr-service&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-execute-cicd/Arn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-execute&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-execute&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-execute-cicd/Name</td>
-                    <td><pre>&quot;ciem-devl-etss-cp-execute&quot;</pre></td>
-                    <td><pre>&quot;ciem-devl-etss-cp-execute&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-integration-core/Arn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-INTEGRATION&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-INTEGRATION&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-integration-core/Name</td>
-                    <td><pre>&quot;DEVL-ETSS-CIEM-INTEGRATION&quot;</pre></td>
-                    <td><pre>&quot;DEVL-ETSS-CIEM-INTEGRATION&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-machine-core/Arn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-machine-role&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-machine-role&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-machine-core/Name</td>
-                    <td><pre>&quot;ciem-devl-etss-machine-role&quot;</pre></td>
-                    <td><pre>&quot;ciem-devl-etss-machine-role&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-recovery-core/Arn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-recovery&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-recovery&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-recovery-core/Name</td>
-                    <td><pre>&quot;ciem-devl-etss-recovery&quot;</pre></td>
-                    <td><pre>&quot;ciem-devl-etss-recovery&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-release-core/Arn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-RELEASE-MGMT&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/DEVL-ETSS-CIEM-RELEASE-MGMT&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/ais/v3-app-release-core/Name</td>
-                    <td><pre>&quot;DEVL-ETSS-CIEM-RELEASE-MGMT&quot;</pre></td>
-                    <td><pre>&quot;DEVL-ETSS-CIEM-RELEASE-MGMT&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/AppCode</td>
-                    <td><pre>&quot;GDX&quot;</pre></td>
-                    <td><pre>&quot;GDX&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/ApplicationName</td>
-                    <td><pre>&quot;Customer Identity and Entitlement Management CIEM&quot;</pre></td>
-                    <td><pre>&quot;Customer Identity and Entitlement Management CIEM&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/ApplicationShortName</td>
-                    <td><pre>&quot;ciem&quot;</pre></td>
-                    <td><pre>&quot;ciem&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/ApplicationShortNameUpper</td>
-                    <td><pre>&quot;CIEM&quot;</pre></td>
-                    <td><pre>&quot;CIEM&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/AssetID</td>
-                    <td><pre>&quot;MSR03675&quot;</pre></td>
-                    <td><pre>&quot;MSR03675&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/ComputeDefaultId</td>
-                    <td><pre>&quot;sg-016ba72dfd9f9602&quot;</pre></td>
-                    <td><pre>&quot;sg-016ba72dfd9f9602&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/CostCenter</td>
-                    <td><pre>&quot;878&quot;</pre></td>
-                    <td><pre>&quot;878&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/EMMAlertGroup</td>
-                    <td><pre>&quot;GDX_CIEM_DEVL_ETSS_AWS_ALERT&quot;</pre></td>
-                    <td><pre>&quot;GDX_CIEM_DEVL_ETSS_AWS_ALERT&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/KeyPair</td>
-                    <td><pre>&quot;ciem&quot;</pre></td>
-                    <td><pre>&quot;ciem&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/kms/ApplicationKeyAlias</td>
-                    <td><pre>&quot;alias/fnma/app/ciem&quot;</pre></td>
-                    <td><pre>&quot;alias/fnma/app/ciem&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/kms/ApplicationKeyArn</td>
-                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/4c18ddc1-02ad-4374-b9f2-369b6d245c61&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/4c18ddc1-02ad-4374-b9f2-369b6d245c61&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/kms/ApplicationKeyId</td>
-                    <td><pre>&quot;4c18ddc1-02ad-4374-b9f2-369b6d245c61&quot;</pre></td>
-                    <td><pre>&quot;4c18ddc1-02ad-4374-b9f2-369b6d245c61&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/kms/SecretMgrKeyAlias</td>
-                    <td><pre>&quot;ciemsmgr/ciem&quot;</pre></td>
-                    <td><pre>&quot;ciemsmgr/ciem&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/kms/SecretMgrKeyArn</td>
-                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/77315cc5-7082-440a-826f-bd18d9fbee74&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:kms:us-east-1:920887439016:key/77315cc5-7082-440a-826f-bd18d9fbee74&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/kms/SecretMgrKeyId</td>
-                    <td><pre>&quot;77315cc5-7082-440a-826f-bd18d9fbee74&quot;</pre></td>
-                    <td><pre>&quot;77315cc5-7082-440a-826f-bd18d9fbee74&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/ProjectCode</td>
-                    <td><pre>&quot;D20ISCMRAM&quot;</pre></td>
-                    <td><pre>&quot;D20ISCMRAM&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/resources/Portfolio</td>
-                    <td><pre>&quot;ciem-devl-etss-portfolio&quot;</pre></td>
-                    <td><pre>&quot;ciem-devl-etss-portfolio&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/RITM</td>
-                    <td><pre>&quot;&quot;</pre></td>
-                    <td><pre>&quot;&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/s3/PrivateBucket</td>
-                    <td><pre>&quot;ciem-devl-etss-private-bucket&quot;</pre></td>
-                    <td><pre>&quot;ciem-devl-etss-private-bucket&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sg/ComputeAdhocId</td>
-                    <td><pre>&quot;sg-06df1ad7bbd0f0400&quot;</pre></td>
-                    <td><pre>&quot;sg-06df1ad7bbd0f0400&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sg/ComputeDefaultId</td>
-                    <td><pre>&quot;sg-09e1eddf58af478f8&quot;</pre></td>
-                    <td><pre>&quot;sg-09e1eddf58af478f8&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sg/ComputeLambdaId</td>
-                    <td><pre>&quot;sg-061d5a8b88200d4&quot;</pre></td>
-                    <td><pre>&quot;sg-061d5a8b88200d4&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sg/DataAdhocId</td>
-                    <td><pre>&quot;sg-0d3dfdfd79d6f2d58&quot;</pre></td>
-                    <td><pre>&quot;sg-0d3dfdfd79d6f2d58&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sg/DataDefaultId</td>
-                    <td><pre>&quot;sg-0f45a606e29a0adbb&quot;</pre></td>
-                    <td><pre>&quot;sg-0f45a606e29a0adbb&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sg/EfsDefaultId</td>
-                    <td><pre>&quot;sg-084594ced9d253330&quot;</pre></td>
-                    <td><pre>&quot;sg-084594ced9d253330&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sg/FrontendAdhocId</td>
-                    <td><pre>&quot;sg-08405a0e6d5a84b2d&quot;</pre></td>
-                    <td><pre>&quot;sg-08405a0e6d5a84b2d&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sg/FrontendDefaultId</td>
-                    <td><pre>&quot;sg-09e1eddf58af478f8&quot;</pre></td>
-                    <td><pre>&quot;sg-09e1eddf58af478f8&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sg/FrontendIntegrationId</td>
-                    <td><pre>&quot;sg-062cfbb44f5281755&quot;</pre></td>
-                    <td><pre>&quot;sg-062cfbb44f5281755&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sg/VpcId</td>
-                    <td><pre>&quot;vpc-0365801a4c985c1a2&quot;</pre></td>
-                    <td><pre>&quot;vpc-0365801a4c985c1a2&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sns/ApplicationTopicArn</td>
-                    <td><pre>&quot;arn:aws:sns:us-east-1:920887439016:ciem-devl-etss-application-events-topic&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:sns:us-east-1:920887439016:ciem-devl-etss-application-events-topic&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/common/sns/ApplicationTopicName</td>
-                    <td><pre>&quot;ciem-devl-etss-application-events-topic&quot;</pre></td>
-                    <td><pre>&quot;ciem-devl-etss-application-events-topic&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/eb-app/fridm/ApplicationName</td>
-                    <td><pre>&quot;ciem-eb-fridm&quot;</pre></td>
-                    <td><pre>&quot;ciem-eb-fridm&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe1/ApplicationName</td>
-                    <td><pre>&quot;ciem-eb-fridmbe1&quot;</pre></td>
-                    <td><pre>&quot;ciem-eb-fridmbe1&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe1/EnvironmentName</td>
-                    <td><pre>&quot;ciem-eb-fridmbe1&quot;</pre></td>
-                    <td><pre>&quot;ciem-eb-fridmbe1&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe2/ApplicationName</td>
-                    <td><pre>&quot;ciem-eb-fridmbe2&quot;</pre></td>
-                    <td><pre>&quot;ciem-eb-fridmbe2&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe2/EnvironmentName</td>
-                    <td><pre>&quot;ciem-eb-fridmbe2&quot;</pre></td>
-                    <td><pre>&quot;ciem-eb-fridmbe2&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe3/ApplicationName</td>
-                    <td><pre>&quot;ciem-eb-fridmbe3&quot;</pre></td>
-                    <td><pre>&quot;ciem-eb-fridmbe3&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/eb-env/ciem-eb-fridm/fridmbe3/EnvironmentName</td>
-                    <td><pre>&quot;ciem-eb-fridmbe3&quot;</pre></td>
-                    <td><pre>&quot;ciem-eb-fridmbe3&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/kds/KDS00000001/ConsumerRole</td>
-                    <td><pre>&quot;ciam-devl-etss-kda-CIN-KDA00000001&quot;</pre></td>
-                    <td><pre>&quot;ciam-devl-etss-kda-CIN-KDA00000001&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>/ciem/rds/ciemdevint/WriterInstanceEndpoint</td>
-                    <td><pre>&quot;ciem-aur-idmdevint.cry2hpdiarhot.us-east-1.rds.amazonaws.com&quot;</pre></td>
-                    <td><pre>&quot;ciem-aur-idmdevint.cry2hpdiarhot.us-east-1.rds.amazonaws.com&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-            </table>
-            
-            <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
-            <h3 style="text-decoration: underline;">Comparison Report - ECS - arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2</h3>
-            <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
-            <div style="display: flex; gap: 12px">
-                <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 22</p>
-                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> 0</p>
-                <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> 4</p>
-                <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> 0</p>
-            </div>
-            
-            <table>
-                <tr>
-                    <th>Key</th>
-                    <th>DEVL</th>
-                    <th>TEST</th>
-                    <th>Comparison</th>
-                    <th>Status</th>
-                </tr>
-                
-                <tr class="equal">
-                    <td>clusterArn</td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>createdAt</td>
-                    <td><pre>&quot;2020-12-17T16:12:06.965000-06:00&quot;</pre></td>
-                    <td><pre>&quot;2020-12-17T16:12:06.965000-06:00&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>createdBy</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>deploymentConfiguration</td>
-                    <td><pre>{
-  &quot;deploymentCircuitBreaker&quot;: {
-    &quot;enable&quot;: false,
-    &quot;rollback&quot;: false
-  },
-  &quot;maximumPercent&quot;: 200,
-  &quot;minimumHealthyPercent&quot;: 12
-}</pre></td>
-                    <td><pre>{
-  &quot;deploymentCircuitBreaker&quot;: {
-    &quot;enable&quot;: false,
-    &quot;rollback&quot;: false
-  },
-  &quot;maximumPercent&quot;: 200,
-  &quot;minimumHealthyPercent&quot;: 12
-}</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>deploymentController</td>
-                    <td><pre>{
-  &quot;type&quot;: &quot;ECS&quot;
-}</pre></td>
-                    <td><pre>{
-  &quot;type&quot;: &quot;ECS&quot;
-}</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>desiredCount</td>
-                    <td><pre>3</pre></td>
-                    <td><pre>3</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>enableECSManagedTags</td>
-                    <td><pre>false</pre></td>
-                    <td><pre>false</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>enableExecuteCommand</td>
-                    <td><pre>true</pre></td>
-                    <td><pre>true</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>healthCheckGracePeriodSeconds</td>
-                    <td><pre>0</pre></td>
-                    <td><pre>0</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="red">
-                    <td>launchType</td>
-                    <td><pre>&quot;FARGATE&quot;</pre></td>
-                    <td><pre>&quot;GATE&quot;</pre></td>
-                    <td><pre>root: FARGATE =&gt; GATE</pre></td>
-                    <td class="status">Unexpected difference, please review</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>loadBalancers</td>
-                    <td><pre>[
-  {
-    &quot;targetGroupArn&quot;: &quot;arn:aws:elasticloadbalancing:us-east-1:920887439016:targetgroup/ciem-ecs-idm/60b9213b8f963e3f&quot;,
-    &quot;containerName&quot;: &quot;ciem-ecos-rpproxy&quot;,
-    &quot;containerPort&quot;: 443
-  }
-]</pre></td>
-                    <td><pre>[
-  {
-    &quot;targetGroupArn&quot;: &quot;arn:aws:elasticloadbalancing:us-east-1:920887439016:targetgroup/ciem-ecs-idm/60b9213b8f963e3f&quot;,
-    &quot;containerName&quot;: &quot;ciem-ecos-rpproxy&quot;,
-    &quot;containerPort&quot;: 443
-  }
-]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>networkConfiguration</td>
-                    <td><pre>{
-  &quot;awsvpcConfiguration&quot;: {
-    &quot;subnets&quot;: [
-      &quot;subnet-0085b9c90100fa410&quot;,
-      &quot;subnet-03864767845e67755&quot;,
-      &quot;subnet-09b1ebbe94d5f960e&quot;,
-      &quot;subnet-0e8fafec42cfdd15f&quot;
-    ],
-    &quot;securityGroups&quot;: [
-      &quot;sg-0d8e887593f3fc074&quot;,
-      &quot;sg-016b0a72d2dfd9602&quot;,
-      &quot;sg-0c74bd273af88d9ce&quot;
-    ],
-    &quot;assignPublicIp&quot;: &quot;DISABLED&quot;
-  }
-}</pre></td>
-                    <td><pre>{
-  &quot;awsvpcConfiguration&quot;: {
-    &quot;subnets&quot;: [
-      &quot;subnet-0085b9c90100fa410&quot;,
-      &quot;subnet-03864767845e67755&quot;,
-      &quot;subnet-09b1ebbe94d5f960e&quot;,
-      &quot;subnet-0e8fafec42cfdd15f&quot;
-    ],
-    &quot;securityGroups&quot;: [
-      &quot;sg-0d8e887593f3fc074&quot;,
-      &quot;sg-016b0a72d2dfd9602&quot;,
-      &quot;sg-0c74bd273af88d9ce&quot;
-    ],
-    &quot;assignPublicIp&quot;: &quot;DISABLED&quot;
-  }
-}</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>pendingCount</td>
-                    <td><pre>0</pre></td>
-                    <td><pre>0</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>placementConstraints</td>
-                    <td><pre>[]</pre></td>
-                    <td><pre>[]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>placementStrategy</td>
-                    <td><pre>[]</pre></td>
-                    <td><pre>[]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>platformFamily</td>
-                    <td><pre>&quot;Linux&quot;</pre></td>
-                    <td><pre>&quot;Linux&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="red">
-                    <td>platformVersion</td>
-                    <td><pre>&quot;1.4.0&quot;</pre></td>
-                    <td><pre>&quot;5.4.0&quot;</pre></td>
-                    <td><pre>root: 1 =&gt; 5</pre></td>
-                    <td class="status">Unexpected difference, please review</td>
-                </tr>
-                
-                <tr class="red">
-                    <td>propagateTags</td>
-                    <td><pre>&quot;SERVICE&quot;</pre></td>
-                    <td><pre>&quot;SER&quot;</pre></td>
-                    <td><pre>root: SERVICE =&gt; SER</pre></td>
-                    <td class="status">Unexpected difference, please review</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>roleArn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>runningCount</td>
-                    <td><pre>3</pre></td>
-                    <td><pre>3</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>schedulingStrategy</td>
-                    <td><pre>&quot;REPLICA&quot;</pre></td>
-                    <td><pre>&quot;REPLICA&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>serviceArn</td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>serviceName</td>
-                    <td><pre>&quot;forgerock2&quot;</pre></td>
-                    <td><pre>&quot;forgerock2&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>serviceRegistries</td>
-                    <td><pre>[]</pre></td>
-                    <td><pre>[]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="red">
-                    <td>status</td>
-                    <td><pre>&quot;ACTIVE&quot;</pre></td>
-                    <td><pre>&quot;INACTIVE&quot;</pre></td>
-                    <td><pre>root: ACTIVE =&gt; INACTIVE</pre></td>
-                    <td class="status">Unexpected difference, please review</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>taskDefinition</td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:task-definition/forgerock:2345&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:task-definition/forgerock:2345&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-            </table>
-            
-            <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
-            <h3 style="text-decoration: underline;">Comparison Report - ECS - arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock</h3>
-            <p><strong>Comparing Files:</strong> awsConfigs/awsConfig_nfr_devl.json & awsConfigs/awsConfig_nfr_test.json</p>
-            <div style="display: flex; gap: 12px">
-                <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> 22</p>
-                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> 0</p>
-                <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> 1</p>
-                <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> 3</p>
-            </div>
-            
-            <table>
-                <tr>
-                    <th>Key</th>
-                    <th>DEVL</th>
-                    <th>TEST</th>
-                    <th>Comparison</th>
-                    <th>Status</th>
-                </tr>
-                
-                <tr class="equal">
-                    <td>clusterArn</td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="blue">
-                    <td>createdAt</td>
-                    <td><pre>&quot;2020-12-17T16:12:06.965000-06:00&quot;</pre></td>
-                    <td><pre>&quot;2020-12-17T16:12:06.965000-00&quot;</pre></td>
-                    <td><pre>root: 965000-06:00 =&gt; 965000-00</pre></td>
-                    <td class="status">Values differ as expected for environments</td>
-                </tr>
-                
-                <tr class="blue">
-                    <td>createdBy</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:i920887439016:role/ciem-devl-etss-cp-deploy&quot;</pre></td>
-                    <td><pre>root: arn:aws:iam::920887439016:role/ciem-devl-etss-cp-deploy =&gt; arn:aws:i920887439016:role/ciem-devl-etss-cp-deploy</pre></td>
-                    <td class="status">Values differ as expected for environments</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>deploymentConfiguration</td>
-                    <td><pre>{
-  &quot;deploymentCircuitBreaker&quot;: {
-    &quot;enable&quot;: false,
-    &quot;rollback&quot;: false
-  },
-  &quot;maximumPercent&quot;: 200,
-  &quot;minimumHealthyPercent&quot;: 100
-}</pre></td>
-                    <td><pre>{
-  &quot;deploymentCircuitBreaker&quot;: {
-    &quot;enable&quot;: false,
-    &quot;rollback&quot;: false
-  },
-  &quot;maximumPercent&quot;: 200,
-  &quot;minimumHealthyPercent&quot;: 100
-}</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>deploymentController</td>
-                    <td><pre>{
-  &quot;type&quot;: &quot;ECS&quot;
-}</pre></td>
-                    <td><pre>{
-  &quot;type&quot;: &quot;ECS&quot;
-}</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>desiredCount</td>
-                    <td><pre>3</pre></td>
-                    <td><pre>3</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>enableECSManagedTags</td>
-                    <td><pre>false</pre></td>
-                    <td><pre>false</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>enableExecuteCommand</td>
-                    <td><pre>true</pre></td>
-                    <td><pre>true</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>healthCheckGracePeriodSeconds</td>
-                    <td><pre>0</pre></td>
-                    <td><pre>0</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>launchType</td>
-                    <td><pre>&quot;FARGATE&quot;</pre></td>
-                    <td><pre>&quot;FARGATE&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>loadBalancers</td>
-                    <td><pre>[
-  {
-    &quot;targetGroupArn&quot;: &quot;arn:aws:elasticloadbalancing:us-east-1:920887439016:targetgroup/ciem-ecs-idm/60b9213b8f963e3f&quot;,
-    &quot;containerName&quot;: &quot;ciem-ecos-rpproxy&quot;,
-    &quot;containerPort&quot;: 443
-  }
-]</pre></td>
-                    <td><pre>[
-  {
-    &quot;targetGroupArn&quot;: &quot;arn:aws:elasticloadbalancing:us-east-1:920887439016:targetgroup/ciem-ecs-idm/60b9213b8f963e3f&quot;,
-    &quot;containerName&quot;: &quot;ciem-ecos-rpproxy&quot;,
-    &quot;containerPort&quot;: 443
-  }
-]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>networkConfiguration</td>
-                    <td><pre>{
-  &quot;awsvpcConfiguration&quot;: {
-    &quot;subnets&quot;: [
-      &quot;subnet-0085b9c90100fa410&quot;,
-      &quot;subnet-03864767845e67755&quot;,
-      &quot;subnet-09b1ebbe94d5f960e&quot;,
-      &quot;subnet-0e8fafec42cfdd15f&quot;
-    ],
-    &quot;securityGroups&quot;: [
-      &quot;sg-0d8e887593f3fc074&quot;,
-      &quot;sg-016b0a72d2dfd9602&quot;,
-      &quot;sg-0c74bd273af88d9ce&quot;
-    ],
-    &quot;assignPublicIp&quot;: &quot;DISABLED&quot;
-  }
-}</pre></td>
-                    <td><pre>{
-  &quot;awsvpcConfiguration&quot;: {
-    &quot;subnets&quot;: [
-      &quot;subnet-0085b9c90100fa410&quot;,
-      &quot;subnet-03864767845e67755&quot;,
-      &quot;subnet-09b1ebbe94d5f960e&quot;,
-      &quot;subnet-0e8fafec42cfdd15f&quot;
-    ],
-    &quot;securityGroups&quot;: [
-      &quot;sg-0d8e887593f3fc074&quot;,
-      &quot;sg-016b0a72d2dfd9602&quot;,
-      &quot;sg-0c74bd273af88d9ce&quot;
-    ],
-    &quot;assignPublicIp&quot;: &quot;DISABLED&quot;
-  }
-}</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>pendingCount</td>
-                    <td><pre>0</pre></td>
-                    <td><pre>0</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>placementConstraints</td>
-                    <td><pre>[]</pre></td>
-                    <td><pre>[]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>placementStrategy</td>
-                    <td><pre>[]</pre></td>
-                    <td><pre>[]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>platformFamily</td>
-                    <td><pre>&quot;Linux&quot;</pre></td>
-                    <td><pre>&quot;Linux&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>platformVersion</td>
-                    <td><pre>&quot;1.4.0&quot;</pre></td>
-                    <td><pre>&quot;1.4.0&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>propagateTags</td>
-                    <td><pre>&quot;SERVICE&quot;</pre></td>
-                    <td><pre>&quot;SERVICE&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="blue">
-                    <td>roleArn</td>
-                    <td><pre>&quot;arn:aws:iam::920887439016:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:iam::9208874316:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS&quot;</pre></td>
-                    <td><pre>root: arn:aws:iam::920887439016:role/aws-service-role/ecs =&gt; arn:aws:iam::9208874316:role/aws-service-role/ecs</pre></td>
-                    <td class="status">Values differ as expected for environments</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>runningCount</td>
-                    <td><pre>3</pre></td>
-                    <td><pre>3</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>schedulingStrategy</td>
-                    <td><pre>&quot;REPLICA&quot;</pre></td>
-                    <td><pre>&quot;REPLICA&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>serviceArn</td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>serviceName</td>
-                    <td><pre>&quot;forgerock&quot;</pre></td>
-                    <td><pre>&quot;forgerock&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>serviceRegistries</td>
-                    <td><pre>[]</pre></td>
-                    <td><pre>[]</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-                <tr class="red">
-                    <td>status</td>
-                    <td><pre>&quot;ACTIVE&quot;</pre></td>
-                    <td><pre>&quot;INACTIVE&quot;</pre></td>
-                    <td><pre>root: ACTIVE =&gt; INACTIVE</pre></td>
-                    <td class="status">Unexpected difference, please review</td>
-                </tr>
-                
-                <tr class="equal">
-                    <td>taskDefinition</td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:task-definition/forgerock:2076&quot;</pre></td>
-                    <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:task-definition/forgerock:2076&quot;</pre></td>
-                    <td><pre></pre></td>
-                    <td class="status">Equal</td>
-                </tr>
-                
-            </table>
-            
+            <div class="tabs"><button class="tab-link" onclick="openTab(event, 'ecs')">ECS</button><button class="tab-link" onclick="openTab(event, 'parameterStore')">PARAMETERSTORE</button><button class="tab-link" onclick="openTab(event, 'rds')">RDS</button></div><div class="tab-content"><div id="ecs" class="tab-pane"><button class="accordion">arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock</button><div class="panel"><h3>ECS - arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock</h3><div>None</div></div><button class="accordion">arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2</button><div class="panel"><h3>ECS - arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2</h3><div>None</div></div></div><div id="parameterStore" class="tab-pane"><h3>PARAMETERSTORE</h3><div>None</div></div><div id="rds" class="tab-pane"><button class="accordion">ciem-aur-idm</button><div class="panel"><h3>RDS - ciem-aur-idm</h3><div>None</div></div></div></div></div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        var acc = document.getElementsByClassName("accordion");
+        for (var i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var panel = this.nextElementSibling;
+                if (panel.style.display === "block") {
+                    panel.style.display = "none";
+                } else {
+                    panel.style.display = "block";
+                }
+            });
+        }
+    </script>
 </body>
 </html>

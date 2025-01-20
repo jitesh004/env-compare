@@ -418,37 +418,32 @@ def main(
             data2 = parse_json(json_file2_path)
 
             sections = set(data1.keys()).union(set(data2.keys()))
+            tabs_html = '<div class="tabs">'
+            content_html = '<div class="tab-content">'
             for section in sections:
+                section_id = section.replace("/", "_")
+                tabs_html += f'<button class="tab-link" onclick="openTab(event, \'{section_id}\')">{section.upper()}</button>'
+                content_html += f'<div id="{section_id}" class="tab-pane">'
                 if isinstance(data1.get(section), dict) and all(isinstance(v, dict) for v in data1[section].values()):
                     for key in data1[section].keys() | data2[section].keys():
                         sub_data1 = data1[section].get(key, {})
                         sub_data2 = data2[section].get(key, {})
                         comparison_results, summary = compare_tfvars_data(sub_data1, sub_data2, env1, env2)
-                        sectionUpper = section.upper()
-                        write_comparison_to_html(
-                            f"{sectionUpper} - {key}",
-                            comparison_results,
-                            summary,
-                            template_path,
-                            output_file,
-                            env1,
-                            env2,
-                            file1_path=json_file1_path,
-                            file2_path=json_file2_path,
-                        )
+                        content_html += f'<button class="accordion">{key}</button>'
+                        content_html += f'<div class="panel">'
+                        content_html += f'<h3>{section.upper()} - {key}</h3>'
+                        content_html += f'<div>{write_comparison_to_html(f"{section}_{key}", comparison_results, summary, template_path, output_file, env1, env2, file1_path=json_file1_path, file2_path=json_file2_path)}</div>'
+                        content_html += '</div>'
                 else:
                     comparison_results, summary = compare_tfvars_data(data1.get(section, {}), data2.get(section, {}), env1, env2)
-                    write_comparison_to_html(
-                        section,
-                        comparison_results,
-                        summary,
-                        template_path,
-                        output_file,
-                        env1,
-                        env2,
-                        file1_path=json_file1_path,
-                        file2_path=json_file2_path,
-                    )
+                    content_html += f'<h3>{section.upper()}</h3>'
+                    content_html += f'<div>{write_comparison_to_html(section, comparison_results, summary, template_path, output_file, env1, env2, file1_path=json_file1_path, file2_path=json_file2_path)}</div>'
+                content_html += '</div>'
+            tabs_html += '</div>'
+            content_html += '</div>'
+
+            with open("temp.html", "a") as file:
+                file.write(tabs_html + content_html)
 
         elif isConfigCompare:
             # Compare .properties files
