@@ -1,362 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comparison Report</title>
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Add Font Awesome for icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
     <style>
-      :root {
-        --primary-color: #2c3e50;
-        --secondary-color: #34495e;
-        --accent-color: #3498db;
-        --success-color: #27ae60;
-        --warning-color: #f1c40f;
-        --danger-color: #e74c3c;
-        --info-color: #3498db;
-        --light-bg: #ecf0f1;
-      }
+        /* Base styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+            font-size: 13px;
+        }
 
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        margin: 20px;
-        background-color: var(--light-bg);
-        font-size: 13px;
-        color: var(--primary-color);
-      }
+        /* Tab styling */
+        .tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 20px;
+        }
 
-      .summary-section {
-        margin-bottom: 30px;
-        padding: 20px;
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      }
+        .tab-button {
+            padding: 10px 20px;
+            border: none;
+            background: #e0e0e0;
+            cursor: pointer;
+            font-weight: bold;
+        }
 
-      .summary-section h3 {
-        color: var(--primary-color);
-        border-bottom: 2px solid var(--accent-color);
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-      }
+        .tab-button.active {
+            background: #fff;
+            border-bottom: 3px solid #2196F3;
+        }
 
-      /* Tabs styling */
-      .nav-tabs {
-        margin-bottom: 20px;
-        border-bottom: 2px solid var(--accent-color);
-      }
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+        }
 
-      .nav-tabs .nav-link {
-        color: var(--secondary-color);
-        font-weight: 600;
-        text-transform: uppercase;
-        padding: 12px 24px;
-        border: none;
-        border-bottom: 2px solid transparent;
-        margin-bottom: -2px;
-        transition: all 0.3s ease;
-      }
+        .tab-content.active {
+            display: block;
+        }
 
-      .nav-tabs .nav-link:hover {
-        color: var(--accent-color);
-        background-color: rgba(52, 152, 219, 0.1);
-      }
+        /* Accordion styling */
+        .accordion {
+            margin-bottom: 10px;
+        }
 
-      .nav-tabs .nav-link.active {
-        color: var(--accent-color);
-        background-color: transparent;
-        border-bottom: 2px solid var(--accent-color);
-      }
+        .accordion-header {
+            background: #f8f9fa;
+            padding: 15px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-weight: bold;
+        }
 
-      /* Accordion styling */
-      .accordion-item {
-        margin-bottom: 10px;
-        border: none;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      }
+        .accordion-content {
+            display: none;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
 
-      .accordion-button {
-        font-size: 14px;
-        font-weight: 600;
-        padding: 15px 20px;
-        background-color: white;
-        color: var(--primary-color);
-        transition: all 0.3s ease;
-      }
+        .accordion-content.show {
+            display: block;
+        }
 
-      .accordion-button:not(.collapsed) {
-        background-color: var(--accent-color);
-        color: white;
-      }
-
-      .accordion-button:focus {
-        box-shadow: none;
-      }
-
-      .accordion-body {
-        padding: 20px;
-        background-color: white;
-      }
-
-      /* Comparison stats styling */
-      .comparison-stats {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        margin-bottom: 20px;
-        padding: 15px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-      }
-
-      .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 15px;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
-      }
-
-      .stat-item:hover {
-        transform: translateY(-2px);
-      }
-
-      .stat-item.selected {
-        border-color: var(--primary-color);
-        background-color: rgba(0, 0, 0, 0.05);
-      }
-
-      .stat-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        display: inline-block;
-      }
-
-      .equal-dot {
-        background-color: #27ae60;
-      }
-      .undefined-dot {
-        background-color: #f1c40f;
-      }
-      .red-dot {
-        background-color: #e74c3c;
-      }
-      .blue-dot {
-        background-color: #3498db;
-      }
-
-      /* Table styling */
-      .table-container {
-        width: 100%;
-        overflow-x: hidden;
-        margin-top: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      }
-
-      table {
-        table-layout: fixed;
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        margin-bottom: 0;
-      }
-
-      th {
-        background-color: var(--primary-color);
-        color: white;
-        padding: 12px;
-        font-weight: 600;
-        text-align: left;
-      }
-
-      td {
-        padding: 12px;
-        border: 1px solid #dee2e6;
-        word-wrap: break-word;
-        max-width: 300px;
-        transition: background-color 0.3s ease;
-      }
-
-      tr.equal {
-        background-color: rgba(39, 174, 96, 0.2);
-      }
-      tr.red {
-        background-color: rgba(231, 76, 60, 0.2);
-      }
-      tr.blue {
-        background-color: rgba(52, 152, 219, 0.2);
-      }
-      tr.yellow {
-        background-color: rgba(241, 196, 15, 0.2);
-      }
-
-      tr.hidden {
-        display: none;
-      }
-
-      /* Pre tag styling */
-      pre {
-        margin: 0;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        background-color: transparent;
-        border: none;
-        padding: 0;
-        font-family: inherit;
-        font-size: inherit;
-      }
-
-      /* Responsive adjustments */
-      @media (max-width: 768px) {
+        /* Stats/Legend styling */
         .comparison-stats {
-          flex-direction: column;
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
-        td {
-          max-width: 200px;
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            background: #f8f9fa;
         }
-      }
 
-      /* Legend item styling */
-      .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 15px;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
-        user-select: none;
-      }
+        .stat-item:hover {
+            background: #e9ecef;
+        }
 
-      .stat-item:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-        transform: translateY(-2px);
-      }
+        .stat-item.selected {
+            border-color: #2196F3;
+            background: #e3f2fd;
+        }
 
-      .stat-item.selected {
-        border-color: #2c3e50;
-        background-color: rgba(0, 0, 0, 0.05);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
+        .stat-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
 
-      /* Add visual feedback for clickable items */
-      .stat-item::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        pointer-events: none;
-        transition: background-color 0.3s;
-      }
+        .equal-dot { background-color: #4caf50; }
+        .undefined-dot { background-color: #ffc107; }
+        .red-dot { background-color: #f44336; }
+        .blue-dot { background-color: #2196F3; }
 
-      .stat-item:active::before {
-        background-color: rgba(0, 0, 0, 0.1);
-      }
+        /* Table styling */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        tr.equal { background-color: rgba(76, 175, 80, 0.1); }
+        tr.red { background-color: rgba(244, 67, 54, 0.1); }
+        tr.blue { background-color: rgba(33, 150, 243, 0.1); }
+        tr.yellow { background-color: rgba(255, 193, 7, 0.1); }
+
+        tr.hidden {
+            display: none;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
     </style>
-  </head>
-  <body>
-    <div class="container-fluid">
-      <div class="summary-section">
+</head>
+<body>
+    <div class="container">
+        <div class="summary-section">
+            
             <h3>Summary</h3>
             <p><strong>Branch:</strong> None</p>
             <p><strong>Latest Commit:</strong> None - None</p>
             <p><strong>Comparing ENVs:</strong> DEVL & TEST</p>
-            </div>
+            
+        </div>
 
-      <ul class="nav nav-tabs" id="comparisonTabs" role="tablist">
+        <div class="tabs" id="comparisonTabs">
+            
+        <button class="tab-button" data-tab="tab-ecs">
+            ecs
+        </button>
         
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="tab-ecs" 
-                    data-bs-toggle="tab" data-bs-target="#content-ecs" 
-                    type="button" role="tab">
-                ecs
-            </button>
-        </li>
+        <button class="tab-button" data-tab="tab-rds">
+            rds
+        </button>
         
-        <li class="nav-item" role="presentation">
-            <button class="nav-link " id="tab-rds" 
-                    data-bs-toggle="tab" data-bs-target="#content-rds" 
-                    type="button" role="tab">
-                rds
-            </button>
-        </li>
+        <button class="tab-button" data-tab="tab-parameterstore">
+            parameterStore
+        </button>
         
-        <li class="nav-item" role="presentation">
-            <button class="nav-link " id="tab-parameterstore" 
-                    data-bs-toggle="tab" data-bs-target="#content-parameterstore" 
-                    type="button" role="tab">
-                parameterStore
-            </button>
-        </li>
-        
-      </ul>
+        </div>
 
-      <div class="tab-content" id="comparisonTabsContent">
+        <div class="tab-content-container">
+            
                 <div class="tab-pane fade" id="content-ecs" role="tabpanel">
                     <div class="accordion" id="accordion-ecs" data-bs-parent="#comparisonTabsContent">
                 
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading-collapse-ecs-ciem-ecs-idm-forgerock">
-            <button class="accordion-button collapsed" type="button" 
-                    data-bs-target="#collapse-ecs-ciem-ecs-idm-forgerock" 
-                    aria-expanded="false" 
-                    aria-controls="collapse-ecs-ciem-ecs-idm-forgerock">
-                ciem-ecs-idm/forgerock
-            </button>
-        </h2>
-        <div id="collapse-ecs-ciem-ecs-idm-forgerock" class="accordion-collapse collapse">
-            <div class="accordion-body">
-                
-    <div class="comparison-stats">
-        <div class="stat-item" data-filter="equal" role="button" title="Click to filter Equal items">
-            <span class="stat-dot equal-dot"></span>
-            <span>Equal: 22</span>
+    <div class="accordion">
+        <div class="accordion-header">
+            ciem-ecs-idm/forgerock
         </div>
-        <div class="stat-item" data-filter="yellow" role="button" title="Click to filter Undefined items">
-            <span class="stat-dot undefined-dot"></span>
-            <span>Undefined: 0</span>
-        </div>
-        <div class="stat-item" data-filter="red" role="button" title="Click to filter Check Required items">
-            <span class="stat-dot red-dot"></span>
-            <span>Check Required: 1</span>
-        </div>
-        <div class="stat-item" data-filter="blue" role="button" title="Click to filter Environment Specific items">
-            <span class="stat-dot blue-dot"></span>
-            <span>Environment Specific: 3</span>
-        </div>
-    </div>
-    
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="width: 20%">Key</th>
-                                <th style="width: 20%">DEVL</th>
-                                <th style="width: 20%">TEST</th>
-                                <th style="width: 25%">Comparison</th>
-                                <th style="width: 15%">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
+        <div class="accordion-content">
+            <div class="comparison-stats">
+                <div class="stat-item" data-filter="equal">
+                    <span class="stat-dot equal-dot"></span>
+                    <span>Equal: 22</span>
+                </div>
+                <div class="stat-item" data-filter="yellow">
+                    <span class="stat-dot undefined-dot"></span>
+                    <span>Undefined: 0</span>
+                </div>
+                <div class="stat-item" data-filter="red">
+                    <span class="stat-dot red-dot"></span>
+                    <span>Check Required: 1</span>
+                </div>
+                <div class="stat-item" data-filter="blue">
+                    <span class="stat-dot blue-dot"></span>
+                    <span>Environment Specific: 3</span>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>DEVL</th>
+                            <th>TEST</th>
+                            <th>Comparison</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
         <tr class="equal">
             <td>clusterArn</td>
             <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm&quot;</pre></td>
@@ -625,57 +482,48 @@
             <td class="status">Equal</td>
         </tr>
         
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
     
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading-collapse-ecs-ciem-ecs-idm-forgerock2">
-            <button class="accordion-button collapsed" type="button" 
-                    data-bs-target="#collapse-ecs-ciem-ecs-idm-forgerock2" 
-                    aria-expanded="false" 
-                    aria-controls="collapse-ecs-ciem-ecs-idm-forgerock2">
-                ciem-ecs-idm/forgerock2
-            </button>
-        </h2>
-        <div id="collapse-ecs-ciem-ecs-idm-forgerock2" class="accordion-collapse collapse">
-            <div class="accordion-body">
-                
-    <div class="comparison-stats">
-        <div class="stat-item" data-filter="equal" role="button" title="Click to filter Equal items">
-            <span class="stat-dot equal-dot"></span>
-            <span>Equal: 22</span>
+    <div class="accordion">
+        <div class="accordion-header">
+            ciem-ecs-idm/forgerock2
         </div>
-        <div class="stat-item" data-filter="yellow" role="button" title="Click to filter Undefined items">
-            <span class="stat-dot undefined-dot"></span>
-            <span>Undefined: 0</span>
-        </div>
-        <div class="stat-item" data-filter="red" role="button" title="Click to filter Check Required items">
-            <span class="stat-dot red-dot"></span>
-            <span>Check Required: 4</span>
-        </div>
-        <div class="stat-item" data-filter="blue" role="button" title="Click to filter Environment Specific items">
-            <span class="stat-dot blue-dot"></span>
-            <span>Environment Specific: 0</span>
-        </div>
-    </div>
-    
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="width: 20%">Key</th>
-                                <th style="width: 20%">DEVL</th>
-                                <th style="width: 20%">TEST</th>
-                                <th style="width: 25%">Comparison</th>
-                                <th style="width: 15%">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
+        <div class="accordion-content">
+            <div class="comparison-stats">
+                <div class="stat-item" data-filter="equal">
+                    <span class="stat-dot equal-dot"></span>
+                    <span>Equal: 22</span>
+                </div>
+                <div class="stat-item" data-filter="yellow">
+                    <span class="stat-dot undefined-dot"></span>
+                    <span>Undefined: 0</span>
+                </div>
+                <div class="stat-item" data-filter="red">
+                    <span class="stat-dot red-dot"></span>
+                    <span>Check Required: 4</span>
+                </div>
+                <div class="stat-item" data-filter="blue">
+                    <span class="stat-dot blue-dot"></span>
+                    <span>Environment Specific: 0</span>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>DEVL</th>
+                            <th>TEST</th>
+                            <th>Comparison</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
         <tr class="equal">
             <td>clusterArn</td>
             <td><pre>&quot;arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm&quot;</pre></td>
@@ -944,9 +792,8 @@
             <td class="status">Equal</td>
         </tr>
         
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -954,50 +801,42 @@
                 <div class="tab-pane fade" id="content-rds" role="tabpanel">
                     <div class="accordion" id="accordion-rds" data-bs-parent="#comparisonTabsContent">
                 
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading-collapse-rds-ciem-aur-idm">
-            <button class="accordion-button collapsed" type="button" 
-                    data-bs-target="#collapse-rds-ciem-aur-idm" 
-                    aria-expanded="false" 
-                    aria-controls="collapse-rds-ciem-aur-idm">
-                ciem-aur-idm
-            </button>
-        </h2>
-        <div id="collapse-rds-ciem-aur-idm" class="accordion-collapse collapse">
-            <div class="accordion-body">
-                
-    <div class="comparison-stats">
-        <div class="stat-item" data-filter="equal" role="button" title="Click to filter Equal items">
-            <span class="stat-dot equal-dot"></span>
-            <span>Equal: 48</span>
+    <div class="accordion">
+        <div class="accordion-header">
+            ciem-aur-idm
         </div>
-        <div class="stat-item" data-filter="yellow" role="button" title="Click to filter Undefined items">
-            <span class="stat-dot undefined-dot"></span>
-            <span>Undefined: 0</span>
-        </div>
-        <div class="stat-item" data-filter="red" role="button" title="Click to filter Check Required items">
-            <span class="stat-dot red-dot"></span>
-            <span>Check Required: 0</span>
-        </div>
-        <div class="stat-item" data-filter="blue" role="button" title="Click to filter Environment Specific items">
-            <span class="stat-dot blue-dot"></span>
-            <span>Environment Specific: 1</span>
-        </div>
-    </div>
-    
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="width: 20%">Key</th>
-                                <th style="width: 20%">DEVL</th>
-                                <th style="width: 20%">TEST</th>
-                                <th style="width: 25%">Comparison</th>
-                                <th style="width: 15%">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
+        <div class="accordion-content">
+            <div class="comparison-stats">
+                <div class="stat-item" data-filter="equal">
+                    <span class="stat-dot equal-dot"></span>
+                    <span>Equal: 48</span>
+                </div>
+                <div class="stat-item" data-filter="yellow">
+                    <span class="stat-dot undefined-dot"></span>
+                    <span>Undefined: 0</span>
+                </div>
+                <div class="stat-item" data-filter="red">
+                    <span class="stat-dot red-dot"></span>
+                    <span>Check Required: 0</span>
+                </div>
+                <div class="stat-item" data-filter="blue">
+                    <span class="stat-dot blue-dot"></span>
+                    <span>Environment Specific: 1</span>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>DEVL</th>
+                            <th>TEST</th>
+                            <th>Comparison</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
         <tr class="equal">
             <td>AllocatedStorage</td>
             <td><pre>1</pre></td>
@@ -1698,57 +1537,48 @@
             <td class="status">Equal</td>
         </tr>
         
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
     
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading-collapse-rds-ciem-aur-idm-acpt">
-            <button class="accordion-button collapsed" type="button" 
-                    data-bs-target="#collapse-rds-ciem-aur-idm-acpt" 
-                    aria-expanded="false" 
-                    aria-controls="collapse-rds-ciem-aur-idm-acpt">
-                ciem-aur-idm-acpt
-            </button>
-        </h2>
-        <div id="collapse-rds-ciem-aur-idm-acpt" class="accordion-collapse collapse">
-            <div class="accordion-body">
-                
-    <div class="comparison-stats">
-        <div class="stat-item" data-filter="equal" role="button" title="Click to filter Equal items">
-            <span class="stat-dot equal-dot"></span>
-            <span>Equal: 48</span>
+    <div class="accordion">
+        <div class="accordion-header">
+            ciem-aur-idm-acpt
         </div>
-        <div class="stat-item" data-filter="yellow" role="button" title="Click to filter Undefined items">
-            <span class="stat-dot undefined-dot"></span>
-            <span>Undefined: 0</span>
-        </div>
-        <div class="stat-item" data-filter="red" role="button" title="Click to filter Check Required items">
-            <span class="stat-dot red-dot"></span>
-            <span>Check Required: 0</span>
-        </div>
-        <div class="stat-item" data-filter="blue" role="button" title="Click to filter Environment Specific items">
-            <span class="stat-dot blue-dot"></span>
-            <span>Environment Specific: 1</span>
-        </div>
-    </div>
-    
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="width: 20%">Key</th>
-                                <th style="width: 20%">DEVL</th>
-                                <th style="width: 20%">TEST</th>
-                                <th style="width: 25%">Comparison</th>
-                                <th style="width: 15%">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
+        <div class="accordion-content">
+            <div class="comparison-stats">
+                <div class="stat-item" data-filter="equal">
+                    <span class="stat-dot equal-dot"></span>
+                    <span>Equal: 48</span>
+                </div>
+                <div class="stat-item" data-filter="yellow">
+                    <span class="stat-dot undefined-dot"></span>
+                    <span>Undefined: 0</span>
+                </div>
+                <div class="stat-item" data-filter="red">
+                    <span class="stat-dot red-dot"></span>
+                    <span>Check Required: 0</span>
+                </div>
+                <div class="stat-item" data-filter="blue">
+                    <span class="stat-dot blue-dot"></span>
+                    <span>Environment Specific: 1</span>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>DEVL</th>
+                            <th>TEST</th>
+                            <th>Comparison</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
         <tr class="equal">
             <td>AllocatedStorage</td>
             <td><pre>1</pre></td>
@@ -2449,9 +2279,8 @@
             <td class="status">Equal</td>
         </tr>
         
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -2459,50 +2288,42 @@
                 <div class="tab-pane fade" id="content-parameterstore" role="tabpanel">
                     <div class="accordion" id="accordion-parameterstore" data-bs-parent="#comparisonTabsContent">
                 
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading-collapse-parameterstore-configuration">
-            <button class="accordion-button collapsed" type="button" 
-                    data-bs-target="#collapse-parameterstore-configuration" 
-                    aria-expanded="false" 
-                    aria-controls="collapse-parameterstore-configuration">
-                Configuration
-            </button>
-        </h2>
-        <div id="collapse-parameterstore-configuration" class="accordion-collapse collapse">
-            <div class="accordion-body">
-                
-    <div class="comparison-stats">
-        <div class="stat-item" data-filter="equal" role="button" title="Click to filter Equal items">
-            <span class="stat-dot equal-dot"></span>
-            <span>Equal: 60</span>
+    <div class="accordion">
+        <div class="accordion-header">
+            Configuration
         </div>
-        <div class="stat-item" data-filter="yellow" role="button" title="Click to filter Undefined items">
-            <span class="stat-dot undefined-dot"></span>
-            <span>Undefined: 0</span>
-        </div>
-        <div class="stat-item" data-filter="red" role="button" title="Click to filter Check Required items">
-            <span class="stat-dot red-dot"></span>
-            <span>Check Required: 1</span>
-        </div>
-        <div class="stat-item" data-filter="blue" role="button" title="Click to filter Environment Specific items">
-            <span class="stat-dot blue-dot"></span>
-            <span>Environment Specific: 1</span>
-        </div>
-    </div>
-    
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="width: 20%">Key</th>
-                                <th style="width: 20%">DEVL</th>
-                                <th style="width: 20%">TEST</th>
-                                <th style="width: 25%">Comparison</th>
-                                <th style="width: 15%">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
+        <div class="accordion-content">
+            <div class="comparison-stats">
+                <div class="stat-item" data-filter="equal">
+                    <span class="stat-dot equal-dot"></span>
+                    <span>Equal: 60</span>
+                </div>
+                <div class="stat-item" data-filter="yellow">
+                    <span class="stat-dot undefined-dot"></span>
+                    <span>Undefined: 0</span>
+                </div>
+                <div class="stat-item" data-filter="red">
+                    <span class="stat-dot red-dot"></span>
+                    <span>Check Required: 1</span>
+                </div>
+                <div class="stat-item" data-filter="blue">
+                    <span class="stat-dot blue-dot"></span>
+                    <span>Environment Specific: 1</span>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>DEVL</th>
+                            <th>TEST</th>
+                            <th>Comparison</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
         <tr class="equal">
             <td>/ciem/ais/v3-app-comp-core-lite/Arn</td>
             <td><pre>&quot;arn:aws:iam::920887439016:role/ciem-devl-etss-comp-lite&quot;</pre></td>
@@ -2999,109 +2820,90 @@
             <td class="status">Equal</td>
         </tr>
         
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    </div></div></div>
+    </div></div>
+        </div>
     </div>
 
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Initialize tabs
-        const firstTab = document.querySelector("#comparisonTabs .nav-link");
-        const firstTabContent = document.querySelector(".tab-pane");
-        if (firstTab && firstTabContent) {
-          firstTab.classList.add("active");
-          firstTabContent.classList.add("active", "show");
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabs = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
 
-        // Initialize Bootstrap tabs
-        var tabElements = document.querySelectorAll('[data-bs-toggle="tab"]');
-        tabElements.forEach(function (tabElement) {
-          new bootstrap.Tab(tabElement);
-        });
+            function activateTab(tabId) {
+                // Deactivate all tabs
+                tabs.forEach(tab => tab.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
 
-        // Handle accordion clicks
-        document.querySelectorAll(".accordion-button").forEach((button) => {
-          button.addEventListener("click", function (e) {
-            e.preventDefault();
-            const targetId = this.getAttribute("data-bs-target").substring(1); // Remove the # from the ID
-            const target = document.getElementById(targetId);
-
-            if (target) {
-              // Toggle the collapse state
-              if (target.classList.contains("show")) {
-                target.classList.remove("show");
-                this.classList.add("collapsed");
-                this.setAttribute("aria-expanded", "false");
-              } else {
-                target.classList.add("show");
-                this.classList.remove("collapsed");
-                this.setAttribute("aria-expanded", "true");
-              }
-            }
-          });
-        });
-        // Show first accordion in active tab
-        const activeTab = document.querySelector(".tab-pane.active");
-        if (activeTab) {
-          const firstAccordion = activeTab.querySelector(".accordion-collapse");
-          const firstAccordionButton =
-            activeTab.querySelector(".accordion-button");
-          if (firstAccordion && firstAccordionButton) {
-            firstAccordion.classList.add("show");
-            firstAccordionButton.classList.remove("collapsed");
-            firstAccordionButton.setAttribute("aria-expanded", "true");
-          }
-        }
-
-        document
-          .querySelectorAll(".comparison-stats")
-          .forEach((statsContainer) => {
-            const tableBody = statsContainer
-              .closest(".accordion-body")
-              .querySelector("tbody");
-            if (!tableBody) return; // Skip if no table body found
-
-            const statItems = statsContainer.querySelectorAll(".stat-item");
-            let selectedFilters = new Set();
-
-            statItems.forEach((item) => {
-              item.addEventListener("click", function () {
-                // Toggle selection state
-                this.classList.toggle("selected");
-                const filterClass = this.getAttribute("data-filter");
-
-                if (this.classList.contains("selected")) {
-                  selectedFilters.add(filterClass);
-                } else {
-                  selectedFilters.delete(filterClass);
+                // Activate selected tab
+                const selectedTab = document.querySelector(`[data-tab="${tabId}"]`);
+                const selectedContent = document.getElementById(tabId);
+                if (selectedTab && selectedContent) {
+                    selectedTab.classList.add('active');
+                    selectedContent.classList.add('active');
                 }
+            }
 
-                // Apply filters to table rows
-                const rows = tableBody.querySelectorAll("tr");
-                rows.forEach((row) => {
-                  // If no filters selected, show all rows
-                  if (selectedFilters.size === 0) {
-                    row.style.display = "";
-                  } else {
-                    // Check if row matches any selected filter
-                    const rowClasses = Array.from(row.classList);
-                    const matchesFilter = Array.from(selectedFilters).some(
-                      (filter) => rowClasses.includes(filter)
-                    );
-                    row.style.display = matchesFilter ? "" : "none";
-                  }
+            // Initialize tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    activateTab(tabId);
                 });
-              });
             });
-          });
-      });
+
+            // Activate first tab
+            if (tabs.length > 0) {
+                const firstTabId = tabs[0].getAttribute('data-tab');
+                activateTab(firstTabId);
+            }
+
+            // Accordion functionality
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    content.classList.toggle('show');
+                });
+            });
+
+            // Filtering functionality
+            document.querySelectorAll('.comparison-stats').forEach(statsContainer => {
+                const tableBody = statsContainer.closest('.accordion-content').querySelector('tbody');
+                const statItems = statsContainer.querySelectorAll('.stat-item');
+                let selectedFilters = new Set();
+
+                statItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        item.classList.toggle('selected');
+                        const filterClass = item.getAttribute('data-filter');
+
+                        if (item.classList.contains('selected')) {
+                            selectedFilters.add(filterClass);
+                        } else {
+                            selectedFilters.delete(filterClass);
+                        }
+
+                        const rows = tableBody.querySelectorAll('tr');
+                        rows.forEach(row => {
+                            if (selectedFilters.size === 0) {
+                                row.classList.remove('hidden');
+                            } else {
+                                if (selectedFilters.has(row.classList[0])) {
+                                    row.classList.remove('hidden');
+                                } else {
+                                    row.classList.add('hidden');
+                                }
+                            }
+                        });
+                    });
+                });
+            });
+        });
     </script>
-  </body>
+</body>
 </html>

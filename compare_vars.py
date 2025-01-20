@@ -412,27 +412,30 @@ def is_nested_dict(data):
     """Check if the dictionary has nested dictionaries as values"""
     return bool(data) and all(isinstance(v, dict) for v in data.values())
 
+def generate_tabs(sections):
+    """Generate HTML for tab navigation"""
+    tabs_html = ""
+    for section in sections:
+        tabs_html += f"""
+        <button class="tab-button" data-tab="tab-{section.lower()}">
+            {section}
+        </button>
+        """
+    return tabs_html
+
 def generate_accordion_item(section, subsection, comparison_results, summary, env1, env2, missing_in_env=None):
     """Generate HTML for an accordion item"""
-    # Sanitize the IDs
-    accordion_id = f"collapse-{sanitize_id(section.lower())}-{sanitize_id(subsection.lower())}"
+    accordion_id = f"accordion-{sanitize_id(section.lower())}-{sanitize_id(subsection.lower())}"
     
     if missing_in_env or not comparison_results:
         return f"""
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="heading-{accordion_id}">
-                <button class="accordion-button collapsed" type="button" 
-                        data-bs-target="#{accordion_id}" 
-                        aria-expanded="false" 
-                        aria-controls="{accordion_id}">
-                    {subsection}
-                </button>
-            </h2>
-            <div id="{accordion_id}" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                    <div class="alert alert-warning">
-                        {f"File is missing in {missing_in_env.upper()}" if missing_in_env else "No data available"}
-                    </div>
+        <div class="accordion">
+            <div class="accordion-header">
+                {subsection}
+            </div>
+            <div class="accordion-content">
+                <div class="warning-message">
+                    {f"File is missing in {missing_in_env.upper()}" if missing_in_env else "No data available"}
                 </div>
             </div>
         </div>
@@ -458,57 +461,45 @@ def generate_accordion_item(section, subsection, comparison_results, summary, en
         </tr>
         """
 
-    # Update the comparison stats section with proper data attributes
-    stats_html = f"""
-    <div class="comparison-stats">
-        <div class="stat-item" data-filter="equal" role="button" title="Click to filter Equal items">
-            <span class="stat-dot equal-dot"></span>
-            <span>Equal: {summary['equal']}</span>
-        </div>
-        <div class="stat-item" data-filter="yellow" role="button" title="Click to filter Undefined items">
-            <span class="stat-dot undefined-dot"></span>
-            <span>Undefined: {summary['undefined']}</span>
-        </div>
-        <div class="stat-item" data-filter="red" role="button" title="Click to filter Check Required items">
-            <span class="stat-dot red-dot"></span>
-            <span>Check Required: {summary['red']}</span>
-        </div>
-        <div class="stat-item" data-filter="blue" role="button" title="Click to filter Environment Specific items">
-            <span class="stat-dot blue-dot"></span>
-            <span>Environment Specific: {summary['blue']}</span>
-        </div>
-    </div>
-    """
-
     return f"""
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading-{accordion_id}">
-            <button class="accordion-button collapsed" type="button" 
-                    data-bs-target="#{accordion_id}" 
-                    aria-expanded="false" 
-                    aria-controls="{accordion_id}">
-                {subsection}
-            </button>
-        </h2>
-        <div id="{accordion_id}" class="accordion-collapse collapse">
-            <div class="accordion-body">
-                {stats_html}
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="width: 20%">Key</th>
-                                <th style="width: 20%">{env1.upper()}</th>
-                                <th style="width: 20%">{env2.upper()}</th>
-                                <th style="width: 25%">Comparison</th>
-                                <th style="width: 15%">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rows}
-                        </tbody>
-                    </table>
+    <div class="accordion">
+        <div class="accordion-header">
+            {subsection}
+        </div>
+        <div class="accordion-content">
+            <div class="comparison-stats">
+                <div class="stat-item" data-filter="equal">
+                    <span class="stat-dot equal-dot"></span>
+                    <span>Equal: {summary['equal']}</span>
                 </div>
+                <div class="stat-item" data-filter="yellow">
+                    <span class="stat-dot undefined-dot"></span>
+                    <span>Undefined: {summary['undefined']}</span>
+                </div>
+                <div class="stat-item" data-filter="red">
+                    <span class="stat-dot red-dot"></span>
+                    <span>Check Required: {summary['red']}</span>
+                </div>
+                <div class="stat-item" data-filter="blue">
+                    <span class="stat-dot blue-dot"></span>
+                    <span>Environment Specific: {summary['blue']}</span>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>{env1.upper()}</th>
+                            <th>{env2.upper()}</th>
+                            <th>Comparison</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
