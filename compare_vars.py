@@ -10,6 +10,10 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
+def sanitize_id(text):
+    """Sanitize text to be used as an ID by replacing invalid characters"""
+    return text.replace('/', '-').replace(' ', '-').replace(',', '').replace('(', '').replace(')', '')
+
 # Function to escape HTML characters
 def escape_html(text):
     escape_table = {
@@ -302,37 +306,35 @@ def write_summary_to_html(output_file, env1, env2, branch_name, commit_id, commi
         logging.error(f"Error writing to HTML file {output_file}: {str(e)}")
         sys.exit(1)
 
-# Function to write comparisons to HTML
-def write_comparison_to_html(
-    file_name, comparison_results, summary, template_path, output_file, env1, env2, missing_in_env=None, file1_path="", file2_path=""
-):
-    try:
-        html_content = ""
-        legend_html = ""
-        table = ""
+def generate_tabs(sections):
+    """Generate HTML for tab navigation"""
+    tabs_html = ""
+    for i, section in enumerate(sections):
+        active = 'active' if i == 0 else ''
+        tabs_html += f"""
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {active}" id="tab-{section.lower()}" 
+                    data-bs-toggle="tab" data-bs-target="#content-{section.lower()}" 
+                    type="button" role="tab">
+                {section}
+            </button>
+        </li>
+        """
+    return tabs_html
 
-        if summary:
-            legend_html = f"""
-            <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
-            <h3 style="text-decoration: underline;">Comparison Report - {file_name}</h3>
-            <p><strong>Comparing Files:</strong> {file1_path} & {file2_path}</p>
-            <div style="display: flex; gap: 12px">
-                <p><strong><span style="color: #3cc257;">&#9679;</span> Equal Variables:</strong> {summary['equal']}</p>
-                <p><strong><span style="color: #d4b022;">&#9679;</span> Undefined Variables:</strong> {summary['undefined']}</p>
-                <p><strong><span style="color: rgb(241, 83, 83);">&#9679;</span> Red Variables (Check Required):</strong> {summary['red']}</p>
-                <p><strong><span style="color: rgb(26, 179, 230);">&#9679;</span> Blue Variables (Environment Specific):</strong> {summary['blue']}</p>
+def write_comparison_to_html(
+    section_name, subsection_name, comparison_results, summary, 
+    template_path, output_file, env1, env2, missing_in_env=None, 
+    file1_path="", file2_path=""):
+    try:
+        if missing_in_env:
+            content = f"""
+            <div class="alert alert-warning">
+                File is missing in {missing_in_env.upper()}
             </div>
             """
         else:
-            legend_html = f"""
-                <hr style="border: 1px solid black; width: 100%; margin-top: 16px;">
-                <h3 style="text-decoration: underline;">Comparison Report - {file_name}</h3>
-            """
-
-        if missing_in_env:
-            rows = f"<p style='color:red;'>File <strong>{file_name}</strong> is missing in {missing_in_env.upper()}</p>"
-            table = f"""<div>{rows}</div>"""
-        else:
+            # Generate comparison table
             rows = ""
             for comparison in comparison_results:
                 key = comparison["key"]
@@ -352,32 +354,166 @@ def write_comparison_to_html(
                 </tr>
                 """
 
-            table = f"""
-            <table>
-                <tr>
-                    <th>Key</th>
-                    <th>{env1.upper()}</th>
-                    <th>{env2.upper()}</th>
-                    <th>Comparison</th>
-                    <th>Status</th>
-                </tr>
-                {rows}
+            # Generate statistics
+            stats = f"""
+            <div class="comparison-stats">
+                <div class="stat-item"><span class="stat-dot equal-dot"></span> Equal: {summary['equal']}</div>
+                <div class="stat-item"><span class="stat-dot undefined-dot"></span> Undefined: {summary['undefined']}</div>
+                <div class="stat-item"><span class="stat-dot red-dot"></span> Check Required: {summary['red']}</div>
+                <div class="stat-item"><span class="stat-dot blue-dot"></span> Environment Specific: {summary['blue']}</div>
+            </div>
+            """
+
+            content = f"""
+            {stats}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>{env1.upper()}</th>
+                        <th>{env2.upper()}</th>
+                        <th>Comparison</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows}
+                </tbody>
             </table>
             """
 
-        html_content = f"""{legend_html}{table}"""
+        accordion_item = f"""
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-{section_name.lower()}-{subsection_name.lower()}">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                        data-bs-target="#collapse-{section_name.lower()}-{subsection_name.lower()}">
+                    {subsection_name}
+                </button>
+            </h2>
+            <div id="collapse-{section_name.lower()}-{subsection_name.lower()}" 
+                 class="accordion-collapse collapse" 
+                 data-bs-parent="#accordion-{section_name.lower()}">
+                <div class="accordion-body">
+                    {content}
+                </div>
+            </div>
+        </div>
+        """
 
         with open("temp.html", "a") as file:
-            file.write(html_content)
+            file.write(accordion_item)
 
-        logging.info(f"Comparison report successfully written to {output_file}")
-    except FileNotFoundError:
-        logging.error(f"Template file not found: {template_path}")
-        sys.exit(1)
     except Exception as e:
-        logging.error(f"Error writing to HTML file {output_file}: {str(e)}")
+        logging.error(f"Error writing to HTML file: {str(e)}")
         sys.exit(1)
+        
+        
+def is_nested_dict(data):
+    """Check if the dictionary has nested dictionaries as values"""
+    return bool(data) and all(isinstance(v, dict) for v in data.values())
 
+def generate_accordion_item(section, subsection, comparison_results, summary, env1, env2, missing_in_env=None):
+    """Generate HTML for an accordion item"""
+    # Sanitize the IDs
+    accordion_id = f"collapse-{sanitize_id(section.lower())}-{sanitize_id(subsection.lower())}"
+    
+    if missing_in_env or not comparison_results:
+        return f"""
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-{accordion_id}">
+                <button class="accordion-button collapsed" type="button" 
+                        data-bs-target="#{accordion_id}" 
+                        aria-expanded="false" 
+                        aria-controls="{accordion_id}">
+                    {subsection}
+                </button>
+            </h2>
+            <div id="{accordion_id}" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    <div class="alert alert-warning">
+                        {f"File is missing in {missing_in_env.upper()}" if missing_in_env else "No data available"}
+                    </div>
+                </div>
+            </div>
+        </div>
+        """
+
+    # Generate table rows
+    rows = ""
+    for comparison in comparison_results:
+        key = comparison["key"]
+        value1 = escape_html(comparison["value1"])
+        value2 = escape_html(comparison["value2"])
+        exact_diff = escape_html(comparison["exact_diff"]) if comparison["exact_diff"] else ""
+        row_class = comparison["row_class"]
+        status = comparison["status"]
+
+        rows += f"""
+        <tr class="{row_class}">
+            <td>{escape_html(key)}</td>
+            <td><pre>{value1}</pre></td>
+            <td><pre>{value2}</pre></td>
+            <td><pre>{exact_diff}</pre></td>
+            <td class="status">{status}</td>
+        </tr>
+        """
+
+    # Update the comparison stats section with proper data attributes
+    stats_html = f"""
+    <div class="comparison-stats">
+        <div class="stat-item" data-filter="equal" role="button" title="Click to filter Equal items">
+            <span class="stat-dot equal-dot"></span>
+            <span>Equal: {summary['equal']}</span>
+        </div>
+        <div class="stat-item" data-filter="yellow" role="button" title="Click to filter Undefined items">
+            <span class="stat-dot undefined-dot"></span>
+            <span>Undefined: {summary['undefined']}</span>
+        </div>
+        <div class="stat-item" data-filter="red" role="button" title="Click to filter Check Required items">
+            <span class="stat-dot red-dot"></span>
+            <span>Check Required: {summary['red']}</span>
+        </div>
+        <div class="stat-item" data-filter="blue" role="button" title="Click to filter Environment Specific items">
+            <span class="stat-dot blue-dot"></span>
+            <span>Environment Specific: {summary['blue']}</span>
+        </div>
+    </div>
+    """
+
+    return f"""
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="heading-{accordion_id}">
+            <button class="accordion-button collapsed" type="button" 
+                    data-bs-target="#{accordion_id}" 
+                    aria-expanded="false" 
+                    aria-controls="{accordion_id}">
+                {subsection}
+            </button>
+        </h2>
+        <div id="{accordion_id}" class="accordion-collapse collapse">
+            <div class="accordion-body">
+                {stats_html}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%">Key</th>
+                                <th style="width: 20%">{env1.upper()}</th>
+                                <th style="width: 20%">{env2.upper()}</th>
+                                <th style="width: 25%">Comparison</th>
+                                <th style="width: 15%">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    """
+    
 # Function to handle both .tfvars and .properties comparisons
 def main(
     env1,
@@ -394,61 +530,93 @@ def main(
     json_file2_path,
 ):
     try:
-        # Erase previous file data
-        with open("temp.html", "w") as file:
-            file.write("")
-
-        with open(template_path, "r") as template_file:
-            template = template_file.read()
-            with open(output_file, "w") as file:
-                file.write(template)
-
-        write_summary_to_html(
-            output_file, env1, env2, branch_name, commit_id, commit_message
-        )
-
         if isJsonCompare:
-            # Compare JSON files
-            if not os.path.exists(json_file1_path) or not os.path.exists(json_file2_path):
-                logging.error(f"One or both JSON files not found: {json_file1_path}, {json_file2_path}")
-                sys.exit(1)
-
-            logging.info(f"Comparing JSON files: {json_file1_path} and {json_file2_path}")
             data1 = parse_json(json_file1_path)
             data2 = parse_json(json_file2_path)
 
-            sections = set(data1.keys()).union(set(data2.keys()))
+            # Generate summary
+            summary_html = f"""
+            <h3>Summary</h3>
+            <p><strong>Branch:</strong> {escape_html(branch_name)}</p>
+            <p><strong>Latest Commit:</strong> {escape_html(commit_id)} - {escape_html(commit_message)}</p>
+            <p><strong>Comparing ENVs:</strong> {env1.upper()} & {env2.upper()}</p>
+            """
+
+            # Generate tabs
+            sections = list(data1.keys())
+            tabs_html = generate_tabs(sections)
+
+            # Initialize the output file with the template
+            with open(template_path, "r") as template_file:
+                template = template_file.read()
+                template = template.replace("{tabs}", tabs_html)
+                template = template.replace("{summary}", summary_html)
+                with open(output_file, "w") as file:
+                    file.write(template)
+
+            # Create a string to store all tab content
+            all_tab_content = ""
+
+            # Process each section
             for section in sections:
-                if isinstance(data1.get(section), dict) and all(isinstance(v, dict) for v in data1[section].values()):
-                    for key in data1[section].keys() | data2[section].keys():
-                        sub_data1 = data1[section].get(key, {})
-                        sub_data2 = data2[section].get(key, {})
-                        comparison_results, summary = compare_tfvars_data(sub_data1, sub_data2, env1, env2)
-                        sectionUpper = section.upper()
-                        write_comparison_to_html(
-                            f"{sectionUpper} - {key}",
+                section_html = f"""
+                <div class="tab-pane fade" id="content-{section.lower()}" role="tabpanel">
+                    <div class="accordion" id="accordion-{section.lower()}" data-bs-parent="#comparisonTabsContent">
+                """
+
+                # Process the section content
+                if is_nested_dict(data1[section]):
+                    # Handle nested structure (like ecs and rds)
+                    for subsection in data1[section].keys():
+                        comparison_results, summary = compare_tfvars_data(
+                            data1[section][subsection],
+                            data2[section].get(subsection, {}),
+                            env1,
+                            env2
+                        )
+                        
+                        # Generate accordion item HTML
+                        accordion_item = generate_accordion_item(
+                            section,
+                            subsection,
                             comparison_results,
                             summary,
-                            template_path,
-                            output_file,
                             env1,
-                            env2,
-                            file1_path=json_file1_path,
-                            file2_path=json_file2_path,
+                            env2
                         )
+                        section_html += accordion_item
                 else:
-                    comparison_results, summary = compare_tfvars_data(data1.get(section, {}), data2.get(section, {}), env1, env2)
-                    write_comparison_to_html(
+                    # Handle flat structure (like parameterStore)
+                    comparison_results, summary = compare_tfvars_data(
+                        data1[section],
+                        data2.get(section, {}),
+                        env1,
+                        env2
+                    )
+                    
+                    # Generate accordion item HTML
+                    accordion_item = generate_accordion_item(
                         section,
+                        "Configuration",
                         comparison_results,
                         summary,
-                        template_path,
-                        output_file,
                         env1,
-                        env2,
-                        file1_path=json_file1_path,
-                        file2_path=json_file2_path,
+                        env2
                     )
+                    section_html += accordion_item
+
+                # Close section divs
+                section_html += "</div></div>"
+                all_tab_content += section_html
+
+            # Replace the {body} placeholder with all tab content
+            with open(output_file, "r") as file:
+                content = file.read()
+            
+            content = content.replace("{body}", all_tab_content)
+            
+            with open(output_file, "w") as file:
+                file.write(content)
 
         elif isConfigCompare:
             # Compare .properties files
@@ -459,65 +627,76 @@ def main(
                 logging.error(f"One or both environment directories not found: {env1_path}, {env2_path}")
                 sys.exit(1)
 
-            # Dynamically find all .properties files in both env1 and env2 directories
+            # Generate summary
+            summary_html = f"""
+            <h3>Summary</h3>
+            <p><strong>Branch:</strong> {escape_html(branch_name)}</p>
+            <p><strong>Latest Commit:</strong> {escape_html(commit_id)} - {escape_html(commit_message)}</p>
+            <p><strong>Comparing ENVs:</strong> {env1.upper()} & {env2.upper()}</p>
+            """
+
+            # Initialize the output file with the template
+            with open(template_path, "r") as template_file:
+                template = template_file.read()
+                template = template.replace("{summary}", summary_html)
+                with open(output_file, "w") as file:
+                    file.write(template)
+
+            # Dynamically find all .properties files
             env1_files = [f for f in os.listdir(env1_path) if f.endswith(".properties")]
             env2_files = [f for f in os.listdir(env2_path) if f.endswith(".properties")]
-
-            # Union of all files in both env1 and env2
             all_files = set(env1_files).union(set(env2_files))
 
-            # Iterate over all .properties files and compare or handle missing files
+            all_content = ""
             for properties_file in all_files:
                 file1_path = os.path.join(env1_path, properties_file)
                 file2_path = os.path.join(env2_path, properties_file)
 
                 if properties_file in env1_files and properties_file not in env2_files:
-                    logging.warning(f"{properties_file} missing in {env2}")
-                    write_comparison_to_html(
+                    all_content += generate_accordion_item(
+                        "properties",
                         properties_file,
                         None,
                         None,
-                        template_path,
-                        output_file,
                         env1,
                         env2,
-                        missing_in_env=env2,
-                        file1_path=file1_path,
-                        file2_path=file2_path,
+                        missing_in_env=env2
                     )
                 elif properties_file in env2_files and properties_file not in env1_files:
-                    logging.warning(f"{properties_file} missing in {env1}")
-                    write_comparison_to_html(
+                    all_content += generate_accordion_item(
+                        "properties",
                         properties_file,
                         None,
                         None,
-                        template_path,
-                        output_file,
                         env1,
                         env2,
-                        missing_in_env=env1,
-                        file1_path=file1_path,
-                        file2_path=file2_path,
+                        missing_in_env=env1
                     )
                 else:
-                    logging.info(f"Comparing {properties_file} between {env1} and {env2}")
                     data1 = parse_properties(file1_path)
                     data2 = parse_properties(file2_path)
-
-                    comparison_results, summary = compare_properties_data(
-                        data1, data2, env1, env2
-                    )
-                    write_comparison_to_html(
+                    comparison_results, summary = compare_properties_data(data1, data2, env1, env2)
+                    all_content += generate_accordion_item(
+                        "properties",
                         properties_file,
                         comparison_results,
                         summary,
-                        template_path,
-                        output_file,
                         env1,
-                        env2,
-                        file1_path=file1_path,
-                        file2_path=file2_path,
+                        env2
                     )
+
+            # Replace the {body} placeholder with all content
+            with open(output_file, "r") as file:
+                content = file.read()
+            
+            content = content.replace("{body}", f"""
+                <div class="accordion" id="accordion-properties">
+                    {all_content}
+                </div>
+            """)
+            
+            with open(output_file, "w") as file:
+                file.write(content)
 
         else:
             # Compare .tfvars files
@@ -532,32 +711,49 @@ def main(
             data2 = parse_tfvars(file2_path)
 
             comparison_results, summary = compare_tfvars_data(data1, data2, env1, env2)
-            write_comparison_to_html(
+            
+            # Generate summary
+            summary_html = f"""
+            <h3>Summary</h3>
+            <p><strong>Branch:</strong> {escape_html(branch_name)}</p>
+            <p><strong>Latest Commit:</strong> {escape_html(commit_id)} - {escape_html(commit_message)}</p>
+            <p><strong>Comparing ENVs:</strong> {env1.upper()} & {env2.upper()}</p>
+            """
+
+            # Initialize the output file with the template
+            with open(template_path, "r") as template_file:
+                template = template_file.read()
+                template = template.replace("{summary}", summary_html)
+                with open(output_file, "w") as file:
+                    file.write(template)
+
+            accordion_content = generate_accordion_item(
                 "tfvars",
+                "Configuration",
                 comparison_results,
                 summary,
-                template_path,
-                output_file,
                 env1,
-                env2,
-                file1_path=file1_path,
-                file2_path=file2_path,
+                env2
             )
 
-        with open("temp.html", "r") as tables:
-            table_output = tables.read()
-        with open(output_file, "r") as output:
-            output_content = output.read()
-            html_content = output_content.replace("{body}", table_output)
-        with open(output_file, "w") as final_output:
-            final_output.write(html_content)
-
-        os.remove("temp.html")
+            # Replace the {body} placeholder with accordion content
+            with open(output_file, "r") as file:
+                content = file.read()
+            
+            content = content.replace("{body}", f"""
+                <div class="accordion" id="accordion-tfvars">
+                    {accordion_content}
+                </div>
+            """)
+            
+            with open(output_file, "w") as file:
+                file.write(content)
 
     except Exception as e:
         logging.error(f"An error occurred: {str(e)}")
         sys.exit(1)
-
+        
+        
 if __name__ == "__main__":
     if len(sys.argv) < 10:
         logging.error(

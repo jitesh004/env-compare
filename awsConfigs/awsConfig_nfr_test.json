@@ -1,6 +1,6 @@
 {
   "ecs": {
-    "arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock": {
+    "ciem-ecs-idm/forgerock": {
       "serviceArn": "arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock",
       "serviceName": "forgerock",
       "clusterArn": "arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm",
@@ -58,7 +58,7 @@
       "propagateTags": "SERVICE",
       "enableExecuteCommand": true
     },
-    "arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2": {
+    "ciem-ecs-idm/forgerock2": {
       "serviceArn": "arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2",
       "serviceName": "forgerock2",
       "clusterArn": "arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm",
@@ -119,6 +119,211 @@
   },
   "rds": {
     "ciem-aur-idm": {
+      "DBInstanceIdentifier": "ciem-aur-idm",
+      "DBInstanceClass": "db.r6g.4xlarge",
+      "Engine": "aurora-postgresql",
+      "DBInstanceStatus": "available",
+      "MasterUsername": "rdsadm",
+      "DBName": "idm",
+      "Endpoint": {
+        "Address": "ciem-aur-idm.cry2hpdiahot.us-east-1.rds.amazonaws.com",
+        "Port": 5432,
+        "HostedZoneId": "Z2R2ITUGPM61AM"
+      },
+      "AllocatedStorage": 1,
+      "InstanceCreateTime": "2021-02-03T01:28.404000+00:00",
+      "PreferredBackupWindow": "03:16-03:46",
+      "BackupRetentionPeriod": 1,
+      "DBSecurityGroups": [],
+      "VpcSecurityGroups": [
+        {
+          "VpcSecurityGroupId": "sg-0f37b56193f924583",
+          "Status": "active"
+        },
+        {
+          "VpcSecurityGroupId": "sg-09af5d65989cc36cb",
+          "Status": "active"
+        },
+        {
+          "VpcSecurityGroupId": "sg-09764d1748d67682d",
+          "Status": "active"
+        }
+      ],
+      "DBParameterGroups": [
+        {
+          "DBParameterGroupName": "asap-yapr-infra-rdsresourcesinfa-125f4k7onliu7-fnmauroral13dbprm-7ffqb19nn6c4",
+          "ParameterApplyStatus": "in-sync"
+        }
+      ],
+      "AvailabilityZone": "us-east-1b",
+      "DBSubnetGroup": {
+        "DBSubnetGroupName": "subnetgrp-devl-etss-data",
+        "DBSubnetGroupDescription": "subnetgrp-devl-etss-data",
+        "VpcId": "vpc-03658014c9685c12a",
+        "SubnetGroupStatus": "Complete",
+        "Subnets": [
+          {
+            "SubnetIdentifier": "subnet-08d911a355bc914c4",
+            "SubnetAvailabilityZone": {
+              "Name": "us-east-1b"
+            },
+            "SubnetOutpost": {},
+            "SubnetStatus": "Active"
+          },
+          {
+            "SubnetIdentifier": "subnet-0cd9665f1dbf5a66d",
+            "SubnetAvailabilityZone": {
+              "Name": "us-east-1c"
+            },
+            "SubnetOutpost": {},
+            "SubnetStatus": "Active"
+          },
+          {
+            "SubnetIdentifier": "subnet-0843da4834f931437",
+            "SubnetAvailabilityZone": {
+              "Name": "us-east-1d"
+            },
+            "SubnetOutpost": {},
+            "SubnetStatus": "Active"
+          },
+          {
+            "SubnetIdentifier": "subnet-06f4e0b0f189d1b15",
+            "SubnetAvailabilityZone": {
+              "Name": "us-east-1a"
+            },
+            "SubnetOutpost": {},
+            "SubnetStatus": "Active"
+          }
+        ]
+      },
+      "PreferredMaintenanceWindow": "tue:06:00-tue:06:30",
+      "PendingModifiedValues": {},
+      "MultiAZ": false,
+      "EngineVersion": "13.12",
+      "AutoMinorVersionUpgrade": true,
+      "ReadReplicaDBInstanceIdentifiers": [],
+      "LicenseModel": "postgresql-license",
+      "OptionGroupMemberships": [
+        {
+          "OptionGroupName": "default:aurora-postgresql-13",
+          "Status": "in-sync"
+        }
+      ],
+      "PubliclyAccessible": false,
+      "StorageType": "aurora",
+      "DbInstancePort": 0,
+      "DBClusterIdentifier": "ciem-clu-idm",
+      "StorageEncrypted": true,
+      "KmsKeyId": "arn:aws:kms:us-east-1:920887439016:key/bfcf20d2-c2e3-41e2-af94-3496b4322c77",
+      "DbiResourceId": "db-HZWXLNU3KNPZNWRSTEMNVK7QIY",
+      "CACertificateIdentifier": "rds-ca-rsa2048-g1",
+      "DomainMemberships": [],
+      "CopyTagsToSnapshot": true,
+      "MonitoringInterval": 0,
+      "PromotionTier": 1,
+      "DBInstanceArn": "arn:aws:rds:us-east-1:920887439016:db:ciem-aur-idm",
+      "IAMDatabaseAuthenticationEnabled": false,
+      "PerformanceInsightsEnabled": true,
+      "PerformanceInsightsKMSKeyId": "arn:aws:kms:us-east-1:920887439016:key/a45acbb1-304e-4963-a0f9-ddfde263de09",
+      "PerformanceInsightsRetentionPeriod": 7,
+      "DeletionProtection": false,
+      "AssociatedRoles": [],
+      "TagList": [
+        {
+          "Key": "test-map-dbf",
+          "Value": "d-server-00kh95ofjv6man"
+        },
+        {
+          "Key": "aws:cloudformation:stack-name",
+          "Value": "SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG"
+        },
+        {
+          "Key": "ApplicationName",
+          "Value": "Customer Identity and Entitlement Management CIEM"
+        },
+        {
+          "Key": "ProvisioningVersion",
+          "Value": "v3"
+        },
+        {
+          "Key": "aws:cloudformation:stack-id",
+          "Value": "arn:aws:cloudformation:us-east-1:920887439016:stack/SC-920887439016-pp-3thptakumnocg-Rds-HUKRPX1YAOSG/a7327be0-65bd-11eb-a88b-1203def09227"
+        },
+        {
+          "Key": "Lifecycle",
+          "Value": "devl-etss"
+        },
+        {
+          "Key": "aws:servicecatalog:portfolioArn",
+          "Value": "arn:aws:catalog:us-east-1:920887439016:portfolio/port-hbmzk26pnp6au"
+        },
+        {
+          "Key": "ApplicationShortName",
+          "Value": "ciem"
+        },
+        {
+          "Key": "AppCode",
+          "Value": "GDX"
+        },
+        {
+          "Key": "aws:servicecatalog:productArn",
+          "Value": "arn:aws:catalog:us-east-1:920887439016:product/prod-nsabqjm3docwc"
+        },
+        {
+          "Key": "map-migrated",
+          "Value": "d-server-00kh95ofjv6man"
+        },
+        {
+          "Key": "aws:servicecatalog:provisioningPrincipalArn",
+          "Value": "arn:aws:sts::920887439016:assumed-role/DEVL-ETSS-CIEM-DEVOPS/bennett_miller@fanniemae.com"
+        },
+        {
+          "Key": "test-map-migrated",
+          "Value": "d-server-00kh95ofjv6man"
+        },
+        {
+          "Key": "CostCenter",
+          "Value": "878"
+        },
+        {
+          "Key": "Environment",
+          "Value": "Development"
+        },
+        {
+          "Key": "FnmaAuroraBackup",
+          "Value": "none"
+        },
+        {
+          "Key": "aws:cloudformation:logical-id",
+          "Value": "DatabaseRsrc"
+        },
+        {
+          "Key": "ProjectCode",
+          "Value": "D20ISCMRAM"
+        },
+        {
+          "Key": "AssetID",
+          "Value": "MSR03675"
+        },
+        {
+          "Key": "aws:servicecatalog:provisioningArtifactIdentifier",
+          "Value": "pa-nu5xensj54bhk"
+        },
+        {
+          "Key": "aws:servicecatalog:provisionedProductArn",
+          "Value": "arn:aws:servicecatalog:us-east-1:920887439016:stack/identity-management-rds/pp-3thptakumnocg"
+        }
+      ],
+      "CustomerOwnedIpEnabled": false,
+      "BackupTarget": "region",
+      "NetworkType": "IPV4",
+      "CertificateDetails": {
+        "CAIdentifier": "rds-ca-rsa2048-g1",
+        "ValidTill": "2025-11-05T06:00:13+00:00"
+      },
+      "DedicatedLogVolume": false
+    },
+    "ciem-aur-idm-acpt": {
       "DBInstanceIdentifier": "ciem-aur-idm",
       "DBInstanceClass": "db.r6g.4xlarge",
       "Engine": "aurora-postgresql",
