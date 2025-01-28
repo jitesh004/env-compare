@@ -1,0 +1,49 @@
+include:
+  - project: gitlab-pipeline-coe/templates/pipeline-templates
+    ref: 'feature/aws-env-report'
+    file: '/templates/Report-Compare-AWS-envs.gitlab-ci.yml'
+    #file: '/templates/ECR-Creation.gitlab-ci.yml'
+
+variables:
+  CURRENT_RELEASE: gnv-nfr-cmst-9.0.1
+  DEFAULT_RUNNER: gnv-nfr-cmst-9.8.1
+  GITLAB_DEVL_RUNNER: devl-etss-nfr-cmst
+  GITLAB_TEST_RUNNER: test-etss-nfr-cmst
+  GITLAB_ACPT_RUNNER: acpt-etss-nfr-cmst
+  GITLAB_ACNT_RUNNER: acnt-etss-nfr-cmst
+  GITLAB_PROD_RUNNER: prod-etss-nfr-cmst
+  GITLAB_CONT_RUNNER: cont-etss-nfr-cmst
+
+  APP_REPO_NAME: nfr/nfr-cmst-tf
+  APP_REGION: us-east-1
+  APP_REGION_2: us-east-2
+  APP_SHORT_NAME: nfr
+  APP_COST_CENTER: 849
+  APP_CODE: GNV
+  APP_PROJECT_CODE: D2CLDCCOE
+  APP_ASSET_ID: MSRO6221
+  
+  # Add the JSON configuration as a variable
+  AWS_ENV_CONFIG: |
+    {
+      "envs": [
+        {
+          "env": "devl",
+          "runner": "devl-etss-nfr-cmst",
+          "ecs": ["ciem-ecs-idm", "ciem-ecs-sun1"],
+          "rds": ["ciem-aur-idm", "ciem-aur-idm-acpt"],
+          "parameterStore": true
+        },
+        {
+          "env": "test",
+          "runner": "test-etss-nfr-cmst",
+          "ecs": ["ciem-ecs-idm", "ciem-ecs-sun1"],
+          "rds": ["ciem-aur-idm", "ciem-aur-idm-acpt"],
+          "parameterStore": true
+        }
+      ]
+    }
+
+ENVIRONMENTS:
+  value: 'dev1'
+  description: "Please list the environments you would like to create at(devl, test, etc.)."

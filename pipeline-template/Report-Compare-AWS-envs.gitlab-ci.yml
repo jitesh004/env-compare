@@ -1,0 +1,61 @@
+include:
+  - project: gitlab-pipeline-core/libraries/pipeline-library
+    ref: 'main'
+    file:
+      - Application.gitlab-ci.yml
+
+.write_config:
+  script:
+    - |
+      echo "$AWS_ENV_CONFIG" > aws_env_config.json
+
+fetch_configs_env1:
+  stage: prebuild
+  image: artifactory.fanniemae.com/guu-gitlab-snapshot/executors/env-comparison:aws-config6.0
+  script:
+    - !reference [.write_config, script]
+    - echo "Generating JSON artifacts..."
+    - echo "" > aws-config-env1.json
+    - cp /usr/lib/scripts/fetch_aws_config.py fetch_aws_config.py
+    - python3 fetch_aws_config.py "${APP_SHORT_NAME}" aws-config-env1.json 0
+  tags:
+    - $GITLAB_RUNNER_1
+  artifacts:
+    when: always
+    paths:
+      - aws-config-env1.json
+      - aws_env_config.json
+
+fetch_configs_env2:
+  stage: prebuild
+  image: artifactory.fanniemae.com/guu-gitlab-snapshot/executors/env-comparison:aws-config6.0
+  script:
+    - !reference [.write_config, script]
+    - echo "Generating JSON artifacts..."
+    - echo "" > aws-config-env2.json
+    - cp /usr/lib/scripts/fetch_aws_config.py fetch_aws_config.py
+    - python3 fetch_aws_config.py "${APP_SHORT_NAME}" aws-config-env2.json 1
+  tags:
+    - $GITLAB_RUNNER_2
+  artifacts:
+    when: always
+    paths:
+      - aws-config-env2.json
+      - aws_env_config.json
+
+compare_configs:
+  stage: test
+  image: artifactory.fanniemae.com/guu-gitlab-snapshot/executors/env-comparison:aws-config6.0
+  script:
+    - ls -la
+    - cp /usr/lib/scripts/compare_vars.py compare_vars.py
+    - mkdir public
+    - python compare_vars.py "DEV1" "TEST" "template.html" "public/comparison-report.html" "None" "None" "None" "None" "False" "True" "./aws-config-env1.json" "./aws-config-env2.json"
+    - python compare_vars.py $ENV1 $ENV2 "template.html" "public/comparison-report.html" "$CONFIG_DIR" "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA" "$CI_COMMIT_MESSAGE" "$IS_CONFIG_COMPARE"
+    - echo "Comparison report successfully generated"
+  tags:
+    - $GITLAB_RUNNER_1
+  artifacts:
+    when: always
+    paths:
+      - public
