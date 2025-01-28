@@ -534,11 +534,9 @@ def main(
             data1 = parse_json(json_file1_path)
             data2 = parse_json(json_file2_path)
 
-            # Generate summary
+            # Generate summary without branch and commit info for JSON comparison
             summary_html = f"""
             <h3>Summary</h3>
-            <p><strong>Branch:</strong> {escape_html(branch_name)}</p>
-            <p><strong>Latest Commit:</strong> {escape_html(commit_id)} - {escape_html(commit_message)}</p>
             <p><strong>Comparing ENVs:</strong> {env1.upper()} & {env2.upper()}</p>
             """
 
