@@ -224,6 +224,7 @@ def compare_tfvars_data(data1, data2, env1, env2):
     except Exception as e:
         logging.error(f"Error during comparison: {str(e)}")
         sys.exit(1)
+
 # Function to compare .properties files
 def compare_properties_data(data1, data2, env1, env2):
     try:
@@ -412,10 +413,15 @@ def is_nested_dict(data):
     """Check if the dictionary has nested dictionaries as values"""
     return bool(data) and all(isinstance(v, dict) for v in data.values())
 
-def generate_accordion_item(section, subsection, comparison_results, summary, env1, env2, missing_in_env=None):
+def generate_accordion_item(section, subsection, comparison_results, summary, env1, env2, missing_in_env=None, compare_identifier=None):
     """Generate HTML for an accordion item"""
     # Sanitize the IDs
     accordion_id = f"collapse-{sanitize_id(section.lower())}-{sanitize_id(subsection.lower())}"
+    
+    # Format the title with compareIdentifier if present
+    title = subsection
+    if compare_identifier:
+        title = f"{subsection} ({compare_identifier})"
     
     if missing_in_env or not comparison_results:
         return f"""
@@ -425,7 +431,7 @@ def generate_accordion_item(section, subsection, comparison_results, summary, en
                         data-bs-target="#{accordion_id}" 
                         aria-expanded="false" 
                         aria-controls="{accordion_id}">
-                    {subsection}
+                    {title}
                 </button>
             </h2>
             <div id="{accordion_id}" class="accordion-collapse collapse">
@@ -487,7 +493,7 @@ def generate_accordion_item(section, subsection, comparison_results, summary, en
                     data-bs-target="#{accordion_id}" 
                     aria-expanded="false" 
                     aria-controls="{accordion_id}">
-                {subsection}
+                {title}
             </button>
         </h2>
         <div id="{accordion_id}" class="accordion-collapse collapse">
@@ -566,6 +572,11 @@ def main(
                 if is_nested_dict(data1[section]):
                     # Handle nested structure (like ecs and rds)
                     for subsection in data1[section].keys():
+                        # Get compareIdentifier if it exists
+                        compare_identifier = None
+                        if isinstance(data1[section][subsection], dict):
+                            compare_identifier = data1[section][subsection].get('compareIdentifier')
+                            
                         comparison_results, summary = compare_tfvars_data(
                             data1[section][subsection],
                             data2[section].get(subsection, {}),
@@ -573,18 +584,22 @@ def main(
                             env2
                         )
                         
-                        # Generate accordion item HTML
+                        # Generate accordion item HTML with compareIdentifier
                         accordion_item = generate_accordion_item(
                             section,
                             subsection,
                             comparison_results,
                             summary,
                             env1,
-                            env2
+                            env2,
+                            compare_identifier=compare_identifier
                         )
                         section_html += accordion_item
                 else:
                     # Handle flat structure (like parameterStore)
+                    # Get compareIdentifier if it exists
+                    compare_identifier = data1[section].get('compareIdentifier') if isinstance(data1[section], dict) else None
+                    
                     comparison_results, summary = compare_tfvars_data(
                         data1[section],
                         data2.get(section, {}),
@@ -592,14 +607,15 @@ def main(
                         env2
                     )
                     
-                    # Generate accordion item HTML
+                    # Generate accordion item HTML with compareIdentifier
                     accordion_item = generate_accordion_item(
                         section,
                         "Configuration",
                         comparison_results,
                         summary,
                         env1,
-                        env2
+                        env2,
+                        compare_identifier=compare_identifier
                     )
                     section_html += accordion_item
 

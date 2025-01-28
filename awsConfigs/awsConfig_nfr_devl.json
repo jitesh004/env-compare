@@ -1,6 +1,7 @@
 {
   "ecs": {
-    "ciem-ecs-idm/forgerock": {
+    "service_1": {
+      "compareIdentifier": "ciem-ecs-idm/forgerock",
       "serviceArn": "arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock",
       "serviceName": "forgerock",
       "clusterArn": "arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm",
@@ -58,7 +59,8 @@
       "propagateTags": "SERVICE",
       "enableExecuteCommand": true
     },
-    "ciem-ecs-idm/forgerock2": {
+    "service_2": {
+      "compareIdentifier": "ciem-ecs-idm/forgerock2",
       "serviceArn": "arn:aws:ecs:us-east-1:920887439016:service/ciem-ecs-idm/forgerock2",
       "serviceName": "forgerock2",
       "clusterArn": "arn:aws:ecs:us-east-1:920887439016:cluster/ciem-ecs-idm",
@@ -118,7 +120,8 @@
     }
   },
   "rds": {
-    "ciem-aur-idm": {
+    "rds_db_instance_1": {
+      "compareIdentifier": "ciem-aur-idm",
       "DBInstanceIdentifier": "ciem-aur-idm",
       "DBInstanceClass": "db.r6g.4xlarge",
       "Engine": "aurora-postgresql",
@@ -323,7 +326,8 @@
       },
       "DedicatedLogVolume": false
     },
-    "ciem-aur-idm-acpt": {
+    "rds_db_instance_2": {
+      "compareIdentifier": "ciem-aur-idm",
       "DBInstanceIdentifier": "ciem-aur-idm",
       "DBInstanceClass": "db.r6g.4xlarge",
       "Engine": "aurora-postgresql",
