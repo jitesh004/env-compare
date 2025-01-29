@@ -171,13 +171,18 @@ def extract_diff(diff, value1, value2, key_path):
 # Function to compare .tfvars data
 def compare_tfvars_data(data1, data2, env1, env2):
     try:
-        all_keys = set(data1.keys()).union(set(data2.keys()))
+        # Filter out compareIdentifier from both data sets
+        data1_filtered = {k: v for k, v in data1.items() if k != 'compareIdentifier'}
+        data2_filtered = {k: v for k, v in data2.items() if k != 'compareIdentifier'}
+        
+        all_keys = set(data1_filtered.keys()).union(set(data2_filtered.keys()))
         all_keys = sorted(all_keys, key=str.lower)
         comparison_results = []
         summary = {"equal": 0, "undefined": 0, "red": 0, "blue": 0}
+        
         for key in all_keys:
-            value1 = data1.get(key, "undefined")
-            value2 = data2.get(key, "undefined")
+            value1 = data1_filtered.get(key, "undefined")
+            value2 = data2_filtered.get(key, "undefined")
             key_path = key
 
             if value1 != "undefined" and value2 != "undefined":
