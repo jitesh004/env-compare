@@ -197,6 +197,71 @@ def fetch_parameter_store_config(ApplicationShortName):
         sys.exit(1)
 
 
+def fetch_lambda_config(identifier, use_function_names=False):
+    """
+    Fetches Lambda function configurations either by function names or ApplicationShortName.
+    Returns functions with indexed keys.
+    """
+    lambda_client = boto3.client(service_name='lambda', region_name='us-east-1')
+    all_lambda_configs = {}
+    function_index = 1
+
+    try:
+        if use_function_names:
+            # Fetch specific functions by name
+            for function_name in identifier:
+                try:
+                    function_config = lambda_client.get_function(FunctionName=function_name)
+                    if 'Code' in function_config:
+                        del function_config['Code']
+                    
+                    all_lambda_configs[f"lambda_function_{function_index}"] = {
+                        "compareIdentifier": function_name,
+                        **function_config
+                    }
+                    function_index += 1
+                    
+                except lambda_client.exceptions.ResourceNotFoundException:
+                    print(f"Lambda function not found: {function_name}")
+                    continue
+                except Exception as e:
+                    print(f"Error fetching configuration for Lambda function {function_name}: {e}")
+                    continue
+        else:
+            # Fetch all functions and filter by ApplicationShortName tag
+            paginator = lambda_client.get_paginator('list_functions')
+            for page in paginator.paginate():
+                for function in page['Functions']:
+                    try:
+                        # Get function tags
+                        tags_response = lambda_client.list_tags(Resource=function['FunctionArn'])
+                        tags = tags_response.get('Tags', {})
+                        
+                        # Check if function has matching ApplicationShortName tag
+                        if tags.get('ApplicationShortName') == identifier:
+                            function_config = lambda_client.get_function(FunctionName=function['FunctionName'])
+                            if 'Code' in function_config:
+                                del function_config['Code']
+                            
+                            all_lambda_configs[f"lambda_function_{function_index}"] = {
+                                "compareIdentifier": function['FunctionName'],
+                                **function_config
+                            }
+                            function_index += 1
+                            
+                    except Exception as e:
+                        print(f"Error processing Lambda function {function['FunctionName']}: {e}")
+                        continue
+
+        if not all_lambda_configs:
+            print(f"No Lambda functions found for {'function names' if use_function_names else 'ApplicationShortName'} = {identifier}")
+            
+        return all_lambda_configs
+    except Exception as e:
+        print(f"Error fetching Lambda configurations: {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python fetch_aws_config.py <ApplicationShortName> <output_file> <env_index>")
@@ -222,6 +287,11 @@ if __name__ == "__main__":
             if rds_instances:
                 output_data['rds'] = fetch_rds_config(rds_instances, use_instance_ids=True)
             
+            # Fetch Lambda configurations if lambda array is not empty
+            lambda_functions = env_config.get('lambda', [])
+            if lambda_functions:
+                output_data['lambda'] = fetch_lambda_config(lambda_functions, use_function_names=True)
+            
             # Fetch Parameter Store configurations if parameterStore is true
             if env_config.get('parameterStore') is True:
                 output_data['parameterStore'] = fetch_parameter_store_config(ApplicationShortName)
@@ -232,6 +302,7 @@ if __name__ == "__main__":
             output_data = {
                 'ecs': fetch_ecs_service_config([cluster_name]) if cluster_arn else {},
                 'rds': fetch_rds_config(ApplicationShortName, use_instance_ids=False),
+                'lambda': fetch_lambda_config(ApplicationShortName, use_function_names=False),
                 'parameterStore': fetch_parameter_store_config(ApplicationShortName)
             }
 
