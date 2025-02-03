@@ -65,7 +65,7 @@ def load_env_config(env_index):
         return None
 
 
-def fetch_ecs_service_config(cluster_names):
+def fetch_ecs_service_config(cluster_names, use_custom_identifier=False):
     """
     Fetches the configuration of ECS services for specified cluster names.
     Returns services with indexed keys.
@@ -106,10 +106,13 @@ def fetch_ecs_service_config(cluster_names):
                     service_key = f"{cluster_name}/{service_name}"
                     
                     # Store with indexed key and include original service key in config
-                    all_service_configs[f"service_{service_index}"] = {
-                        "compareIdentifier": service_key,
-                        **service_config
-                    }
+                    if use_custom_identifier:
+                        all_service_configs[f"service_{service_index}"] = {
+                            "compareIdentifier": service_key,
+                            **service_config
+                        }
+                    else:
+                        all_service_configs[service_key] = service_config
                     service_index += 1
 
         return all_service_configs
@@ -121,7 +124,7 @@ def fetch_ecs_service_config(cluster_names):
 def fetch_rds_config(identifier, use_instance_ids=False):
     """
     Fetches RDS configurations either by instance IDs or ApplicationShortName.
-    Returns instances with indexed keys.
+    Returns instances with indexed keys or instance names as keys based on mode.
     """
     rds_client = boto3.client('rds', region_name='us-east-1')
     filtered_instances = {}
@@ -133,23 +136,22 @@ def fetch_rds_config(identifier, use_instance_ids=False):
             for instance in page['DBInstances']:
                 should_include = False
                 if use_instance_ids:
+                    # Using specific instance IDs - use indexed keys
                     should_include = instance['DBInstanceIdentifier'] in identifier
+                    if should_include:
+                        instance_id = instance['DBInstanceIdentifier']
+                        filtered_instances[f"rds_db_instance_{instance_index}"] = {
+                            "compareIdentifier": instance_id,
+                            **instance
+                        }
+                        instance_index += 1
                 else:
-                    # Filter by ApplicationShortName tag
+                    # Using ApplicationShortName - use instance names as keys
                     tag_list = instance.get('TagList', [])
                     for tag in tag_list:
                         if tag['Key'] == 'ApplicationShortName' and tag['Value'] == identifier:
-                            should_include = True
+                            filtered_instances[instance['DBInstanceIdentifier']] = instance
                             break
-
-                if should_include:
-                    instance_id = instance['DBInstanceIdentifier']
-                    # Store with indexed key and include original instance ID in config
-                    filtered_instances[f"rds_db_instance_{instance_index}"] = {
-                        "compareIdentifier": instance_id,
-                        **instance
-                    }
-                    instance_index += 1
 
         if not filtered_instances:
             print(f"No RDS instances found for {'instance IDs' if use_instance_ids else 'ApplicationShortName'} = {identifier}")
@@ -200,7 +202,7 @@ def fetch_parameter_store_config(ApplicationShortName):
 def fetch_lambda_config(identifier, use_function_names=False):
     """
     Fetches Lambda function configurations either by function names or ApplicationShortName.
-    Returns functions with indexed keys.
+    Returns functions with indexed keys or function names as keys based on the mode.
     """
     lambda_client = boto3.client(service_name='lambda', region_name='us-east-1')
     all_lambda_configs = {}
@@ -208,7 +210,7 @@ def fetch_lambda_config(identifier, use_function_names=False):
 
     try:
         if use_function_names:
-            # Fetch specific functions by name
+            # Fetch specific functions by name - use indexed keys
             for function_name in identifier:
                 try:
                     function_config = lambda_client.get_function(FunctionName=function_name)
@@ -217,7 +219,7 @@ def fetch_lambda_config(identifier, use_function_names=False):
                     
                     all_lambda_configs[f"lambda_function_{function_index}"] = {
                         "compareIdentifier": function_name,
-                        **function_config
+                        **function_config["Configuration"]
                     }
                     function_index += 1
                     
@@ -228,7 +230,7 @@ def fetch_lambda_config(identifier, use_function_names=False):
                     print(f"Error fetching configuration for Lambda function {function_name}: {e}")
                     continue
         else:
-            # Fetch all functions and filter by ApplicationShortName tag
+            # Fetch all functions and filter by ApplicationShortName tag - use function names as keys
             paginator = lambda_client.get_paginator('list_functions')
             for page in paginator.paginate():
                 for function in page['Functions']:
@@ -243,12 +245,12 @@ def fetch_lambda_config(identifier, use_function_names=False):
                             if 'Code' in function_config:
                                 del function_config['Code']
                             
-                            all_lambda_configs[f"lambda_function_{function_index}"] = {
-                                "compareIdentifier": function['FunctionName'],
-                                **function_config
+                            # Use function name as key instead of indexed key
+                            all_lambda_configs[function['FunctionName']] = {
+                                **function_config["Configuration"]
                             }
-                            function_index += 1
                             
+
                     except Exception as e:
                         print(f"Error processing Lambda function {function['FunctionName']}: {e}")
                         continue
@@ -280,7 +282,7 @@ if __name__ == "__main__":
             # Fetch ECS configurations if ecs array is not empty
             ecs_clusters = env_config.get('ecs', [])
             if ecs_clusters:
-                output_data['ecs'] = fetch_ecs_service_config(ecs_clusters)
+                output_data['ecs'] = fetch_ecs_service_config(ecs_clusters, use_custom_identifier=True)
             
             # Fetch RDS configurations if rds array is not empty
             rds_instances = env_config.get('rds', [])
@@ -291,7 +293,9 @@ if __name__ == "__main__":
             lambda_functions = env_config.get('lambda', [])
             if lambda_functions:
                 output_data['lambda'] = fetch_lambda_config(lambda_functions, use_function_names=True)
-            
+            else:
+                output_data['lambda'] = fetch_lambda_config(ApplicationShortName, use_function_names=False)
+
             # Fetch Parameter Store configurations if parameterStore is true
             if env_config.get('parameterStore') is True:
                 output_data['parameterStore'] = fetch_parameter_store_config(ApplicationShortName)
@@ -300,7 +304,7 @@ if __name__ == "__main__":
             cluster_name, cluster_arn = find_team_cluster(team_tag_key='ApplicationShortName', 
                                                         team_tag_value=ApplicationShortName)
             output_data = {
-                'ecs': fetch_ecs_service_config([cluster_name]) if cluster_arn else {},
+                'ecs': fetch_ecs_service_config([cluster_name], use_custom_identifier=False) if cluster_arn else {},
                 'rds': fetch_rds_config(ApplicationShortName, use_instance_ids=False),
                 'lambda': fetch_lambda_config(ApplicationShortName, use_function_names=False),
                 'parameterStore': fetch_parameter_store_config(ApplicationShortName)
