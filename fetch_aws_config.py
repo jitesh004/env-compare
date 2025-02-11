@@ -106,14 +106,25 @@ def fetch_ecs_service_config(cluster_names, use_custom_identifier=False):
                     service_name = service_config.get('serviceName')
                     service_key = f"{cluster_name}/{service_name}"
                     
+                    # Fetch tasks for the service
+                    task_arns = ecs_client.list_tasks(cluster=cluster_arn, serviceName=service_name)['taskArns']
+                    tasks = []
+                    if task_arns:
+                        task_details = ecs_client.describe_tasks(cluster=cluster_arn, tasks=task_arns)
+                        tasks = task_details.get('tasks', [])
+                    
                     # Store with indexed key and include original service key in config
                     if use_custom_identifier:
-                        all_service_configs[f"service_{service_index}"] = {
+                        all_service_configs[f"{service_name}"] = {
                             "compareIdentifier": service_key,
-                            **service_config
+                            **service_config,
+                            "tasks": tasks
                         }
                     else:
-                        all_service_configs[service_key] = service_config
+                        all_service_configs[service_name] = {
+                            **service_config,
+                            "tasks": tasks
+                        }
 
         return all_service_configs
     except Exception as e:
@@ -162,41 +173,50 @@ def fetch_rds_config(identifier, use_instance_ids=False):
         sys.exit(1)
 
 
-def fetch_parameter_store_config(ApplicationShortName):
+def fetch_parameter_store_config(prefixes):
     """
-    Fetches Parameter Store configurations under a specific ApplicationShortName.
-    Automatically constructs the full path using the ApplicationShortName.
+    Fetches Parameter Store configurations under specific prefixes.
+    Automatically constructs the full path using the prefixes.
+    Returns parameters grouped by prefix.
     """
     ssm_client = boto3.client('ssm', region_name='us-east-1')
-    parameters = []
+    all_parameters = {}
 
-    # Construct the Parameter Store path
-    parameter_path = f'/{ApplicationShortName}/'
+    for prefix in prefixes:
+        # Remove leading/trailing slashes from the prefix
+        prefix = prefix.strip('/')
 
-    try:
-        next_token = None
-        while True:
-            # Pass NextToken only if it has a valid value
-            if (next_token):
-                response = ssm_client.get_parameters_by_path(Path=parameter_path, Recursive=True, NextToken=next_token)
-            else:
-                response = ssm_client.get_parameters_by_path(Path=parameter_path, Recursive=True)
+        # Construct the Parameter Store path
+        parameter_path = f'/{prefix}/'
+        parameters = []
 
-            parameters.extend(response.get('Parameters', []))
-            next_token = response.get('NextToken')
+        try:
+            next_token = None
+            while True:
+                # Pass NextToken only if it has a valid value
+                if next_token:
+                    response = ssm_client.get_parameters_by_path(Path=parameter_path, Recursive=True, NextToken=next_token)
+                else:
+                    response = ssm_client.get_parameters_by_path(Path=parameter_path, Recursive=True)
 
-            if not next_token:
-                break
+                parameters.extend(response.get('Parameters', []))
+                next_token = response.get('NextToken')
 
-        if not parameters:
-            print(f"No parameters found under path '{parameter_path}'.")
-            return {}
+                if not next_token:
+                    break
 
-        # Extract and return parameters as a dictionary
-        return {param['Name']: param['Value'] for param in parameters}
-    except Exception as e:
-        print(f"Error fetching Parameter Store configurations for {ApplicationShortName}: {e}")
-        sys.exit(1)
+            if not parameters:
+                print(f"No parameters found under path '{parameter_path}'.")
+                all_parameters[parameter_path] = {}
+                continue
+
+            # Extract and return parameters as a dictionary, removing the prefix from the parameter names
+            all_parameters[parameter_path] = {param['Name'].replace(parameter_path, '', 1): param['Value'] for param in parameters}
+        except Exception as e:
+            print(f"Error fetching Parameter Store configurations for {parameter_path}: {e}")
+            all_parameters[parameter_path] = {}
+
+    return all_parameters
 
 
 def fetch_lambda_config(identifier, use_function_names=False):
@@ -352,9 +372,10 @@ if __name__ == "__main__":
             else:
                 output_data['lambda'] = fetch_lambda_config(ApplicationShortName, use_function_names=False)
 
-            # Fetch Parameter Store configurations if parameterStore is true
-            if env_config.get('parameterStore') is True:
-                output_data['parameterStore'] = fetch_parameter_store_config(ApplicationShortName)
+            # Fetch Parameter Store configurations if parameterStore prefixes are provided
+            parameter_store_prefixes = env_config.get('parameterStore', [ApplicationShortName])
+            if parameter_store_prefixes:
+                output_data['parameterStore'] = fetch_parameter_store_config(parameter_store_prefixes)
             
             # Fetch EC2 load balancer configurations if elb array is not empty
             elb_names = env_config.get('elb', [])
@@ -370,7 +391,7 @@ if __name__ == "__main__":
                 'ecs': fetch_ecs_service_config([cluster_name], use_custom_identifier=False) if cluster_arn else {},
                 'rds': fetch_rds_config(ApplicationShortName, use_instance_ids=False),
                 'lambda': fetch_lambda_config(ApplicationShortName, use_function_names=False),
-                'parameterStore': fetch_parameter_store_config(ApplicationShortName),
+                'parameterStore': fetch_parameter_store_config([ApplicationShortName]),
                 'elb': fetch_elb_config(ApplicationShortName, use_lb_names=False)
             }
 
