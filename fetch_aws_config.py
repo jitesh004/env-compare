@@ -319,13 +319,11 @@ def fetch_elb_config(identifier, use_lb_names=False):
                     try:
                         # Get load balancer tags
                         tags_response = elb_client.describe_tags(ResourceArns=[lb['LoadBalancerArn']])
-                        tags = tags_response.get('TagDescriptions', [])[0].get('Tags', [])
+                        tags = tags_response.get('TagDescriptions', [{}])[0].get('Tags', [])
                         
                         # Check if load balancer has matching ApplicationShortName tag
-                        for tag in tags:
-                            if tag['Key'] == 'ApplicationShortName' and tag['Value'] == identifier:
-                                all_elb_configs[lb['LoadBalancerName']] = lb
-                                break
+                        if any(tag['Key'] == 'ApplicationShortName' and tag['Value'] == identifier for tag in tags):
+                            all_elb_configs[lb['LoadBalancerName']] = lb
 
                     except Exception as e:
                         print(f"Error processing load balancer {lb['LoadBalancerName']}: {e}")
