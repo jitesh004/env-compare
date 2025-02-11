@@ -72,10 +72,12 @@ def fetch_ecs_service_config(cluster_names, use_custom_identifier=False):
     """
     ecs_client = boto3.client(service_name='ecs', region_name='us-east-1')
     all_service_configs = {}
+    cluster_index = 0
     service_index = 0
 
     try:
         for cluster_name in cluster_names:
+            cluster_index += 1
             # Get cluster ARN
             clusters = ecs_client.list_clusters()['clusterArns']
             cluster_arn = next((arn for arn in clusters if cluster_name in arn), None)
@@ -115,13 +117,13 @@ def fetch_ecs_service_config(cluster_names, use_custom_identifier=False):
                     
                     # Store with indexed key and include original service key in config
                     if use_custom_identifier:
-                        all_service_configs[f"{service_name}"] = {
+                        all_service_configs[f"cluster_{cluster_index}/{service_name}"] = {
                             "compareIdentifier": service_key,
                             **service_config,
                             "tasks": tasks
                         }
                     else:
-                        all_service_configs[service_name] = {
+                        all_service_configs[f"{service_key}"] = {
                             **service_config,
                             "tasks": tasks
                         }
