@@ -72,7 +72,7 @@ def fetch_ecs_service_config(cluster_names, use_custom_identifier=False):
     """
     ecs_client = boto3.client(service_name='ecs', region_name='us-east-1')
     all_service_configs = {}
-    service_index = 1
+    service_index = 0
 
     try:
         for cluster_name in cluster_names:
@@ -100,6 +100,7 @@ def fetch_ecs_service_config(cluster_names, use_custom_identifier=False):
                 service_details = ecs_client.describe_services(cluster=cluster_arn, services=service_chunk)
                 
                 for service_config in service_details['services']:
+                    service_index += 1
                     service_config.pop('events', None)
                     service_config.pop('deployments', None)
                     service_name = service_config.get('serviceName')
@@ -113,7 +114,6 @@ def fetch_ecs_service_config(cluster_names, use_custom_identifier=False):
                         }
                     else:
                         all_service_configs[service_key] = service_config
-                    service_index += 1
 
         return all_service_configs
     except Exception as e:
@@ -128,7 +128,7 @@ def fetch_rds_config(identifier, use_instance_ids=False):
     """
     rds_client = boto3.client('rds', region_name='us-east-1')
     filtered_instances = {}
-    instance_index = 1
+    instance_index = 0
 
     try:
         paginator = rds_client.get_paginator('describe_db_instances')
@@ -139,12 +139,12 @@ def fetch_rds_config(identifier, use_instance_ids=False):
                     # Using specific instance IDs - use indexed keys
                     should_include = instance['DBInstanceIdentifier'] in identifier
                     if should_include:
+                        instance_index += 1
                         instance_id = instance['DBInstanceIdentifier']
                         filtered_instances[f"rds_db_instance_{instance_index}"] = {
                             "compareIdentifier": instance_id,
                             **instance
                         }
-                        instance_index += 1
                 else:
                     # Using ApplicationShortName - use instance names as keys
                     tag_list = instance.get('TagList', [])
@@ -177,7 +177,7 @@ def fetch_parameter_store_config(ApplicationShortName):
         next_token = None
         while True:
             # Pass NextToken only if it has a valid value
-            if next_token:
+            if (next_token):
                 response = ssm_client.get_parameters_by_path(Path=parameter_path, Recursive=True, NextToken=next_token)
             else:
                 response = ssm_client.get_parameters_by_path(Path=parameter_path, Recursive=True)
@@ -206,12 +206,13 @@ def fetch_lambda_config(identifier, use_function_names=False):
     """
     lambda_client = boto3.client(service_name='lambda', region_name='us-east-1')
     all_lambda_configs = {}
-    function_index = 1
+    function_index = 0
 
     try:
         if use_function_names:
             # Fetch specific functions by name - use indexed keys
             for function_name in identifier:
+                function_index += 1
                 try:
                     function_config = lambda_client.get_function(FunctionName=function_name)
                     if 'Code' in function_config:
@@ -221,7 +222,6 @@ def fetch_lambda_config(identifier, use_function_names=False):
                         "compareIdentifier": function_name,
                         **function_config["Configuration"]
                     }
-                    function_index += 1
                     
                 except lambda_client.exceptions.ResourceNotFoundException:
                     print(f"Lambda function not found: {function_name}")
@@ -264,6 +264,62 @@ def fetch_lambda_config(identifier, use_function_names=False):
         sys.exit(1)
 
 
+def fetch_elb_config(identifier, use_lb_names=False):
+    """
+    Fetches the configuration of EC2 load balancers either by load balancer names or ApplicationShortName.
+    Returns load balancers with indexed keys or load balancer names as keys based on the mode.
+    """
+    elb_client = boto3.client('elbv2', region_name='us-east-1')
+    all_elb_configs = {}
+    elb_index = 0
+
+    try:
+        if use_lb_names:
+            # Fetch specific load balancers by name - use indexed keys
+            for lb_name in identifier:
+                elb_index += 1
+                try:
+                    lb_details = elb_client.describe_load_balancers(Names=[lb_name])
+                    for lb_config in lb_details['LoadBalancers']:
+                        all_elb_configs[f"elb_{elb_index}"] = {
+                            "compareIdentifier": lb_name,
+                            **lb_config
+                        }
+                except elb_client.exceptions.LoadBalancerNotFoundException:
+                    print(f"Load balancer not found: {lb_name}")
+                    continue
+                except Exception as e:
+                    print(f"Error fetching configuration for load balancer {lb_name}: {e}")
+                    continue
+        else:
+            # Fetch all load balancers and filter by ApplicationShortName tag - use load balancer names as keys
+            paginator = elb_client.get_paginator('describe_load_balancers')
+            for page in paginator.paginate():
+                for lb in page['LoadBalancers']:
+                    try:
+                        # Get load balancer tags
+                        tags_response = elb_client.describe_tags(ResourceArns=[lb['LoadBalancerArn']])
+                        tags = tags_response.get('TagDescriptions', [])[0].get('Tags', [])
+                        
+                        # Check if load balancer has matching ApplicationShortName tag
+                        for tag in tags:
+                            if tag['Key'] == 'ApplicationShortName' and tag['Value'] == identifier:
+                                all_elb_configs[lb['LoadBalancerName']] = lb
+                                break
+
+                    except Exception as e:
+                        print(f"Error processing load balancer {lb['LoadBalancerName']}: {e}")
+                        continue
+
+        if not all_elb_configs:
+            print(f"No EC2 load balancers found for {'load balancer names' if use_lb_names else 'ApplicationShortName'} = {identifier}")
+            
+        return all_elb_configs
+    except Exception as e:
+        print(f"Error fetching EC2 load balancer configurations: {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python fetch_aws_config.py <ApplicationShortName> <output_file> <env_index>")
@@ -299,6 +355,13 @@ if __name__ == "__main__":
             # Fetch Parameter Store configurations if parameterStore is true
             if env_config.get('parameterStore') is True:
                 output_data['parameterStore'] = fetch_parameter_store_config(ApplicationShortName)
+            
+            # Fetch EC2 load balancer configurations if elb array is not empty
+            elb_names = env_config.get('elb', [])
+            if elb_names:
+                output_data['elb'] = fetch_elb_config(elb_names, use_lb_names=True)
+            else:
+                output_data['elb'] = fetch_elb_config(ApplicationShortName, use_lb_names=False)
         else:
             # Fall back to original behavior
             cluster_name, cluster_arn = find_team_cluster(team_tag_key='ApplicationShortName', 
@@ -307,7 +370,8 @@ if __name__ == "__main__":
                 'ecs': fetch_ecs_service_config([cluster_name], use_custom_identifier=False) if cluster_arn else {},
                 'rds': fetch_rds_config(ApplicationShortName, use_instance_ids=False),
                 'lambda': fetch_lambda_config(ApplicationShortName, use_function_names=False),
-                'parameterStore': fetch_parameter_store_config(ApplicationShortName)
+                'parameterStore': fetch_parameter_store_config(ApplicationShortName),
+                'elb': fetch_elb_config(ApplicationShortName, use_lb_names=False)
             }
 
         # Write to the output file
