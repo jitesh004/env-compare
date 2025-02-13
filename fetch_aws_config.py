@@ -108,25 +108,29 @@ def fetch_ecs_service_config(cluster_names, use_custom_identifier=False):
                     service_name = service_config.get('serviceName')
                     service_key = f"{cluster_name}/{service_name}"
                     
-                    # Fetch tasks for the service
-                    task_arns = ecs_client.list_tasks(cluster=cluster_arn, serviceName=service_name)['taskArns']
-                    tasks = []
-                    if task_arns:
-                        task_details = ecs_client.describe_tasks(cluster=cluster_arn, tasks=task_arns)
-                        tasks = task_details.get('tasks', [])
+                    # Fetch task definition for the service
+                    task_definition_arn = service_config.get('taskDefinition')
+                    task_definition = {}
+                    if task_definition_arn:
+                        task_definition_details = ecs_client.describe_task_definition(taskDefinition=task_definition_arn, include=['TAGS'])
+                        task_definition_name = task_definition_details['taskDefinition']['family']
+                        task_definition = {
+                            "compareIdentifier": task_definition_name,
+                            **task_definition_details['taskDefinition']
+                        }
                     
                     # Store with indexed key and include original service key in config
                     if use_custom_identifier:
                         all_service_configs[f"cluster_{cluster_index}/{service_name}"] = {
                             "compareIdentifier": service_key,
                             **service_config,
-                            "tasks": tasks
                         }
+                        all_service_configs[f"cluster_{cluster_index}/{service_name}/task_definition"] = task_definition
                     else:
                         all_service_configs[f"{service_key}"] = {
                             **service_config,
-                            "tasks": tasks
                         }
+                        all_service_configs[f"{service_key}/task_definition"] = task_definition
 
         return all_service_configs
     except Exception as e:
@@ -175,7 +179,7 @@ def fetch_rds_config(identifier, use_instance_ids=False):
         sys.exit(1)
 
 
-def fetch_parameter_store_config(prefixes):
+def fetch_parameter_store_config(prefixes, use_custom_names=True):
     """
     Fetches Parameter Store configurations under specific prefixes.
     Automatically constructs the full path using the prefixes.
@@ -183,8 +187,10 @@ def fetch_parameter_store_config(prefixes):
     """
     ssm_client = boto3.client('ssm', region_name='us-east-1')
     all_parameters = {}
+    prefix_index = 0
 
     for prefix in prefixes:
+        prefix_index += 1
         # Remove leading/trailing slashes from the prefix
         prefix = prefix.strip('/')
 
@@ -209,14 +215,32 @@ def fetch_parameter_store_config(prefixes):
 
             if not parameters:
                 print(f"No parameters found under path '{parameter_path}'.")
-                all_parameters[parameter_path] = {}
+                if use_custom_names:
+                    all_parameters[f"parameter_prefix_{prefix_index}"] = {
+                        "compareIdentifier": parameter_path
+                    }
+                else:
+                    all_parameters[parameter_path] = {}
                 continue
 
             # Extract and return parameters as a dictionary, removing the prefix from the parameter names
-            all_parameters[parameter_path] = {param['Name'].replace(parameter_path, '', 1): param['Value'] for param in parameters}
+            if use_custom_names:
+                all_parameters[f"parameter_prefix_{prefix_index}"] = {
+                    "compareIdentifier": parameter_path,
+                    **{param['Name'].replace(parameter_path, '', 1): param['Value'] for param in parameters}
+                }
+            else:
+                all_parameters[parameter_path] = {
+                    **{param['Name'].replace(parameter_path, '', 1): param['Value'] for param in parameters}
+                }
         except Exception as e:
             print(f"Error fetching Parameter Store configurations for {parameter_path}: {e}")
-            all_parameters[parameter_path] = {}
+            if use_custom_names:
+                all_parameters[f"parameter_prefix_{prefix_index}"] = {
+                    "compareIdentifier": parameter_path
+                }
+            else:
+                all_parameters[parameter_path] = {}
 
     return all_parameters
 
@@ -373,9 +397,11 @@ if __name__ == "__main__":
                 output_data['lambda'] = fetch_lambda_config(ApplicationShortName, use_function_names=False)
 
             # Fetch Parameter Store configurations if parameterStore prefixes are provided
-            parameter_store_prefixes = env_config.get('parameterStore', [ApplicationShortName])
+            parameter_store_prefixes = env_config.get('parameterStore')
             if parameter_store_prefixes:
-                output_data['parameterStore'] = fetch_parameter_store_config(parameter_store_prefixes)
+                output_data['parameterStore'] = fetch_parameter_store_config(parameter_store_prefixes, use_custom_names=True)
+            else:
+                output_data['parameterStore'] = fetch_parameter_store_config([ApplicationShortName], use_custom_names=False)
             
             # Fetch EC2 load balancer configurations if elb array is not empty
             elb_names = env_config.get('elb', [])
@@ -391,7 +417,7 @@ if __name__ == "__main__":
                 'ecs': fetch_ecs_service_config([cluster_name], use_custom_identifier=False) if cluster_arn else {},
                 'rds': fetch_rds_config(ApplicationShortName, use_instance_ids=False),
                 'lambda': fetch_lambda_config(ApplicationShortName, use_function_names=False),
-                'parameterStore': fetch_parameter_store_config([ApplicationShortName]),
+                'parameterStore': fetch_parameter_store_config([ApplicationShortName], use_custom_names=False),
                 'elb': fetch_elb_config(ApplicationShortName, use_lb_names=False)
             }
 
