@@ -65,7 +65,7 @@ def load_env_config(env_index):
         return None
 
 
-def fetch_ecs_service_config(cluster_names, use_custom_identifier=False):
+def fetch_ecs_service_config(cluster_configs, use_custom_identifier=False):
     """
     Fetches the configuration of ECS services for specified cluster names.
     Returns services with indexed keys.
@@ -76,8 +76,11 @@ def fetch_ecs_service_config(cluster_names, use_custom_identifier=False):
     service_index = 0
 
     try:
-        for cluster_name in cluster_names:
+        for cluster_config in cluster_configs:
+            cluster_name = cluster_config['clusterName']
+            service_names = cluster_config.get('serviceNames', [])
             cluster_index += 1
+
             # Get cluster ARN
             clusters = ecs_client.list_clusters()['clusterArns']
             cluster_arn = next((arn for arn in clusters if cluster_name in arn), None)
@@ -88,17 +91,19 @@ def fetch_ecs_service_config(cluster_names, use_custom_identifier=False):
 
             # Fetch services in the cluster with pagination
             services = []
-            paginator = ecs_client.get_paginator('list_services')
-            for page in paginator.paginate(cluster=cluster_arn):
-                services.extend(page.get('serviceArns', []))
+            if service_names:
+                services = service_names
+            else:
+                paginator = ecs_client.get_paginator('list_services')
+                for page in paginator.paginate(cluster=cluster_arn):
+                    services.extend(page.get('serviceArns', []))
 
             if not services:
                 print(f"No services found in cluster '{cluster_name}'")
                 continue
 
-            # Describe services in chunks of 10 (AWS API limit)
-            for i in range(0, len(services), 10):
-                service_chunk = services[i:i + 10]
+            for service in services:
+                service_chunk = [service]
                 service_details = ecs_client.describe_services(cluster=cluster_arn, services=service_chunk)
                 
                 for service_config in service_details['services']:
@@ -414,7 +419,7 @@ if __name__ == "__main__":
             cluster_name, cluster_arn = find_team_cluster(team_tag_key='ApplicationShortName', 
                                                         team_tag_value=ApplicationShortName)
             output_data = {
-                'ecs': fetch_ecs_service_config([cluster_name], use_custom_identifier=False) if cluster_arn else {},
+                'ecs': fetch_ecs_service_config([{"clusterName": cluster_name}], use_custom_identifier=False) if cluster_arn else {},
                 'rds': fetch_rds_config(ApplicationShortName, use_instance_ids=False),
                 'lambda': fetch_lambda_config(ApplicationShortName, use_function_names=False),
                 'parameterStore': fetch_parameter_store_config([ApplicationShortName], use_custom_names=False),

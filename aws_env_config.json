@@ -1,0 +1,14 @@
+[
+    {
+        "ecs": [
+            {
+                "clusterName": "ciem-ecs-idm",
+                "serviceNames": ["ciem-1", "ciem-2"]
+            },
+            {
+                "clusterName": "ciem-ecs-idm-mnt",
+                "serviceNames": ["ciem-4", "ciem-5"]
+            }
+        ]
+    }
+]
