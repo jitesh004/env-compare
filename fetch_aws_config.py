@@ -16,9 +16,10 @@ class DateTimeEncoder(json.JSONEncoder):
 
 def find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=''):
     """
-    Finds the ECS cluster ARN for a given ApplicationShortName tag value.
+    Finds all ECS cluster ARNs for a given ApplicationShortName tag value.
     """
     ecs_client = boto3.client(service_name='ecs', region_name='us-east-1')
+    matching_clusters = []
 
     try:
         # List all clusters with pagination
@@ -36,12 +37,13 @@ def find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=''):
             for tag in tags:
                 if tag['key'] == team_tag_key and tag['value'] == team_tag_value:
                     cluster_name = cluster_arn.split('/')[-1]  # Extract cluster name from ARN
-                    return cluster_name, cluster_arn
+                    matching_clusters.append((cluster_name, cluster_arn))
 
-        print(f"No ECS cluster found for {team_tag_key} = {team_tag_value}")
-        return None
+        if not matching_clusters:
+            print(f"No ECS clusters found for {team_tag_key} = {team_tag_value}")
+        return matching_clusters
     except Exception as e:
-        print(f"Error finding ECS cluster: {e}")
+        print(f"Error finding ECS clusters: {e}")
         sys.exit(1)
 
 
@@ -416,10 +418,10 @@ if __name__ == "__main__":
                 output_data['elb'] = fetch_elb_config(ApplicationShortName, use_lb_names=False)
         else:
             # Fall back to original behavior
-            cluster_name, cluster_arn = find_team_cluster(team_tag_key='ApplicationShortName', 
-                                                        team_tag_value=ApplicationShortName)
+            matching_clusters = find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
+            ecs_clusters = [{"clusterName": cluster_name} for cluster_name, _ in matching_clusters]
             output_data = {
-                'ecs': fetch_ecs_service_config([{"clusterName": cluster_name}], use_custom_identifier=False) if cluster_arn else {},
+                'ecs': fetch_ecs_service_config(ecs_clusters, use_custom_identifier=False) if matching_clusters else {},
                 'rds': fetch_rds_config(ApplicationShortName, use_instance_ids=False),
                 'lambda': fetch_lambda_config(ApplicationShortName, use_function_names=False),
                 'parameterStore': fetch_parameter_store_config([ApplicationShortName], use_custom_names=False),
