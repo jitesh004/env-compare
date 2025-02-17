@@ -384,6 +384,59 @@ def fetch_elb_config(identifier, use_lb_names=False):
         sys.exit(1)
 
 
+def fetch_sqs_config(queue_names, ApplicationShortName):
+    """
+    Fetches the configuration of SQS queues for specified queue names.
+    Returns queues with indexed keys.
+    """
+    sqs_client = boto3.client('sqs', region_name='us-east-1')
+    all_queue_configs = {}
+    queue_index = 0
+
+    try:
+        if queue_names:
+            for queue_name in queue_names:
+                queue_index += 1
+                try:
+                    queue_url = sqs_client.get_queue_url(QueueName=queue_name)['QueueUrl']
+                    queue_attributes = sqs_client.get_queue_attributes(QueueUrl=queue_url, AttributeNames=['All'])['Attributes']
+                    all_queue_configs[f"sqs_queue_{queue_index}"] = {
+                        "compareIdentifier": queue_name,
+                        **queue_attributes
+                    }
+                except sqs_client.exceptions.QueueDoesNotExist:
+                    print(f"SQS queue not found: {queue_name}")
+                    continue
+                except Exception as e:
+                    print(f"Error fetching configuration for SQS queue {queue_name}: {e}")
+                    continue
+        else:
+            # Fetch all SQS queues and filter by ApplicationShortName tag
+            list_queues_response = sqs_client.list_queues()
+            queue_urls = list_queues_response.get('QueueUrls', [])
+            for queue_url in queue_urls:
+                try:
+                    tags_response = sqs_client.list_queue_tags(QueueUrl=queue_url)
+                    tags = tags_response.get('Tags', {})
+                    if tags.get('ApplicationShortName') == ApplicationShortName:
+                        queue_attributes = sqs_client.get_queue_attributes(QueueUrl=queue_url, AttributeNames=['All'])['Attributes']
+                        queue_name = queue_url.split('/')[-1]
+                        all_queue_configs[f"{queue_name}"] = {
+                            **queue_attributes
+                        }
+                except Exception as e:
+                    print(f"Error processing SQS queue {queue_url}: {e}")
+                    continue
+
+        if not all_queue_configs:
+            print(f"No SQS queues found for the provided queue names or ApplicationShortName.")
+            
+        return all_queue_configs
+    except Exception as e:
+        print(f"Error fetching SQS configurations: {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python fetch_aws_config.py <ApplicationShortName> <output_file> <env_index>")
@@ -429,6 +482,13 @@ if __name__ == "__main__":
                 output_data['elb'] = fetch_elb_config(elb_names, use_lb_names=True)
             else:
                 output_data['elb'] = fetch_elb_config(ApplicationShortName, use_lb_names=False)
+            
+            # Fetch SQS configurations if sqs array is not empty
+            sqs_queues = env_config.get('sqs', [])
+            if sqs_queues:
+                output_data['sqs'] = fetch_sqs_config(sqs_queues, ApplicationShortName)
+            else:
+                output_data['sqs'] = fetch_sqs_config([], ApplicationShortName)
         else:
             # Fall back to original behavior
             matching_clusters = find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
@@ -438,7 +498,8 @@ if __name__ == "__main__":
                 'rds': fetch_rds_config(ApplicationShortName, use_instance_ids=False),
                 'lambda': fetch_lambda_config(ApplicationShortName, use_function_names=False),
                 'parameterStore': fetch_parameter_store_config([ApplicationShortName], use_custom_names=False),
-                'elb': fetch_elb_config(ApplicationShortName, use_lb_names=False)
+                'elb': fetch_elb_config(ApplicationShortName, use_lb_names=False),
+                'sqs': fetch_sqs_config([], ApplicationShortName)
             }
 
         # Write to the output file
