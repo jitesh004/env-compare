@@ -75,13 +75,13 @@ def fetch_ecs_service_config(cluster_configs, use_custom_identifier=False):
     ecs_client = boto3.client(service_name='ecs', region_name='us-east-1')
     all_service_configs = {}
     cluster_index = 0
-    service_index = 0
 
     try:
         for cluster_config in cluster_configs:
+            service_index = 0
+            cluster_index += 1
             cluster_name = cluster_config['clusterName']
             service_names = cluster_config.get('serviceNames', [])
-            cluster_index += 1
 
             # Get cluster ARN
             clusters = ecs_client.list_clusters()['clusterArns']
@@ -121,6 +121,7 @@ def fetch_ecs_service_config(cluster_configs, use_custom_identifier=False):
                     if task_definition_arn:
                         task_definition_details = ecs_client.describe_task_definition(taskDefinition=task_definition_arn, include=['TAGS'])
                         task_definition_name = task_definition_details['taskDefinition']['family']
+                        container_definitions = task_definition_details['taskDefinition'].pop('containerDefinitions', [])
                         task_definition = {
                             "compareIdentifier": task_definition_name,
                             **task_definition_details['taskDefinition']
@@ -128,16 +129,28 @@ def fetch_ecs_service_config(cluster_configs, use_custom_identifier=False):
                     
                     # Store with indexed key and include original service key in config
                     if use_custom_identifier:
-                        all_service_configs[f"cluster_{cluster_index}/{service_name}"] = {
+                        all_service_configs[f"cluster_{cluster_index}/service_{service_index}"] = {
                             "compareIdentifier": service_key,
                             **service_config,
                         }
-                        all_service_configs[f"cluster_{cluster_index}/{service_name}/task_definition"] = task_definition
+                        all_service_configs[f"cluster_{cluster_index}/service_{service_index}/task_definition"] = task_definition
+                        # Add container definitions to all_service_configs
+                        for container_definition in container_definitions:
+                            container_name = container_definition["name"]
+                            all_service_configs[f"cluster_{cluster_index}/service_{service_index}/task_definition/container_definition/{container_name}"] = {
+                                **container_definition
+                            }
                     else:
                         all_service_configs[f"{service_key}"] = {
                             **service_config,
                         }
                         all_service_configs[f"{service_key}/task_definition"] = task_definition
+                        # Add container definitions to all_service_configs
+                        for container_definition in container_definitions:
+                            container_name = container_definition["name"]
+                            all_service_configs[f"cluster_{cluster_index}/service_{service_index}/task_definition/container_definition/{container_name}"] = {
+                                **container_definition
+                            }
 
         return all_service_configs
     except Exception as e:
