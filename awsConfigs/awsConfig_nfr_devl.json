@@ -327,7 +327,6 @@
       "DedicatedLogVolume": false
     },
     "rds_db_instance_2": {
-      "compareIdentifier": "ciem-aur-idm",
       "DBInstanceIdentifier": "ciem-aur-idm",
       "DBInstanceClass": "db.r6g.4xlarge",
       "Engine": "aurora-postgresql",

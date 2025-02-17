@@ -148,7 +148,7 @@ def fetch_ecs_service_config(cluster_configs, use_custom_identifier=False):
                         # Add container definitions to all_service_configs
                         for container_definition in container_definitions:
                             container_name = container_definition["name"]
-                            all_service_configs[f"cluster_{cluster_index}/service_{service_index}/task_definition/container_definition/{container_name}"] = {
+                            all_service_configs[f"${service_key}{cluster_index}/service_{service_index}/task_definition/container_definition/{container_name}"] = {
                                 **container_definition
                             }
 
@@ -450,17 +450,24 @@ if __name__ == "__main__":
         # Load environment configuration
         env_config = load_env_config(env_index) if env_index is not None else None
         output_data = {}
+        print("Env config: ", env_config)
 
         if env_config:
             # Fetch ECS configurations if ecs array is not empty
             ecs_clusters = env_config.get('ecs', [])
             if ecs_clusters:
                 output_data['ecs'] = fetch_ecs_service_config(ecs_clusters, use_custom_identifier=True)
+            else:
+                matching_clusters = find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
+                ecs_clusters = [{"clusterName": cluster_name} for cluster_name, _ in matching_clusters]
+                output_data['ecs'] = fetch_ecs_service_config(ecs_clusters, use_custom_identifier=False) if matching_clusters else {}
             
             # Fetch RDS configurations if rds array is not empty
             rds_instances = env_config.get('rds', [])
             if rds_instances:
                 output_data['rds'] = fetch_rds_config(rds_instances, use_instance_ids=True)
+            else:
+                output_data['rds'] = fetch_rds_config(ApplicationShortName, use_instance_ids=False)
             
             # Fetch Lambda configurations if lambda array is not empty
             lambda_functions = env_config.get('lambda', [])
@@ -490,6 +497,7 @@ if __name__ == "__main__":
             else:
                 output_data['sqs'] = fetch_sqs_config([], ApplicationShortName)
         else:
+            print("Env configs not found, fetching configs by ApplicationShortName: ", ApplicationShortName)
             # Fall back to original behavior
             matching_clusters = find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
             ecs_clusters = [{"clusterName": cluster_name} for cluster_name, _ in matching_clusters]

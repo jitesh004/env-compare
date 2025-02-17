@@ -418,15 +418,15 @@ def is_nested_dict(data):
     """Check if the dictionary has nested dictionaries as values"""
     return bool(data) and all(isinstance(v, dict) for v in data.values())
 
-def generate_accordion_item(section, subsection, comparison_results, summary, env1, env2, missing_in_env=None, compare_identifier=None):
+def generate_accordion_item(section, subsection, comparison_results, summary, env1, env2, missing_in_env=None, compare_identifier1=None, compare_identifier2=None):
     """Generate HTML for an accordion item"""
     # Sanitize the IDs
     accordion_id = f"collapse-{sanitize_id(section.lower())}-{sanitize_id(subsection.lower())}"
     
     # Format the title with compareIdentifier if present
     title = subsection
-    if compare_identifier:
-        title = f"{subsection} ({compare_identifier})"
+    if compare_identifier1 or compare_identifier2:
+        title = f"{subsection} ({compare_identifier1} - {compare_identifier2})"
     
     if missing_in_env or not comparison_results:
         return f"""
@@ -578,10 +578,9 @@ def main(
                     # Handle nested structure (like ecs and rds)
                     for subsection in data1[section].keys():
                         # Get compareIdentifier if it exists
-                        compare_identifier = None
-                        if isinstance(data1[section][subsection], dict):
-                            compare_identifier = data1[section][subsection].get('compareIdentifier')
-                            
+                        compare_identifier1 = data1[section][subsection].get('compareIdentifier') if isinstance(data1[section][subsection], dict) else None
+                        compare_identifier2 = data2[section].get(subsection, {}).get('compareIdentifier') if isinstance(data2[section].get(subsection, {}), dict) else None
+                        
                         comparison_results, summary = compare_tfvars_data(
                             data1[section][subsection],
                             data2[section].get(subsection, {}),
@@ -597,13 +596,15 @@ def main(
                             summary,
                             env1,
                             env2,
-                            compare_identifier=compare_identifier
+                            compare_identifier1=compare_identifier1,
+                            compare_identifier2=compare_identifier2
                         )
                         section_html += accordion_item
                 else:
                     # Handle flat structure (like parameterStore)
                     # Get compareIdentifier if it exists
-                    compare_identifier = data1[section].get('compareIdentifier') if isinstance(data1[section], dict) else None
+                    compare_identifier1 = data1[section].get('compareIdentifier') if isinstance(data1[section], dict) else None
+                    compare_identifier2 = data2.get(section, {}).get('compareIdentifier') if isinstance(data2.get(section, {}), dict) else None
                     
                     comparison_results, summary = compare_tfvars_data(
                         data1[section],
@@ -620,7 +621,8 @@ def main(
                         summary,
                         env1,
                         env2,
-                        compare_identifier=compare_identifier
+                        compare_identifier1=compare_identifier1,
+                        compare_identifier2=compare_identifier2
                     )
                     section_html += accordion_item
 
