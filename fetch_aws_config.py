@@ -520,6 +520,16 @@ def fetch_sns_topic_details(sns_client, topic_arn, topic_name):
     # Get topic attributes
     topic_attributes = sns_client.get_topic_attributes(TopicArn=topic_arn)['Attributes']
     
+    # Create the base topic details object with flattened attributes
+    topic_details = {
+        "TopicArn": topic_arn,
+        "TopicName": topic_name,
+    }
+    
+    # Add attributes with "Attributes." prefix
+    for attr_name, attr_value in topic_attributes.items():
+        topic_details[f"Attributes.{attr_name}"] = attr_value
+    
     # Get subscriptions for this topic
     subscriptions = []
     subscription_paginator = sns_client.get_paginator('list_subscriptions_by_topic')
@@ -537,61 +547,25 @@ def fetch_sns_topic_details(sns_client, topic_arn, topic_name):
                 continue
                 
             sub_attributes = sns_client.get_subscription_attributes(SubscriptionArn=sub_arn)['Attributes']
-            detailed_subscription = {**subscription, 'Attributes': sub_attributes}
+            
+            # Create a subscription with flattened attributes
+            detailed_subscription = {**subscription}
+            for sub_attr_name, sub_attr_value in sub_attributes.items():
+                detailed_subscription[f"Attributes.{sub_attr_name}"] = sub_attr_value
+                
             detailed_subscriptions.append(detailed_subscription)
         except Exception as e:
             print(f"Error fetching details for subscription {subscription.get('SubscriptionArn')}: {e}")
             detailed_subscriptions.append(subscription)
     
+    topic_details["Subscriptions"] = detailed_subscriptions
+    
     # Get topic tags
     tags_response = sns_client.list_tags_for_resource(ResourceArn=topic_arn)
-    tags = tags_response.get('Tags', [])
-    
-    # Get topic policy from attributes
-    policy = None
-    if 'Policy' in topic_attributes:
-        try:
-            policy = json.loads(topic_attributes['Policy'])
-        except json.JSONDecodeError:
-            policy = topic_attributes['Policy']
+    topic_details["Tags"] = tags_response.get('Tags', [])
     
     # Check if topic is FIFO
-    is_fifo = topic_name.endswith('.fifo')
-    
-    # Get delivery policy if available
-    delivery_policy = None
-    if 'DeliveryPolicy' in topic_attributes:
-        try:
-            delivery_policy = json.loads(topic_attributes['DeliveryPolicy'])
-        except json.JSONDecodeError:
-            delivery_policy = topic_attributes['DeliveryPolicy']
-    
-    # Compile all topic details
-    topic_details = {
-        "TopicArn": topic_arn,
-        "TopicName": topic_name,
-        "Attributes": topic_attributes,
-        "Subscriptions": detailed_subscriptions,
-        "Tags": tags,
-        "Policy": policy,
-        "IsFifo": is_fifo,
-        "DeliveryPolicy": delivery_policy
-    }
-    
-    # If it's a FIFO topic, include additional FIFO properties
-    if is_fifo and 'FifoTopic' in topic_attributes:
-        topic_details["FifoProperties"] = {
-            "FifoTopic": topic_attributes.get('FifoTopic'),
-            "ContentBasedDeduplication": topic_attributes.get('ContentBasedDeduplication')
-        }
-    
-    # Check for dead-letter queue configuration
-    if 'RedrivePolicy' in topic_attributes:
-        try:
-            redrive_policy = json.loads(topic_attributes['RedrivePolicy'])
-            topic_details["DeadLetterQueue"] = redrive_policy
-        except json.JSONDecodeError:
-            topic_details["DeadLetterQueue"] = topic_attributes['RedrivePolicy']
+    topic_details["IsFifo"] = topic_name.endswith('.fifo')
     
     return topic_details
 
