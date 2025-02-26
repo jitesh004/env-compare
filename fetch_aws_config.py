@@ -437,6 +437,165 @@ def fetch_sqs_config(queue_names, ApplicationShortName):
         sys.exit(1)
 
 
+def fetch_sns_config(identifier, use_topic_names=False):
+    """
+    Fetches the configuration of SNS topics either by topic names or ApplicationShortName.
+    Returns topics with indexed keys or topic names as keys based on the mode.
+    """
+    sns_client = boto3.client('sns', region_name='us-east-1')
+    all_sns_configs = {}
+    topic_index = 0
+
+    try:
+        if use_topic_names:
+            # Get all topics first to match by name
+            all_topics = []
+            paginator = sns_client.get_paginator('list_topics')
+            for page in paginator.paginate():
+                all_topics.extend(page.get('Topics', []))
+            
+            # Filter topics by the specified names
+            for topic_name in identifier:
+                topic_index += 1
+                # Find the topic ARN that ends with the specified name
+                topic_arn = next((t['TopicArn'] for t in all_topics if t['TopicArn'].split(':')[-1] == topic_name), None)
+                
+                if not topic_arn:
+                    print(f"SNS topic not found: {topic_name}")
+                    continue
+                
+                try:
+                    # Get comprehensive topic details
+                    topic_data = fetch_sns_topic_details(sns_client, topic_arn, topic_name)
+                    
+                    # Store topic config with all details
+                    all_sns_configs[f"sns_topic_{topic_index}"] = {
+                        "compareIdentifier": topic_name,
+                        **topic_data
+                    }
+                    
+                except Exception as e:
+                    print(f"Error fetching configuration for SNS topic {topic_name}: {e}")
+                    continue
+        else:
+            # Fetch all topics and filter by ApplicationShortName tag - use topic names as keys
+            paginator = sns_client.get_paginator('list_topics')
+            for page in paginator.paginate():
+                for topic in page['Topics']:
+                    topic_arn = topic['TopicArn']
+                    try:
+                        # Get topic attributes and tags
+                        topic_attributes = sns_client.get_topic_attributes(TopicArn=topic_arn)['Attributes']
+                        tags_response = sns_client.list_tags_for_resource(ResourceArn=topic_arn)
+                        tags = tags_response.get('Tags', [])
+                        
+                        # Check if topic has matching ApplicationShortName tag
+                        if any(tag['Key'] == 'ApplicationShortName' and tag['Value'] == identifier for tag in tags):
+                            # Get topic name from ARN
+                            topic_name = topic_arn.split(':')[-1]
+                            
+                            # Get comprehensive topic details
+                            topic_data = fetch_sns_topic_details(sns_client, topic_arn, topic_name)
+                            
+                            # Use topic name as key instead of indexed key
+                            all_sns_configs[topic_name] = topic_data
+                            
+                    except Exception as e:
+                        print(f"Error processing SNS topic {topic_arn}: {e}")
+                        continue
+
+        if not all_sns_configs:
+            print(f"No SNS topics found for {'topic names' if use_topic_names else 'ApplicationShortName'} = {identifier}")
+            
+        return all_sns_configs
+    except Exception as e:
+        print(f"Error fetching SNS configurations: {e}")
+        sys.exit(1)
+
+
+def fetch_sns_topic_details(sns_client, topic_arn, topic_name):
+    """
+    Helper function to fetch comprehensive details for an SNS topic.
+    """
+    # Get topic attributes
+    topic_attributes = sns_client.get_topic_attributes(TopicArn=topic_arn)['Attributes']
+    
+    # Get subscriptions for this topic
+    subscriptions = []
+    subscription_paginator = sns_client.get_paginator('list_subscriptions_by_topic')
+    for sub_page in subscription_paginator.paginate(TopicArn=topic_arn):
+        subscriptions.extend(sub_page.get('Subscriptions', []))
+    
+    # Get subscription details, including filter policies
+    detailed_subscriptions = []
+    for subscription in subscriptions:
+        try:
+            sub_arn = subscription.get('SubscriptionArn')
+            # Skip if subscription is pending confirmation
+            if sub_arn == 'PendingConfirmation':
+                detailed_subscriptions.append(subscription)
+                continue
+                
+            sub_attributes = sns_client.get_subscription_attributes(SubscriptionArn=sub_arn)['Attributes']
+            detailed_subscription = {**subscription, 'Attributes': sub_attributes}
+            detailed_subscriptions.append(detailed_subscription)
+        except Exception as e:
+            print(f"Error fetching details for subscription {subscription.get('SubscriptionArn')}: {e}")
+            detailed_subscriptions.append(subscription)
+    
+    # Get topic tags
+    tags_response = sns_client.list_tags_for_resource(ResourceArn=topic_arn)
+    tags = tags_response.get('Tags', [])
+    
+    # Get topic policy from attributes
+    policy = None
+    if 'Policy' in topic_attributes:
+        try:
+            policy = json.loads(topic_attributes['Policy'])
+        except json.JSONDecodeError:
+            policy = topic_attributes['Policy']
+    
+    # Check if topic is FIFO
+    is_fifo = topic_name.endswith('.fifo')
+    
+    # Get delivery policy if available
+    delivery_policy = None
+    if 'DeliveryPolicy' in topic_attributes:
+        try:
+            delivery_policy = json.loads(topic_attributes['DeliveryPolicy'])
+        except json.JSONDecodeError:
+            delivery_policy = topic_attributes['DeliveryPolicy']
+    
+    # Compile all topic details
+    topic_details = {
+        "TopicArn": topic_arn,
+        "TopicName": topic_name,
+        "Attributes": topic_attributes,
+        "Subscriptions": detailed_subscriptions,
+        "Tags": tags,
+        "Policy": policy,
+        "IsFifo": is_fifo,
+        "DeliveryPolicy": delivery_policy
+    }
+    
+    # If it's a FIFO topic, include additional FIFO properties
+    if is_fifo and 'FifoTopic' in topic_attributes:
+        topic_details["FifoProperties"] = {
+            "FifoTopic": topic_attributes.get('FifoTopic'),
+            "ContentBasedDeduplication": topic_attributes.get('ContentBasedDeduplication')
+        }
+    
+    # Check for dead-letter queue configuration
+    if 'RedrivePolicy' in topic_attributes:
+        try:
+            redrive_policy = json.loads(topic_attributes['RedrivePolicy'])
+            topic_details["DeadLetterQueue"] = redrive_policy
+        except json.JSONDecodeError:
+            topic_details["DeadLetterQueue"] = topic_attributes['RedrivePolicy']
+    
+    return topic_details
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python fetch_aws_config.py <ApplicationShortName> <output_file> <env_index>")
@@ -496,6 +655,13 @@ if __name__ == "__main__":
                 output_data['sqs'] = fetch_sqs_config(sqs_queues, ApplicationShortName)
             else:
                 output_data['sqs'] = fetch_sqs_config([], ApplicationShortName)
+                
+            # Fetch SNS configurations if sns array is not empty
+            sns_topics = env_config.get('sns', [])
+            if sns_topics:
+                output_data['sns'] = fetch_sns_config(sns_topics, use_topic_names=True)
+            else:
+                output_data['sns'] = fetch_sns_config(ApplicationShortName, use_topic_names=False)
         else:
             print("Env configs not found, fetching configs by ApplicationShortName: ", ApplicationShortName)
             # Fall back to original behavior
@@ -507,7 +673,8 @@ if __name__ == "__main__":
                 'lambda': fetch_lambda_config(ApplicationShortName, use_function_names=False),
                 'parameterStore': fetch_parameter_store_config([ApplicationShortName], use_custom_names=False),
                 'elb': fetch_elb_config(ApplicationShortName, use_lb_names=False),
-                'sqs': fetch_sqs_config([], ApplicationShortName)
+                'sqs': fetch_sqs_config([], ApplicationShortName),
+                'sns': fetch_sns_config(ApplicationShortName, use_topic_names=False)
             }
 
         # Write to the output file
