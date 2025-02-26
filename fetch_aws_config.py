@@ -570,6 +570,111 @@ def fetch_sns_topic_details(sns_client, topic_arn, topic_name):
     return topic_details
 
 
+def fetch_kinesis_config(identifier, use_stream_names=False):
+    """
+    Fetches the configuration of Kinesis data streams either by stream names or ApplicationShortName.
+    Returns streams with indexed keys or stream names as keys based on the mode.
+    """
+    kinesis_client = boto3.client('kinesis', region_name='us-east-1')
+    all_stream_configs = {}
+    stream_index = 0
+
+    try:
+        if use_stream_names:
+            # Fetch specific streams by name - use indexed keys
+            for stream_name in identifier:
+                stream_index += 1
+                try:
+                    # Get stream details
+                    stream_desc = kinesis_client.describe_stream(StreamName=stream_name)['StreamDescription']
+                    
+                    # Get stream tags
+                    tags_response = kinesis_client.list_tags_for_stream(StreamName=stream_name)
+                    tags = tags_response.get('Tags', [])
+                    
+                    # Get consumer details if they exist
+                    consumers = []
+                    try:
+                        consumer_paginator = kinesis_client.get_paginator('list_stream_consumers')
+                        for page in consumer_paginator.paginate(StreamARN=stream_desc['StreamARN']):
+                            consumers.extend(page.get('Consumers', []))
+                    except Exception as e:
+                        print(f"Error fetching consumers for Kinesis stream {stream_name}: {e}")
+                    
+                    # Store with indexed key and include original stream name in config
+                    all_stream_configs[f"kinesis_stream_{stream_index}"] = {
+                        "compareIdentifier": stream_name,
+                        "StreamName": stream_name,
+                        "StreamARN": stream_desc.get('StreamARN'),
+                        "StreamStatus": stream_desc.get('StreamStatus'),
+                        "RetentionPeriodHours": stream_desc.get('RetentionPeriodHours'),
+                        "StreamCreationTimestamp": stream_desc.get('StreamCreationTimestamp'),
+                        "EncryptionType": stream_desc.get('EncryptionType'),
+                        "KeyId": stream_desc.get('KeyId'),
+                        "Shards": stream_desc.get('Shards', []),
+                        "EnhancedMonitoring": stream_desc.get('EnhancedMonitoring', []),
+                        "Consumers": consumers,
+                        "Tags": tags
+                    }
+                    
+                except kinesis_client.exceptions.ResourceNotFoundException:
+                    print(f"Kinesis stream not found: {stream_name}")
+                    continue
+                except Exception as e:
+                    print(f"Error fetching configuration for Kinesis stream {stream_name}: {e}")
+                    continue
+        else:
+            # Fetch all streams and filter by ApplicationShortName tag - use stream names as keys
+            paginator = kinesis_client.get_paginator('list_streams')
+            for page in paginator.paginate():
+                for stream_name in page.get('StreamNames', []):
+                    try:
+                        # Get stream tags
+                        tags_response = kinesis_client.list_tags_for_stream(StreamName=stream_name)
+                        tags = tags_response.get('Tags', [])
+                        
+                        # Check if stream has matching ApplicationShortName tag
+                        if any(tag['Key'] == 'ApplicationShortName' and tag['Value'] == identifier for tag in tags):
+                            # Get stream details
+                            stream_desc = kinesis_client.describe_stream(StreamName=stream_name)['StreamDescription']
+                            
+                            # Get consumer details if they exist
+                            consumers = []
+                            try:
+                                consumer_paginator = kinesis_client.get_paginator('list_stream_consumers')
+                                for page in consumer_paginator.paginate(StreamARN=stream_desc['StreamARN']):
+                                    consumers.extend(page.get('Consumers', []))
+                            except Exception as e:
+                                print(f"Error fetching consumers for Kinesis stream {stream_name}: {e}")
+                            
+                            # Use stream name as key
+                            all_stream_configs[stream_name] = {
+                                "StreamName": stream_name,
+                                "StreamARN": stream_desc.get('StreamARN'),
+                                "StreamStatus": stream_desc.get('StreamStatus'),
+                                "RetentionPeriodHours": stream_desc.get('RetentionPeriodHours'),
+                                "StreamCreationTimestamp": stream_desc.get('StreamCreationTimestamp'),
+                                "EncryptionType": stream_desc.get('EncryptionType'),
+                                "KeyId": stream_desc.get('KeyId'),
+                                "Shards": stream_desc.get('Shards', []),
+                                "EnhancedMonitoring": stream_desc.get('EnhancedMonitoring', []),
+                                "Consumers": consumers,
+                                "Tags": tags
+                            }
+                            
+                    except Exception as e:
+                        print(f"Error processing Kinesis stream {stream_name}: {e}")
+                        continue
+
+        if not all_stream_configs:
+            print(f"No Kinesis streams found for {'stream names' if use_stream_names else 'ApplicationShortName'} = {identifier}")
+            
+        return all_stream_configs
+    except Exception as e:
+        print(f"Error fetching Kinesis configurations: {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python fetch_aws_config.py <ApplicationShortName> <output_file> <env_index>")
@@ -636,6 +741,13 @@ if __name__ == "__main__":
                 output_data['sns'] = fetch_sns_config(sns_topics, use_topic_names=True)
             else:
                 output_data['sns'] = fetch_sns_config(ApplicationShortName, use_topic_names=False)
+                
+            # Fetch Kinesis configurations if kinesis array is not empty
+            kinesis_streams = env_config.get('kinesis', [])
+            if kinesis_streams:
+                output_data['kinesis'] = fetch_kinesis_config(kinesis_streams, use_stream_names=True)
+            else:
+                output_data['kinesis'] = fetch_kinesis_config(ApplicationShortName, use_stream_names=False)
         else:
             print("Env configs not found, fetching configs by ApplicationShortName: ", ApplicationShortName)
             # Fall back to original behavior
@@ -648,7 +760,8 @@ if __name__ == "__main__":
                 'parameterStore': fetch_parameter_store_config([ApplicationShortName], use_custom_names=False),
                 'elb': fetch_elb_config(ApplicationShortName, use_lb_names=False),
                 'sqs': fetch_sqs_config([], ApplicationShortName),
-                'sns': fetch_sns_config(ApplicationShortName, use_topic_names=False)
+                'sns': fetch_sns_config(ApplicationShortName, use_topic_names=False),
+                'kinesis': fetch_kinesis_config(ApplicationShortName, use_stream_names=False)
             }
 
         # Write to the output file
