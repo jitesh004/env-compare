@@ -584,45 +584,64 @@ def fetch_kinesis_config(identifier, use_stream_names=False):
             # Fetch specific streams by name - use indexed keys
             for stream_name in identifier:
                 stream_index += 1
+                # Initialize default values in case API calls fail
+                stream_desc = {}
+                tags = []
+                consumers = []
+                
                 try:
-                    # Get stream details
-                    stream_desc = kinesis_client.describe_stream(StreamName=stream_name)['StreamDescription']
-                    
-                    # Get stream tags
+                    # Try to get stream details
+                    stream_desc_response = kinesis_client.describe_stream(StreamName=stream_name)
+                    stream_desc = stream_desc_response.get('StreamDescription', {})
+                except kinesis_client.exceptions.ResourceNotFoundException:
+                    print(f"Kinesis stream not found: {stream_name}")
+                    continue
+                except Exception as e:
+                    print(f"Error fetching details for Kinesis stream {stream_name}: {e}")
+                    stream_desc = {}
+                
+                try:
+                    # Try to get stream tags
                     tags_response = kinesis_client.list_tags_for_stream(StreamName=stream_name)
                     tags = tags_response.get('Tags', [])
-                    
-                    # Get consumer details if they exist
-                    consumers = []
+                except Exception as e:
+                    print(f"Error fetching tags for Kinesis stream {stream_name}: {e}")
+                    tags = []
+                
+                # Get consumer details if they exist and if we have a StreamARN
+                if stream_desc and stream_desc.get('StreamARN'):
                     try:
                         consumer_paginator = kinesis_client.get_paginator('list_stream_consumers')
                         for page in consumer_paginator.paginate(StreamARN=stream_desc['StreamARN']):
                             consumers.extend(page.get('Consumers', []))
                     except Exception as e:
                         print(f"Error fetching consumers for Kinesis stream {stream_name}: {e}")
-                    
-                    # Store with indexed key and include original stream name in config
-                    all_stream_configs[f"kinesis_stream_{stream_index}"] = {
-                        "compareIdentifier": stream_name,
-                        "StreamName": stream_name,
-                        "StreamARN": stream_desc.get('StreamARN'),
-                        "StreamStatus": stream_desc.get('StreamStatus'),
-                        "RetentionPeriodHours": stream_desc.get('RetentionPeriodHours'),
-                        "StreamCreationTimestamp": stream_desc.get('StreamCreationTimestamp'),
-                        "EncryptionType": stream_desc.get('EncryptionType'),
-                        "KeyId": stream_desc.get('KeyId'),
-                        "Shards": stream_desc.get('Shards', []),
-                        "EnhancedMonitoring": stream_desc.get('EnhancedMonitoring', []),
-                        "Consumers": consumers,
-                        "Tags": tags
-                    }
-                    
-                except kinesis_client.exceptions.ResourceNotFoundException:
-                    print(f"Kinesis stream not found: {stream_name}")
-                    continue
+                        consumers = []
+                
+                # Try to fetch stream limits
+                limits = {}
+                try:
+                    limits_response = kinesis_client.describe_limits()
+                    limits = limits_response or {}
                 except Exception as e:
-                    print(f"Error fetching configuration for Kinesis stream {stream_name}: {e}")
-                    continue
+                    print(f"Error fetching limits for Kinesis stream {stream_name}: {e}")
+                
+                # Store with indexed key and include original stream name in config
+                all_stream_configs[f"kinesis_stream_{stream_index}"] = {
+                    "compareIdentifier": stream_name,
+                    "StreamName": stream_name,
+                    "StreamARN": stream_desc.get('StreamARN'),
+                    "StreamStatus": stream_desc.get('StreamStatus'),
+                    "RetentionPeriodHours": stream_desc.get('RetentionPeriodHours'),
+                    "StreamCreationTimestamp": stream_desc.get('StreamCreationTimestamp'),
+                    "EncryptionType": stream_desc.get('EncryptionType'),
+                    "KeyId": stream_desc.get('KeyId'),
+                    "Shards": stream_desc.get('Shards', []),
+                    "EnhancedMonitoring": stream_desc.get('EnhancedMonitoring', []),
+                    "Consumers": consumers,
+                    "Tags": tags,
+                    "Limits": limits
+                }
         else:
             # Fetch all streams and filter by ApplicationShortName tag - use stream names as keys
             paginator = kinesis_client.get_paginator('list_streams')
