@@ -693,6 +693,109 @@ def fetch_kinesis_config(identifier, use_stream_names=False):
         print(f"Error fetching Kinesis configurations: {e}")
         sys.exit(1)
 
+def fetch_route53_config(identifier, use_zone_ids=False):
+    """
+    Fetches the configuration of Route 53 hosted zones either by zone IDs or ApplicationShortName.
+    Returns zones with indexed keys or zone names as keys based on the mode.
+    """
+    route53_client = boto3.client('route53', region_name='us-east-1')
+    all_zone_configs = {}
+    zone_index = 0
+
+    try:
+        if use_zone_ids:
+            # Fetch specific zones by ID - use indexed keys
+            for zone_id in identifier:
+                zone_index += 1
+                try:
+                    # Remove leading /hostedzone/ if present
+                    clean_zone_id = zone_id.replace('/hostedzone/', '') if zone_id.startswith('/hostedzone/') else zone_id
+                    
+                    # Get zone details
+                    zone_response = route53_client.get_hosted_zone(Id=clean_zone_id)
+                    zone_details = zone_response.get('HostedZone', {})
+                    zone_name = zone_details.get('Name', '').rstrip('.')  # Remove trailing dot
+                    
+                    # Get record sets for this zone with pagination
+                    records = []
+                    paginator = route53_client.get_paginator('list_resource_record_sets')
+                    for page in paginator.paginate(HostedZoneId=clean_zone_id):
+                        records.extend(page.get('ResourceRecordSets', []))
+                    
+                    # Get zone tags
+                    tags_response = route53_client.list_tags_for_resource(
+                        ResourceType='hostedzone',
+                        ResourceId=clean_zone_id
+                    )
+                    tags = tags_response.get('ResourceTagSet', {}).get('Tags', [])
+                    
+                    # Store with indexed key and include original zone ID in config
+                    all_zone_configs[f"route53_zone_{zone_index}"] = {
+                        "compareIdentifier": zone_id,
+                        "ZoneName": zone_name,
+                        "ZoneId": clean_zone_id,
+                        "ZoneDetails": zone_details,
+                        "Config": zone_response.get('Config', {}),
+                        "DelegationSet": zone_response.get('DelegationSet', {}),
+                        "VPCs": zone_response.get('VPCs', []),
+                        "Tags": tags,
+                        "Records": records
+                    }
+                except route53_client.exceptions.NoSuchHostedZone:
+                    print(f"Route 53 hosted zone not found: {zone_id}")
+                    continue
+                except Exception as e:
+                    print(f"Error fetching configuration for Route 53 hosted zone {zone_id}: {e}")
+                    continue
+        else:
+            # Fetch all zones and filter by ApplicationShortName tag - use zone names as keys
+            paginator = route53_client.get_paginator('list_hosted_zones')
+            for page in paginator.paginate():
+                for zone in page.get('HostedZones', []):
+                    zone_id = zone.get('Id').replace('/hostedzone/', '')
+                    try:
+                        # Get zone tags
+                        tags_response = route53_client.list_tags_for_resource(
+                            ResourceType='hostedzone',
+                            ResourceId=zone_id
+                        )
+                        tags = tags_response.get('ResourceTagSet', {}).get('Tags', [])
+                        
+                        # Check if zone has matching ApplicationShortName tag
+                        if any(tag['Key'] == 'ApplicationShortName' and tag['Value'] == identifier for tag in tags):
+                            # Get full zone details
+                            zone_response = route53_client.get_hosted_zone(Id=zone_id)
+                            
+                            # Get record sets for this zone with pagination
+                            records = []
+                            record_paginator = route53_client.get_paginator('list_resource_record_sets')
+                            for record_page in record_paginator.paginate(HostedZoneId=zone_id):
+                                records.extend(record_page.get('ResourceRecordSets', []))
+                            
+                            # Use zone name as key instead of indexed key
+                            zone_name = zone.get('Name', '').rstrip('.')  # Remove trailing dot
+                            all_zone_configs[zone_name] = {
+                                "ZoneId": zone_id,
+                                "ZoneDetails": zone_response.get('HostedZone', {}),
+                                "Config": zone_response.get('Config', {}),
+                                "DelegationSet": zone_response.get('DelegationSet', {}),
+                                "VPCs": zone_response.get('VPCs', []),
+                                "Tags": tags,
+                                "Records": records
+                            }
+                            
+                    except Exception as e:
+                        print(f"Error processing Route 53 hosted zone {zone.get('Name', zone_id)}: {e}")
+                        continue
+
+        if not all_zone_configs:
+            print(f"No Route 53 hosted zones found for {'zone IDs' if use_zone_ids else 'ApplicationShortName'} = {identifier}")
+            
+        return all_zone_configs
+    except Exception as e:
+        print(f"Error fetching Route 53 configurations: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -767,6 +870,13 @@ if __name__ == "__main__":
                 output_data['kinesis'] = fetch_kinesis_config(kinesis_streams, use_stream_names=True)
             else:
                 output_data['kinesis'] = fetch_kinesis_config(ApplicationShortName, use_stream_names=False)
+                
+            # Fetch Route53 configurations if route53 array is not empty
+            route53_zones = env_config.get('route53', [])
+            if route53_zones:
+                output_data['route53'] = fetch_route53_config(route53_zones, use_zone_ids=True)
+            else:
+                output_data['route53'] = fetch_route53_config(ApplicationShortName, use_zone_ids=False)
         else:
             print("Env configs not found, fetching configs by ApplicationShortName: ", ApplicationShortName)
             # Fall back to original behavior
@@ -780,7 +890,8 @@ if __name__ == "__main__":
                 'elb': fetch_elb_config(ApplicationShortName, use_lb_names=False),
                 'sqs': fetch_sqs_config([], ApplicationShortName),
                 'sns': fetch_sns_config(ApplicationShortName, use_topic_names=False),
-                'kinesis': fetch_kinesis_config(ApplicationShortName, use_stream_names=False)
+                'kinesis': fetch_kinesis_config(ApplicationShortName, use_stream_names=False),
+                'route53': fetch_route53_config(ApplicationShortName, use_zone_ids=False)
             }
 
         # Write to the output file
