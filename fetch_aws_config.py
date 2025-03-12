@@ -797,6 +797,412 @@ def fetch_route53_config(identifier, use_zone_ids=False):
         sys.exit(1)
 
 
+def fetch_cloudwatch_alarms(identifier, use_alarm_names=False):
+    """
+    Fetches CloudWatch alarm configurations either by alarm names or ApplicationShortName.
+    Returns alarms with indexed keys or alarm names as keys based on the mode.
+    """
+    cloudwatch_client = boto3.client('cloudwatch', region_name='us-east-1')
+    all_alarm_configs = {}
+    alarm_index = 0
+
+    try:
+        # Fetch insight rules
+        insight_rules = {}
+        try:
+            insight_rules_response = cloudwatch_client.describe_insight_rules()
+            insight_rules = {rule['Name']: rule for rule in insight_rules_response.get('InsightRules', [])}
+        except Exception as e:
+            print(f"Error fetching CloudWatch insight rules: {e}")
+        
+        # Fetch anomaly detectors
+        anomaly_detectors = []
+        try:
+            # Use pagination for anomaly detectors
+            anomaly_paginator = cloudwatch_client.get_paginator('describe_anomaly_detectors')
+            for page in anomaly_paginator.paginate():
+                anomaly_detectors.extend(page.get('AnomalyDetectors', []))
+        except Exception as e:
+            print(f"Error fetching CloudWatch anomaly detectors: {e}")
+
+        if use_alarm_names:
+            # Fetch specific alarms by name - use indexed keys
+            for alarm_name in identifier:
+                alarm_index += 1
+                try:
+                    # Get alarm details
+                    alarm_response = cloudwatch_client.describe_alarms(AlarmNames=[alarm_name])
+                    metric_alarms = alarm_response.get('MetricAlarms', [])
+                    composite_alarms = alarm_response.get('CompositeAlarms', [])
+                    
+                    if not metric_alarms and not composite_alarms:
+                        print(f"CloudWatch alarm not found: {alarm_name}")
+                        continue
+                    
+                    # Get alarm tags
+                    try:
+                        # For metric alarms
+                        if metric_alarms:
+                            alarm_arn = metric_alarms[0]['AlarmArn']
+                            tags_response = cloudwatch_client.list_tags_for_resource(ResourceARN=alarm_arn)
+                            tags = tags_response.get('Tags', [])
+                            metric_alarms[0]['Tags'] = tags
+                            
+                            # Get detailed metric data if the alarm is based on a metric
+                            if 'MetricName' in metric_alarms[0] and 'Namespace' in metric_alarms[0]:
+                                try:
+                                    # Get metric details
+                                    metric_name = metric_alarms[0]['MetricName']
+                                    namespace = metric_alarms[0]['Namespace']
+                                    dimensions = metric_alarms[0].get('Dimensions', [])
+                                    
+                                    # Convert dimensions to the format expected by get_metric_data
+                                    dimension_dict = {d['Name']: d['Value'] for d in dimensions}
+                                    
+                                    # Get recent metric data if available
+                                    end_time = datetime.now()
+                                    start_time = end_time - datetime.timedelta(hours=3)  # Last 3 hours
+                                    
+                                    metric_data_response = cloudwatch_client.get_metric_data(
+                                        MetricDataQueries=[
+                                            {
+                                                'Id': 'm1',
+                                                'MetricStat': {
+                                                    'Metric': {
+                                                        'Namespace': namespace,
+                                                        'MetricName': metric_name,
+                                                        'Dimensions': [{'Name': k, 'Value': v} for k, v in dimension_dict.items()]
+                                                    },
+                                                    'Period': 300,  # 5-minute periods
+                                                    'Stat': 'Average'
+                                                },
+                                                'ReturnData': True
+                                            }
+                                        ],
+                                        StartTime=start_time,
+                                        EndTime=end_time
+                                    )
+                                    metric_alarms[0]['RecentMetricData'] = metric_data_response
+                                    
+                                    # Get metric metadata
+                                    metric_metadata = cloudwatch_client.list_metrics(
+                                        Namespace=namespace,
+                                        MetricName=metric_name,
+                                        Dimensions=[{'Name': k, 'Value': v} for k, v in dimension_dict.items()]
+                                    )
+                                    metric_alarms[0]['MetricMetadata'] = metric_metadata
+                                    
+                                    # Check for related anomaly detectors
+                                    related_anomaly_detectors = []
+                                    for detector in anomaly_detectors:
+                                        if (detector.get('Namespace') == namespace and 
+                                            detector.get('MetricName') == metric_name):
+                                            # Check dimensions match
+                                            detector_dimensions = detector.get('Dimensions', [])
+                                            dimensions_match = True
+                                            for dim in dimensions:
+                                                if dim not in detector_dimensions:
+                                                    dimensions_match = False
+                                                    break
+                                            
+                                            if dimensions_match:
+                                                related_anomaly_detectors.append(detector)
+                                    
+                                    if related_anomaly_detectors:
+                                        metric_alarms[0]['RelatedAnomalyDetectors'] = related_anomaly_detectors
+                                except Exception as e:
+                                    print(f"Error fetching metric data for alarm {alarm_name}: {e}")
+                            
+                            # Get dashboards where this alarm might be used
+                            try:
+                                dashboard_paginator = cloudwatch_client.get_paginator('list_dashboards')
+                                dashboards = []
+                                for page in dashboard_paginator.paginate():
+                                    dashboards.extend(page.get('DashboardEntries', []))
+                                
+                                # Check each dashboard to see if it contains the alarm
+                                related_dashboards = []
+                                for dashboard in dashboards:
+                                    try:
+                                        dashboard_body = cloudwatch_client.get_dashboard(
+                                            DashboardName=dashboard['DashboardName']
+                                        )
+                                        # Check if alarm name is in dashboard body
+                                        if alarm_name in dashboard_body.get('DashboardBody', ''):
+                                            related_dashboards.append(dashboard)
+                                    except Exception:
+                                        pass
+                                
+                                metric_alarms[0]['RelatedDashboards'] = related_dashboards
+                            except Exception as e:
+                                print(f"Error fetching related dashboards for alarm {alarm_name}: {e}")
+                            
+                            # Check for related insight rules
+                            related_rules = []
+                            for rule_name, rule in insight_rules.items():
+                                # This is just a simple check to see if the alarm name appears in rule content
+                                if alarm_name in json.dumps(rule):
+                                    related_rules.append(rule)
+                            
+                            if related_rules:
+                                metric_alarms[0]['RelatedInsightRules'] = related_rules
+                        
+                        # For composite alarms
+                        if composite_alarms:
+                            alarm_arn = composite_alarms[0]['AlarmArn']
+                            tags_response = cloudwatch_client.list_tags_for_resource(ResourceARN=alarm_arn)
+                            tags = tags_response.get('Tags', [])
+                            composite_alarms[0]['Tags'] = tags
+                            
+                            # Get referenced alarms for composite alarms
+                            rule_expression = composite_alarms[0].get('AlarmRule', '')
+                            if rule_expression:
+                                # Extract alarm names from the rule expression (simplified approach)
+                                referenced_alarm_names = []
+                                for token in rule_expression.split():
+                                    if "ALARM(" in token or "OK(" in token or "INSUFFICIENT_DATA(" in token:
+                                        alarm_name_part = token.split("(")[1].split(")")[0].strip("'\"")
+                                        referenced_alarm_names.append(alarm_name_part)
+                                
+                                # Get details for referenced alarms
+                                if referenced_alarm_names:
+                                    try:
+                                        referenced_alarms_response = cloudwatch_client.describe_alarms(
+                                            AlarmNames=referenced_alarm_names
+                                        )
+                                        composite_alarms[0]['ReferencedAlarms'] = {
+                                            'MetricAlarms': referenced_alarms_response.get('MetricAlarms', []),
+                                            'CompositeAlarms': referenced_alarms_response.get('CompositeAlarms', [])
+                                        }
+                                    except Exception as e:
+                                        print(f"Error fetching referenced alarms for composite alarm {alarm_name}: {e}")
+                            
+                            # Check for related insight rules
+                            related_rules = []
+                            for rule_name, rule in insight_rules.items():
+                                # This is just a simple check to see if the alarm name appears in rule content
+                                if alarm_name in json.dumps(rule):
+                                    related_rules.append(rule)
+                            
+                            if related_rules:
+                                composite_alarms[0]['RelatedInsightRules'] = related_rules
+                    except Exception as e:
+                        print(f"Error fetching tags for CloudWatch alarm {alarm_name}: {e}")
+                    
+                    # Store alarm config
+                    if metric_alarms:
+                        all_alarm_configs[f"cloudwatch_alarm_{alarm_index}"] = {
+                            "compareIdentifier": alarm_name,
+                            "Type": "MetricAlarm",
+                            **metric_alarms[0]
+                        }
+                    elif composite_alarms:
+                        all_alarm_configs[f"cloudwatch_alarm_{alarm_index}"] = {
+                            "compareIdentifier": alarm_name,
+                            "Type": "CompositeAlarm",
+                            **composite_alarms[0]
+                        }
+                    
+                except Exception as e:
+                    print(f"Error fetching configuration for CloudWatch alarm {alarm_name}: {e}")
+                    continue
+        else:
+            # Fetch all alarms and filter by ApplicationShortName tag - use alarm names as keys
+            # First get all MetricAlarms
+            metric_paginator = cloudwatch_client.get_paginator('describe_alarms')
+            for page in metric_paginator.paginate(AlarmTypes=['MetricAlarm']):
+                for alarm in page.get('MetricAlarms', []):
+                    try:
+                        # Get alarm tags
+                        alarm_arn = alarm['AlarmArn']
+                        alarm_name = alarm['AlarmName']
+                        tags_response = cloudwatch_client.list_tags_for_resource(ResourceARN=alarm_arn)
+                        tags = tags_response.get('Tags', [])
+                        
+                        # Check if alarm has matching ApplicationShortName tag
+                        if any(tag['Key'] == 'ApplicationShortName' and tag['Value'] == identifier for tag in tags):
+                            # Add tags to alarm config
+                            alarm['Tags'] = tags
+                            
+                            # Get detailed metric data if the alarm is based on a metric
+                            if 'MetricName' in alarm and 'Namespace' in alarm:
+                                try:
+                                    # Get metric details
+                                    metric_name = alarm['MetricName']
+                                    namespace = alarm['Namespace']
+                                    dimensions = alarm.get('Dimensions', [])
+                                    
+                                    # Convert dimensions to the format expected by get_metric_data
+                                    dimension_dict = {d['Name']: d['Value'] for d in dimensions}
+                                    
+                                    # Get recent metric data if available
+                                    end_time = datetime.now()
+                                    start_time = end_time - datetime.timedelta(hours=3)  # Last 3 hours
+                                    
+                                    metric_data_response = cloudwatch_client.get_metric_data(
+                                        MetricDataQueries=[
+                                            {
+                                                'Id': 'm1',
+                                                'MetricStat': {
+                                                    'Metric': {
+                                                        'Namespace': namespace,
+                                                        'MetricName': metric_name,
+                                                        'Dimensions': [{'Name': k, 'Value': v} for k, v in dimension_dict.items()]
+                                                    },
+                                                    'Period': 300,  # 5-minute periods
+                                                    'Stat': 'Average'
+                                                },
+                                                'ReturnData': True
+                                            }
+                                        ],
+                                        StartTime=start_time,
+                                        EndTime=end_time
+                                    )
+                                    alarm['RecentMetricData'] = metric_data_response
+                                    
+                                    # Get metric metadata
+                                    metric_metadata = cloudwatch_client.list_metrics(
+                                        Namespace=namespace,
+                                        MetricName=metric_name,
+                                        Dimensions=[{'Name': k, 'Value': v} for k, v in dimension_dict.items()]
+                                    )
+                                    alarm['MetricMetadata'] = metric_metadata
+                                    
+                                    # Check for related anomaly detectors
+                                    related_anomaly_detectors = []
+                                    for detector in anomaly_detectors:
+                                        if (detector.get('Namespace') == namespace and 
+                                            detector.get('MetricName') == metric_name):
+                                            # Check dimensions match
+                                            detector_dimensions = detector.get('Dimensions', [])
+                                            dimensions_match = True
+                                            for dim in dimensions:
+                                                if dim not in detector_dimensions:
+                                                    dimensions_match = False
+                                                    break
+                                            
+                                            if dimensions_match:
+                                                related_anomaly_detectors.append(detector)
+                                    
+                                    if related_anomaly_detectors:
+                                        alarm['RelatedAnomalyDetectors'] = related_anomaly_detectors
+                                except Exception as e:
+                                    print(f"Error fetching metric data for alarm {alarm_name}: {e}")
+                            
+                            # Get dashboards where this alarm might be used
+                            try:
+                                dashboard_paginator = cloudwatch_client.get_paginator('list_dashboards')
+                                dashboards = []
+                                for page in dashboard_paginator.paginate():
+                                    dashboards.extend(page.get('DashboardEntries', []))
+                                
+                                # Check each dashboard to see if it contains the alarm
+                                related_dashboards = []
+                                for dashboard in dashboards:
+                                    try:
+                                        dashboard_body = cloudwatch_client.get_dashboard(
+                                            DashboardName=dashboard['DashboardName']
+                                        )
+                                        # Check if alarm name is in dashboard body
+                                        if alarm_name in dashboard_body.get('DashboardBody', ''):
+                                            related_dashboards.append(dashboard)
+                                    except Exception:
+                                        pass
+                                
+                                alarm['RelatedDashboards'] = related_dashboards
+                            except Exception as e:
+                                print(f"Error fetching related dashboards for alarm {alarm_name}: {e}")
+                            
+                            # Check for related insight rules
+                            related_rules = []
+                            for rule_name, rule in insight_rules.items():
+                                # This is just a simple check to see if the alarm name appears in rule content
+                                if alarm_name in json.dumps(rule):
+                                    related_rules.append(rule)
+                            
+                            if related_rules:
+                                alarm['RelatedInsightRules'] = related_rules
+                            
+                            # Use alarm name as key
+                            all_alarm_configs[alarm_name] = {
+                                "Type": "MetricAlarm",
+                                **alarm
+                            }
+                    except Exception as e:
+                        print(f"Error processing MetricAlarm {alarm.get('AlarmName')}: {e}")
+                        continue
+            
+            # Then get all CompositeAlarms
+            composite_paginator = cloudwatch_client.get_paginator('describe_alarms')
+            for page in composite_paginator.paginate(AlarmTypes=['CompositeAlarm']):
+                for alarm in page.get('CompositeAlarms', []):
+                    try:
+                        # Get alarm tags
+                        alarm_arn = alarm['AlarmArn']
+                        alarm_name = alarm['AlarmName']
+                        tags_response = cloudwatch_client.list_tags_for_resource(ResourceARN=alarm_arn)
+                        tags = tags_response.get('Tags', [])
+                        
+                        # Check if alarm has matching ApplicationShortName tag
+                        if any(tag['Key'] == 'ApplicationShortName' and tag['Value'] == identifier for tag in tags):
+                            # Add tags to alarm config
+                            alarm['Tags'] = tags
+                            
+                            # Get referenced alarms for composite alarms
+                            rule_expression = alarm.get('AlarmRule', '')
+                            if rule_expression:
+                                # Extract alarm names from the rule expression (simplified approach)
+                                referenced_alarm_names = []
+                                for token in rule_expression.split():
+                                    if "ALARM(" in token or "OK(" in token or "INSUFFICIENT_DATA(" in token:
+                                        alarm_name_part = token.split("(")[1].split(")")[0].strip("'\"")
+                                        referenced_alarm_names.append(alarm_name_part)
+                                
+                                # Get details for referenced alarms
+                                if referenced_alarm_names:
+                                    try:
+                                        referenced_alarms_response = cloudwatch_client.describe_alarms(
+                                            AlarmNames=referenced_alarm_names
+                                        )
+                                        alarm['ReferencedAlarms'] = {
+                                            'MetricAlarms': referenced_alarms_response.get('MetricAlarms', []),
+                                            'CompositeAlarms': referenced_alarms_response.get('CompositeAlarms', [])
+                                        }
+                                    except Exception as e:
+                                        print(f"Error fetching referenced alarms for composite alarm {alarm_name}: {e}")
+                            
+                            # Check for related insight rules
+                            related_rules = []
+                            for rule_name, rule in insight_rules.items():
+                                # This is just a simple check to see if the alarm name appears in rule content
+                                if alarm_name in json.dumps(rule):
+                                    related_rules.append(rule)
+                            
+                            if related_rules:
+                                alarm['RelatedInsightRules'] = related_rules
+                            
+                            # Use alarm name as key
+                            all_alarm_configs[alarm_name] = {
+                                "Type": "CompositeAlarm",
+                                **alarm
+                            }
+                    except Exception as e:
+                        print(f"Error processing CompositeAlarm {alarm.get('AlarmName')}: {e}")
+                        continue
+        
+        # Add global insight rules and anomaly detectors to the output
+        all_alarm_configs['InsightRules'] = insight_rules
+        all_alarm_configs['AnomalyDetectors'] = anomaly_detectors
+
+        if not all_alarm_configs:
+            print(f"No CloudWatch alarms found for {'alarm names' if use_alarm_names else 'ApplicationShortName'} = {identifier}")
+            
+        return all_alarm_configs
+    except Exception as e:
+        print(f"Error fetching CloudWatch alarm configurations: {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python fetch_aws_config.py <ApplicationShortName> <output_file> <env_index>")
@@ -877,6 +1283,13 @@ if __name__ == "__main__":
                 output_data['route53'] = fetch_route53_config(route53_zones, use_zone_ids=True)
             else:
                 output_data['route53'] = fetch_route53_config(ApplicationShortName, use_zone_ids=False)
+            
+            # Fetch CloudWatch alarm configurations if cloudwatch array is not empty
+            cloudwatch_alarms = env_config.get('cloudwatch', [])
+            if cloudwatch_alarms:
+                output_data['cloudwatch'] = fetch_cloudwatch_alarms(cloudwatch_alarms, use_alarm_names=True)
+            else:
+                output_data['cloudwatch'] = fetch_cloudwatch_alarms(ApplicationShortName, use_alarm_names=False)
         else:
             print("Env configs not found, fetching configs by ApplicationShortName: ", ApplicationShortName)
             # Fall back to original behavior
@@ -891,7 +1304,8 @@ if __name__ == "__main__":
                 'sqs': fetch_sqs_config([], ApplicationShortName),
                 'sns': fetch_sns_config(ApplicationShortName, use_topic_names=False),
                 'kinesis': fetch_kinesis_config(ApplicationShortName, use_stream_names=False),
-                'route53': fetch_route53_config(ApplicationShortName, use_zone_ids=False)
+                'route53': fetch_route53_config(ApplicationShortName, use_zone_ids=False),
+                'cloudwatch': fetch_cloudwatch_alarms(ApplicationShortName, use_alarm_names=False)
             }
 
         # Write to the output file
