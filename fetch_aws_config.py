@@ -874,24 +874,6 @@ def fetch_cloudwatch_alarms(identifier, use_alarm_names=False):
                                     )
                                     metric_alarms[0]['MetricMetadata'] = metric_metadata
                                     
-                                    # Check for related anomaly detectors
-                                    related_anomaly_detectors = []
-                                    for detector in anomaly_detectors:
-                                        if (detector.get('Namespace') == namespace and 
-                                            detector.get('MetricName') == metric_name):
-                                            # Check dimensions match
-                                            detector_dimensions = detector.get('Dimensions', [])
-                                            dimensions_match = True
-                                            for dim in dimensions:
-                                                if dim not in detector_dimensions:
-                                                    dimensions_match = False
-                                                    break
-                                            
-                                            if dimensions_match:
-                                                related_anomaly_detectors.append(detector)
-                                    
-                                    if related_anomaly_detectors:
-                                        metric_alarms[0]['RelatedAnomalyDetectors'] = related_anomaly_detectors
                                 except Exception as e:
                                     print(f"Error fetching metric data for alarm {alarm_name}: {e}")
                             
@@ -1031,24 +1013,6 @@ def fetch_cloudwatch_alarms(identifier, use_alarm_names=False):
                                     )
                                     alarm['MetricMetadata'] = metric_metadata
                                     
-                                    # Check for related anomaly detectors
-                                    related_anomaly_detectors = []
-                                    for detector in anomaly_detectors:
-                                        if (detector.get('Namespace') == namespace and 
-                                            detector.get('MetricName') == metric_name):
-                                            # Check dimensions match
-                                            detector_dimensions = detector.get('Dimensions', [])
-                                            dimensions_match = True
-                                            for dim in dimensions:
-                                                if dim not in detector_dimensions:
-                                                    dimensions_match = False
-                                                    break
-                                            
-                                            if dimensions_match:
-                                                related_anomaly_detectors.append(detector)
-                                    
-                                    if related_anomaly_detectors:
-                                        alarm['RelatedAnomalyDetectors'] = related_anomaly_detectors
                                 except Exception as e:
                                     print(f"Error fetching metric data for alarm {alarm_name}: {e}")
                             
@@ -1142,357 +1106,214 @@ def fetch_cloudwatch_alarms(identifier, use_alarm_names=False):
         sys.exit(1)
 
 
-def fetch_appmesh_config(identifier, use_mesh_names=False):
+def fetch_appmesh_config(mesh_configs, use_custom_identifier=False):
     """
-    Fetches App Mesh configurations either by mesh names or ApplicationShortName.
-    Returns all App Mesh resources (meshes, virtual gateways, routes, gateway routes, 
-    virtual nodes, virtual routers, virtual services) with their configurations.
+    Fetches App Mesh configurations for specified mesh names.
+    Returns all resources in a single dictionary with hierarchical keys.
+    
+    mesh_configs format:
+    [
+        {
+            "meshName": "mesh1",
+            "virtualGateways": ["gateway1", "gateway2"],
+            "virtualNodes": ["node1", "node2"],
+            "virtualRouters": ["router1", "router2"],
+            "virtualServices": ["service1", "service2"]
+        }
+    ]
     """
     appmesh_client = boto3.client('appmesh', region_name='us-east-1')
     all_mesh_configs = {}
     mesh_index = 0
 
     try:
-        if use_mesh_names:
-            # Fetch specific meshes by name - use indexed keys
-            for mesh_name in identifier:
-                mesh_index += 1
+        for mesh_config in mesh_configs:
+            mesh_index += 1
+            mesh_name = mesh_config['meshName']
+            gateway_names = mesh_config.get('virtualGateways', [])
+            node_names = mesh_config.get('virtualNodes', [])
+            router_names = mesh_config.get('virtualRouters', [])
+            service_names = mesh_config.get('virtualServices', [])
+
+            try:
+                # Get mesh details
+                mesh_response = appmesh_client.describe_mesh(meshName=mesh_name)
+                mesh_data = mesh_response.get('mesh', {})
+                
+                # Get mesh tags
                 try:
-                    # Get mesh details
-                    mesh_response = appmesh_client.describe_mesh(meshName=mesh_name)
-                    mesh_data = mesh_response.get('mesh', {})
-                    
-                    # Get mesh tags
-                    try:
-                        tags_response = appmesh_client.list_tags_for_resource(
-                            resourceArn=mesh_data.get('metadata', {}).get('arn', '')
-                        )
-                        mesh_data['tags'] = tags_response.get('tags', [])
-                    except Exception as e:
-                        print(f"Error fetching tags for App Mesh {mesh_name}: {e}")
-                        mesh_data['tags'] = []
-                    
-                    # Initialize collections for all resource types
-                    virtual_gateways = {}
-                    virtual_nodes = {}
-                    virtual_routers = {}
-                    virtual_services = {}
-                    
-                    # Fetch virtual gateways for this mesh
+                    tags_response = appmesh_client.list_tags_for_resource(
+                        resourceArn=mesh_data.get('metadata', {}).get('arn', '')
+                    )
+                    mesh_data['tags'] = tags_response.get('tags', [])
+                except Exception as e:
+                    print(f"Error fetching tags for App Mesh {mesh_name}: {e}")
+                    mesh_data['tags'] = []
+
+                # Store mesh configuration
+                mesh_key = f"appmesh_{mesh_index}" if use_custom_identifier else mesh_name
+                all_mesh_configs[mesh_key] = {
+                    "compareIdentifier": mesh_name if use_custom_identifier else None,
+                    **mesh_data
+                }
+
+                # Fetch virtual gateways
+                gateway_index = 0
+                if not gateway_names:
+                    # If no specific gateways specified, fetch all
                     try:
                         vgw_paginator = appmesh_client.get_paginator('list_virtual_gateways')
                         for vgw_page in vgw_paginator.paginate(meshName=mesh_name):
                             for vgw in vgw_page.get('virtualGateways', []):
-                                vgw_name = vgw.get('virtualGatewayName')
-                                try:
-                                    # Get detailed virtual gateway config
-                                    vgw_details = appmesh_client.describe_virtual_gateway(
-                                        meshName=mesh_name,
-                                        virtualGatewayName=vgw_name
-                                    )
-                                    virtual_gateway = vgw_details.get('virtualGateway', {})
-                                    
-                                    # Fetch gateway routes for this virtual gateway
-                                    gateway_routes = {}
-                                    try:
-                                        gr_paginator = appmesh_client.get_paginator('list_gateway_routes')
-                                        for gr_page in gr_paginator.paginate(meshName=mesh_name, virtualGatewayName=vgw_name):
-                                            for gr in gr_page.get('gatewayRoutes', []):
-                                                gr_name = gr.get('gatewayRouteName')
-                                                try:
-                                                    # Get detailed gateway route config
-                                                    gr_details = appmesh_client.describe_gateway_route(
-                                                        meshName=mesh_name,
-                                                        virtualGatewayName=vgw_name,
-                                                        gatewayRouteName=gr_name
-                                                    )
-                                                    gateway_route = gr_details.get('gatewayRoute', {})
-                                                    gateway_routes[gr_name] = gateway_route
-                                                except Exception as e:
-                                                    print(f"Error fetching details for gateway route {gr_name}: {e}")
-                                                    continue
-                                    except Exception as e:
-                                        print(f"Error listing gateway routes for virtual gateway {vgw_name}: {e}")
-                                    
-                                    virtual_gateway['gatewayRoutes'] = gateway_routes
-                                    virtual_gateways[vgw_name] = virtual_gateway
-                                except Exception as e:
-                                    print(f"Error fetching details for virtual gateway {vgw_name}: {e}")
-                                    continue
+                                gateway_names.append(vgw.get('virtualGatewayName'))
                     except Exception as e:
-                        print(f"Error listing virtual gateways for mesh {mesh_name}: {e}")
-                    
-                    # Fetch virtual nodes for this mesh
+                        print(f"Error listing virtual gateways: {e}")
+
+                for gateway_name in gateway_names:
+                    gateway_index += 1
+                    try:
+                        vgw_details = appmesh_client.describe_virtual_gateway(
+                            meshName=mesh_name,
+                            virtualGatewayName=gateway_name
+                        )
+                        virtual_gateway = vgw_details.get('virtualGateway', {})
+                        
+                        # Store gateway configuration
+                        gateway_key = f"{mesh_key}/virtual_gateway_{gateway_index}" if use_custom_identifier else f"{mesh_name}/virtual_gateway/{gateway_name}"
+                        all_mesh_configs[gateway_key] = {
+                            "compareIdentifier": f"{mesh_name}/{gateway_name}" if use_custom_identifier else None,
+                            **virtual_gateway
+                        }
+                        
+                        # Fetch and store gateway routes
+                        route_index = 0
+                        gr_paginator = appmesh_client.get_paginator('list_gateway_routes')
+                        for gr_page in gr_paginator.paginate(meshName=mesh_name, virtualGatewayName=gateway_name):
+                            for gr in gr_page.get('gatewayRoutes', []):
+                                route_index += 1
+                                gr_name = gr.get('gatewayRouteName')
+                                gr_details = appmesh_client.describe_gateway_route(
+                                    meshName=mesh_name,
+                                    virtualGatewayName=gateway_name,
+                                    gatewayRouteName=gr_name
+                                )
+                                route_key = f"{gateway_key}/route_{route_index}" if use_custom_identifier else f"{mesh_name}/virtual_gateway/{gateway_name}/route/{gr_name}"
+                                all_mesh_configs[route_key] = {
+                                    "compareIdentifier": f"{mesh_name}/{gateway_name}/route/{gr_name}" if use_custom_identifier else None,
+                                    **gr_details.get('gatewayRoute', {})
+                                }
+                    except Exception as e:
+                        print(f"Error fetching virtual gateway {gateway_name}: {e}")
+
+                # Fetch virtual nodes
+                node_index = 0
+                if not node_names:
+                    # If no specific nodes specified, fetch all
                     try:
                         vn_paginator = appmesh_client.get_paginator('list_virtual_nodes')
                         for vn_page in vn_paginator.paginate(meshName=mesh_name):
                             for vn in vn_page.get('virtualNodes', []):
-                                vn_name = vn.get('virtualNodeName')
-                                try:
-                                    # Get detailed virtual node config
-                                    vn_details = appmesh_client.describe_virtual_node(
-                                        meshName=mesh_name,
-                                        virtualNodeName=vn_name
-                                    )
-                                    virtual_node = vn_details.get('virtualNode', {})
-                                    virtual_nodes[vn_name] = virtual_node
-                                except Exception as e:
-                                    print(f"Error fetching details for virtual node {vn_name}: {e}")
-                                    continue
+                                node_names.append(vn.get('virtualNodeName'))
                     except Exception as e:
-                        print(f"Error listing virtual nodes for mesh {mesh_name}: {e}")
-                    
-                    # Fetch virtual routers for this mesh
+                        print(f"Error listing virtual nodes: {e}")
+
+                for node_name in node_names:
+                    node_index += 1
+                    try:
+                        vn_details = appmesh_client.describe_virtual_node(
+                            meshName=mesh_name,
+                            virtualNodeName=node_name
+                        )
+                        node_key = f"{mesh_key}/virtual_node_{node_index}" if use_custom_identifier else f"{mesh_name}/virtual_node/{node_name}"
+                        all_mesh_configs[node_key] = {
+                            "compareIdentifier": f"{mesh_name}/{node_name}" if use_custom_identifier else None,
+                            **vn_details.get('virtualNode', {})
+                        }
+                    except Exception as e:
+                        print(f"Error fetching virtual node {node_name}: {e}")
+
+                # Fetch virtual routers
+                router_index = 0
+                if not router_names:
+                    # If no specific routers specified, fetch all
                     try:
                         vr_paginator = appmesh_client.get_paginator('list_virtual_routers')
                         for vr_page in vr_paginator.paginate(meshName=mesh_name):
                             for vr in vr_page.get('virtualRouters', []):
-                                vr_name = vr.get('virtualRouterName')
-                                try:
-                                    # Get detailed virtual router config
-                                    vr_details = appmesh_client.describe_virtual_router(
-                                        meshName=mesh_name,
-                                        virtualRouterName=vr_name
-                                    )
-                                    virtual_router = vr_details.get('virtualRouter', {})
-                                    
-                                    # Fetch routes for this virtual router
-                                    routes = {}
-                                    try:
-                                        route_paginator = appmesh_client.get_paginator('list_routes')
-                                        for route_page in route_paginator.paginate(meshName=mesh_name, virtualRouterName=vr_name):
-                                            for route in route_page.get('routes', []):
-                                                route_name = route.get('routeName')
-                                                try:
-                                                    # Get detailed route config
-                                                    route_details = appmesh_client.describe_route(
-                                                        meshName=mesh_name,
-                                                        virtualRouterName=vr_name,
-                                                        routeName=route_name
-                                                    )
-                                                    route_data = route_details.get('route', {})
-                                                    routes[route_name] = route_data
-                                                except Exception as e:
-                                                    print(f"Error fetching details for route {route_name}: {e}")
-                                                    continue
-                                    except Exception as e:
-                                        print(f"Error listing routes for virtual router {vr_name}: {e}")
-                                    
-                                    virtual_router['routes'] = routes
-                                    virtual_routers[vr_name] = virtual_router
-                                except Exception as e:
-                                    print(f"Error fetching details for virtual router {vr_name}: {e}")
-                                    continue
+                                router_names.append(vr.get('virtualRouterName'))
                     except Exception as e:
-                        print(f"Error listing virtual routers for mesh {mesh_name}: {e}")
-                    
-                    # Fetch virtual services for this mesh
+                        print(f"Error listing virtual routers: {e}")
+
+                for router_name in router_names:
+                    router_index += 1
+                    try:
+                        vr_details = appmesh_client.describe_virtual_router(
+                            meshName=mesh_name,
+                            virtualRouterName=router_name
+                        )
+                        virtual_router = vr_details.get('virtualRouter', {})
+                        
+                        # Store router configuration
+                        router_key = f"{mesh_key}/virtual_router_{router_index}" if use_custom_identifier else f"{mesh_name}/virtual_router/{router_name}"
+                        all_mesh_configs[router_key] = {
+                            "compareIdentifier": f"{mesh_name}/{router_name}" if use_custom_identifier else None,
+                            **virtual_router
+                        }
+                        
+                        # Fetch and store routes
+                        route_index = 0
+                        route_paginator = appmesh_client.get_paginator('list_routes')
+                        for route_page in route_paginator.paginate(meshName=mesh_name, virtualRouterName=router_name):
+                            for route in route_page.get('routes', []):
+                                route_index += 1
+                                route_name = route.get('routeName')
+                                route_details = appmesh_client.describe_route(
+                                    meshName=mesh_name,
+                                    virtualRouterName=router_name,
+                                    routeName=route_name
+                                )
+                                route_key = f"{router_key}/route_{route_index}" if use_custom_identifier else f"{mesh_name}/virtual_router/{router_name}/route/{route_name}"
+                                all_mesh_configs[route_key] = {
+                                    "compareIdentifier": f"{mesh_name}/{router_name}/route/{route_name}" if use_custom_identifier else None,
+                                    **route_details.get('route', {})
+                                }
+                    except Exception as e:
+                        print(f"Error fetching virtual router {router_name}: {e}")
+
+                # Fetch virtual services
+                service_index = 0
+                if not service_names:
+                    # If no specific services specified, fetch all
                     try:
                         vs_paginator = appmesh_client.get_paginator('list_virtual_services')
                         for vs_page in vs_paginator.paginate(meshName=mesh_name):
                             for vs in vs_page.get('virtualServices', []):
-                                vs_name = vs.get('virtualServiceName')
-                                try:
-                                    # Get detailed virtual service config
-                                    vs_details = appmesh_client.describe_virtual_service(
-                                        meshName=mesh_name,
-                                        virtualServiceName=vs_name
-                                    )
-                                    virtual_service = vs_details.get('virtualService', {})
-                                    virtual_services[vs_name] = virtual_service
-                                except Exception as e:
-                                    print(f"Error fetching details for virtual service {vs_name}: {e}")
-                                    continue
+                                service_names.append(vs.get('virtualServiceName'))
                     except Exception as e:
-                        print(f"Error listing virtual services for mesh {mesh_name}: {e}")
-                    
-                    # Combine all resources for this mesh
-                    mesh_config = {
-                        "compareIdentifier": mesh_name,
-                        "mesh": mesh_data,
-                        "virtualGateways": virtual_gateways,
-                        "virtualNodes": virtual_nodes,
-                        "virtualRouters": virtual_routers,
-                        "virtualServices": virtual_services
-                    }
-                    
-                    all_mesh_configs[f"appmesh_{mesh_index}"] = mesh_config
-                    
-                except appmesh_client.exceptions.NotFoundException:
-                    print(f"App Mesh not found: {mesh_name}")
-                    continue
-                except Exception as e:
-                    print(f"Error fetching configuration for App Mesh {mesh_name}: {e}")
-                    continue
-        else:
-            # Fetch all meshes and filter by ApplicationShortName tag - use mesh names as keys
-            mesh_paginator = appmesh_client.get_paginator('list_meshes')
-            for mesh_page in mesh_paginator.paginate():
-                for mesh in mesh_page.get('meshes', []):
-                    mesh_name = mesh.get('meshName')
-                    try:
-                        # Get mesh details
-                        mesh_response = appmesh_client.describe_mesh(meshName=mesh_name)
-                        mesh_data = mesh_response.get('mesh', {})
-                        
-                        # Get mesh tags
-                        tags_response = appmesh_client.list_tags_for_resource(
-                            resourceArn=mesh_data.get('metadata', {}).get('arn', '')
-                        )
-                        tags = tags_response.get('tags', [])
-                        mesh_data['tags'] = tags
-                        
-                        # Check if mesh has matching ApplicationShortName tag
-                        if any(tag.get('key') == 'ApplicationShortName' and tag.get('value') == identifier for tag in tags):
-                            # Initialize collections for all resource types
-                            virtual_gateways = {}
-                            virtual_nodes = {}
-                            virtual_routers = {}
-                            virtual_services = {}
-                            
-                            # Fetch virtual gateways for this mesh
-                            try:
-                                vgw_paginator = appmesh_client.get_paginator('list_virtual_gateways')
-                                for vgw_page in vgw_paginator.paginate(meshName=mesh_name):
-                                    for vgw in vgw_page.get('virtualGateways', []):
-                                        vgw_name = vgw.get('virtualGatewayName')
-                                        try:
-                                            # Get detailed virtual gateway config
-                                            vgw_details = appmesh_client.describe_virtual_gateway(
-                                                meshName=mesh_name,
-                                                virtualGatewayName=vgw_name
-                                            )
-                                            virtual_gateway = vgw_details.get('virtualGateway', {})
-                                            
-                                            # Fetch gateway routes for this virtual gateway
-                                            gateway_routes = {}
-                                            try:
-                                                gr_paginator = appmesh_client.get_paginator('list_gateway_routes')
-                                                for gr_page in gr_paginator.paginate(meshName=mesh_name, virtualGatewayName=vgw_name):
-                                                    for gr in gr_page.get('gatewayRoutes', []):
-                                                        gr_name = gr.get('gatewayRouteName')
-                                                        try:
-                                                            # Get detailed gateway route config
-                                                            gr_details = appmesh_client.describe_gateway_route(
-                                                                meshName=mesh_name,
-                                                                virtualGatewayName=vgw_name,
-                                                                gatewayRouteName=gr_name
-                                                            )
-                                                            gateway_route = gr_details.get('gatewayRoute', {})
-                                                            gateway_routes[gr_name] = gateway_route
-                                                        except Exception as e:
-                                                            print(f"Error fetching details for gateway route {gr_name}: {e}")
-                                                            continue
-                                            except Exception as e:
-                                                print(f"Error listing gateway routes for virtual gateway {vgw_name}: {e}")
-                                            
-                                            virtual_gateway['gatewayRoutes'] = gateway_routes
-                                            virtual_gateways[vgw_name] = virtual_gateway
-                                        except Exception as e:
-                                            print(f"Error fetching details for virtual gateway {vgw_name}: {e}")
-                                            continue
-                            except Exception as e:
-                                print(f"Error listing virtual gateways for mesh {mesh_name}: {e}")
-                            
-                            # Fetch virtual nodes for this mesh
-                            try:
-                                vn_paginator = appmesh_client.get_paginator('list_virtual_nodes')
-                                for vn_page in vn_paginator.paginate(meshName=mesh_name):
-                                    for vn in vn_page.get('virtualNodes', []):
-                                        vn_name = vn.get('virtualNodeName')
-                                        try:
-                                            # Get detailed virtual node config
-                                            vn_details = appmesh_client.describe_virtual_node(
-                                                meshName=mesh_name,
-                                                virtualNodeName=vn_name
-                                            )
-                                            virtual_node = vn_details.get('virtualNode', {})
-                                            virtual_nodes[vn_name] = virtual_node
-                                        except Exception as e:
-                                            print(f"Error fetching details for virtual node {vn_name}: {e}")
-                                            continue
-                            except Exception as e:
-                                print(f"Error listing virtual nodes for mesh {mesh_name}: {e}")
-                            
-                            # Fetch virtual routers for this mesh
-                            try:
-                                vr_paginator = appmesh_client.get_paginator('list_virtual_routers')
-                                for vr_page in vr_paginator.paginate(meshName=mesh_name):
-                                    for vr in vr_page.get('virtualRouters', []):
-                                        vr_name = vr.get('virtualRouterName')
-                                        try:
-                                            # Get detailed virtual router config
-                                            vr_details = appmesh_client.describe_virtual_router(
-                                                meshName=mesh_name,
-                                                virtualRouterName=vr_name
-                                            )
-                                            virtual_router = vr_details.get('virtualRouter', {})
-                                            
-                                            # Fetch routes for this virtual router
-                                            routes = {}
-                                            try:
-                                                route_paginator = appmesh_client.get_paginator('list_routes')
-                                                for route_page in route_paginator.paginate(meshName=mesh_name, virtualRouterName=vr_name):
-                                                    for route in route_page.get('routes', []):
-                                                        route_name = route.get('routeName')
-                                                        try:
-                                                            # Get detailed route config
-                                                            route_details = appmesh_client.describe_route(
-                                                                meshName=mesh_name,
-                                                                virtualRouterName=vr_name,
-                                                                routeName=route_name
-                                                            )
-                                                            route_data = route_details.get('route', {})
-                                                            routes[route_name] = route_data
-                                                        except Exception as e:
-                                                            print(f"Error fetching details for route {route_name}: {e}")
-                                                            continue
-                                            except Exception as e:
-                                                print(f"Error listing routes for virtual router {vr_name}: {e}")
-                                            
-                                            virtual_router['routes'] = routes
-                                            virtual_routers[vr_name] = virtual_router
-                                        except Exception as e:
-                                            print(f"Error fetching details for virtual router {vr_name}: {e}")
-                                            continue
-                            except Exception as e:
-                                print(f"Error listing virtual routers for mesh {mesh_name}: {e}")
-                            
-                            # Fetch virtual services for this mesh
-                            try:
-                                vs_paginator = appmesh_client.get_paginator('list_virtual_services')
-                                for vs_page in vs_paginator.paginate(meshName=mesh_name):
-                                    for vs in vs_page.get('virtualServices', []):
-                                        vs_name = vs.get('virtualServiceName')
-                                        try:
-                                            # Get detailed virtual service config
-                                            vs_details = appmesh_client.describe_virtual_service(
-                                                meshName=mesh_name,
-                                                virtualServiceName=vs_name
-                                            )
-                                            virtual_service = vs_details.get('virtualService', {})
-                                            virtual_services[vs_name] = virtual_service
-                                        except Exception as e:
-                                            print(f"Error fetching details for virtual service {vs_name}: {e}")
-                                            continue
-                            except Exception as e:
-                                print(f"Error listing virtual services for mesh {mesh_name}: {e}")
-                            
-                            # Use mesh name as key
-                            all_mesh_configs[mesh_name] = {
-                                "mesh": mesh_data,
-                                "virtualGateways": virtual_gateways,
-                                "virtualNodes": virtual_nodes,
-                                "virtualRouters": virtual_routers,
-                                "virtualServices": virtual_services
-                            }
-                    except Exception as e:
-                        print(f"Error processing App Mesh {mesh_name}: {e}")
-                        continue
+                        print(f"Error listing virtual services: {e}")
 
-        if not all_mesh_configs:
-            print(f"No App Mesh resources found for {'mesh names' if use_mesh_names else 'ApplicationShortName'} = {identifier}")
-            
+                for service_name in service_names:
+                    service_index += 1
+                    try:
+                        vs_details = appmesh_client.describe_virtual_service(
+                            meshName=mesh_name,
+                            virtualServiceName=service_name
+                        )
+                        service_key = f"{mesh_key}/virtual_service_{service_index}" if use_custom_identifier else f"{mesh_name}/virtual_service/{service_name}"
+                        all_mesh_configs[service_key] = {
+                            "compareIdentifier": f"{mesh_name}/{service_name}" if use_custom_identifier else None,
+                            **vs_details.get('virtualService', {})
+                        }
+                    except Exception as e:
+                        print(f"Error fetching virtual service {service_name}: {e}")
+
+            except appmesh_client.exceptions.NotFoundException:
+                print(f"App Mesh not found: {mesh_name}")
+                continue
+            except Exception as e:
+                print(f"Error processing mesh {mesh_name}: {e}")
+                continue
+
         return all_mesh_configs
     except Exception as e:
         print(f"Error fetching App Mesh configurations: {e}")
@@ -1583,9 +1404,9 @@ if __name__ == "__main__":
             # Fetch App Mesh configurations if appmesh array is not empty
             appmesh_meshes = env_config.get('appmesh', [])
             if appmesh_meshes:
-                output_data['appmesh'] = fetch_appmesh_config(appmesh_meshes, use_mesh_names=True)
+                output_data['appmesh'] = fetch_appmesh_config(appmesh_meshes, use_custom_identifier=True)
             else:
-                output_data['appmesh'] = fetch_appmesh_config(ApplicationShortName, use_mesh_names=False)
+                output_data['appmesh'] = fetch_appmesh_config([{"meshName": ApplicationShortName}], use_custom_identifier=False)
             
             # Fetch CloudWatch alarm configurations if cloudwatch array is not empty
             cloudwatch_alarms = env_config.get('cloudwatch', [])
@@ -1609,7 +1430,7 @@ if __name__ == "__main__":
                 'kinesis': fetch_kinesis_config(ApplicationShortName, use_stream_names=False),
                 'route53': fetch_route53_config(ApplicationShortName, use_zone_ids=False),
                 'cloudwatch': fetch_cloudwatch_alarms(ApplicationShortName, use_alarm_names=False),
-                'appmesh': fetch_appmesh_config(ApplicationShortName, use_mesh_names=False)
+                'appmesh': fetch_appmesh_config([{"meshName": ApplicationShortName}], use_custom_identifier=False)
             }
 
         # Write to the output file
