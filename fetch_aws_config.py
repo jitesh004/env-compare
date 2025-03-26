@@ -1320,6 +1320,189 @@ def fetch_appmesh_config(mesh_configs, use_custom_identifier=False):
         sys.exit(1)
 
 
+def fetch_cloudmap_config(namespace_configs, use_custom_identifier=False):
+    """
+    Fetches Cloud Map configurations for specified namespaces.
+    Returns all resources in a single dictionary with hierarchical keys.
+    
+    namespace_configs format:
+    [
+        {
+            "namespaceName": "namespace1",
+            "serviceNames": ["service1", "service2"]
+        }
+    ]
+    """
+    cloudmap_client = boto3.client('servicediscovery', region_name='us-east-1')
+    all_cloudmap_configs = {}
+    namespace_index = 0
+
+    try:
+        for namespace_config in namespace_configs:
+            namespace_index += 1
+            namespace_name = namespace_config['namespaceName']
+            service_names = namespace_config.get('serviceNames', [])
+
+            try:
+                # Get namespace details
+                namespace_response = cloudmap_client.get_namespace(Id=namespace_name)
+                namespace_data = namespace_response.get('Namespace', {})
+                
+                # Get namespace tags
+                try:
+                    tags_response = cloudmap_client.list_tags_for_resource(
+                        ResourceARN=namespace_data.get('Arn', '')
+                    )
+                    namespace_data['tags'] = tags_response.get('Tags', [])
+                except Exception as e:
+                    print(f"Error fetching tags for Cloud Map namespace {namespace_name}: {e}")
+                    namespace_data['tags'] = []
+
+                # Store namespace configuration
+                namespace_key = f"cloudmap_{namespace_index}" if use_custom_identifier else namespace_name
+                all_cloudmap_configs[namespace_key] = {
+                    "compareIdentifier": namespace_name if use_custom_identifier else None,
+                    **namespace_data
+                }
+
+                # If no specific services specified, fetch all
+                if not service_names:
+                    try:
+                        service_paginator = cloudmap_client.get_paginator('list_services')
+                        for service_page in service_paginator.paginate(Filters=[{'Name': 'NAMESPACE_ID', 'Values': [namespace_name]}]):
+                            for service in service_page.get('Services', []):
+                                service_names.append(service.get('Name'))
+                    except Exception as e:
+                        print(f"Error listing services for namespace {namespace_name}: {e}")
+
+                # Fetch service details
+                service_index = 0
+                for service_name in service_names:
+                    service_index += 1
+                    try:
+                        service_response = cloudmap_client.get_service(
+                            Id=service_name,
+                            NamespaceId=namespace_name
+                        )
+                        service_data = service_response.get('Service', {})
+                        
+                        # Get service tags
+                        try:
+                            service_tags = cloudmap_client.list_tags_for_resource(
+                                ResourceARN=service_data.get('Arn', '')
+                            )
+                            service_data['tags'] = service_tags.get('Tags', [])
+                        except Exception as e:
+                            print(f"Error fetching tags for service {service_name}: {e}")
+                            service_data['tags'] = []
+
+                        # Store service configuration
+                        service_key = f"{namespace_key}/service_{service_index}" if use_custom_identifier else f"{namespace_name}/service/{service_name}"
+                        all_cloudmap_configs[service_key] = {
+                            "compareIdentifier": f"{namespace_name}/{service_name}" if use_custom_identifier else None,
+                            **service_data
+                        }
+
+                        # Fetch instances for the service
+                        instance_index = 0
+                        try:
+                            instance_paginator = cloudmap_client.get_paginator('list_instances')
+                            for instance_page in instance_paginator.paginate(ServiceId=service_name, NamespaceId=namespace_name):
+                                for instance in instance_page.get('Instances', []):
+                                    instance_index += 1
+                                    instance_key = f"{service_key}/instance_{instance_index}" if use_custom_identifier else f"{namespace_name}/service/{service_name}/instance/{instance.get('Id')}"
+                                    all_cloudmap_configs[instance_key] = {
+                                        "compareIdentifier": f"{namespace_name}/{service_name}/{instance.get('Id')}" if use_custom_identifier else None,
+                                        **instance
+                                    }
+                        except Exception as e:
+                            print(f"Error fetching instances for service {service_name}: {e}")
+
+                    except Exception as e:
+                        print(f"Error fetching service {service_name}: {e}")
+
+            except cloudmap_client.exceptions.NamespaceNotFound:
+                print(f"Cloud Map namespace not found: {namespace_name}")
+                continue
+            except Exception as e:
+                print(f"Error processing namespace {namespace_name}: {e}")
+                continue
+
+        return all_cloudmap_configs
+    except Exception as e:
+        print(f"Error fetching Cloud Map configurations: {e}")
+        sys.exit(1)
+
+
+def find_appmesh_meshes(team_tag_key='ApplicationShortName', team_tag_value=''):
+    """
+    Finds all App Mesh meshes for a given ApplicationShortName tag value.
+    """
+    appmesh_client = boto3.client('appmesh', region_name='us-east-1')
+    matching_meshes = []
+
+    try:
+        # List all meshes with pagination
+        paginator = appmesh_client.get_paginator('list_meshes')
+        for page in paginator.paginate():
+            for mesh in page.get('meshes', []):
+                try:
+                    # Get mesh tags
+                    tags_response = appmesh_client.list_tags_for_resource(
+                        resourceArn=mesh.get('metadata', {}).get('arn', '')
+                    )
+                    tags = tags_response.get('tags', [])
+
+                    # Check if the mesh has the desired team tag
+                    for tag in tags:
+                        if tag['key'] == team_tag_key and tag['value'] == team_tag_value:
+                            matching_meshes.append(mesh.get('meshName'))
+                except Exception as e:
+                    print(f"Error fetching tags for mesh {mesh.get('meshName')}: {e}")
+                    continue
+
+        if not matching_meshes:
+            print(f"No App Mesh meshes found for {team_tag_key} = {team_tag_value}")
+        return matching_meshes
+    except Exception as e:
+        print(f"Error finding App Mesh meshes: {e}")
+        sys.exit(1)
+
+def find_cloudmap_namespaces(team_tag_key='ApplicationShortName', team_tag_value=''):
+    """
+    Finds all Cloud Map namespaces for a given ApplicationShortName tag value.
+    """
+    cloudmap_client = boto3.client('servicediscovery', region_name='us-east-1')
+    matching_namespaces = []
+
+    try:
+        # List all namespaces with pagination
+        paginator = cloudmap_client.get_paginator('list_namespaces')
+        for page in paginator.paginate():
+            for namespace in page.get('Namespaces', []):
+                try:
+                    # Get namespace tags
+                    tags_response = cloudmap_client.list_tags_for_resource(
+                        ResourceARN=namespace.get('Arn', '')
+                    )
+                    tags = tags_response.get('Tags', [])
+
+                    # Check if the namespace has the desired team tag
+                    for tag in tags:
+                        if tag['Key'] == team_tag_key and tag['Value'] == team_tag_value:
+                            matching_namespaces.append(namespace.get('Id'))
+                except Exception as e:
+                    print(f"Error fetching tags for namespace {namespace.get('Name')}: {e}")
+                    continue
+
+        if not matching_namespaces:
+            print(f"No Cloud Map namespaces found for {team_tag_key} = {team_tag_value}")
+        return matching_namespaces
+    except Exception as e:
+        print(f"Error finding Cloud Map namespaces: {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python fetch_aws_config.py <ApplicationShortName> <output_file> <env_index>")
@@ -1406,7 +1589,9 @@ if __name__ == "__main__":
             if appmesh_meshes:
                 output_data['appmesh'] = fetch_appmesh_config(appmesh_meshes, use_custom_identifier=True)
             else:
-                output_data['appmesh'] = fetch_appmesh_config([{"meshName": ApplicationShortName}], use_custom_identifier=False)
+                matching_meshes = find_appmesh_meshes(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
+                appmesh_meshes = [{"meshName": mesh_name} for mesh_name in matching_meshes]
+                output_data['appmesh'] = fetch_appmesh_config(appmesh_meshes, use_custom_identifier=False) if matching_meshes else {}
             
             # Fetch CloudWatch alarm configurations if cloudwatch array is not empty
             cloudwatch_alarms = env_config.get('cloudwatch', [])
@@ -1414,11 +1599,28 @@ if __name__ == "__main__":
                 output_data['cloudwatch'] = fetch_cloudwatch_alarms(cloudwatch_alarms, use_alarm_names=True)
             else:
                 output_data['cloudwatch'] = fetch_cloudwatch_alarms(ApplicationShortName, use_alarm_names=False)
+            
+            # Fetch Cloud Map configurations if cloudmap array is not empty
+            cloudmap_namespaces = env_config.get('cloudmap', [])
+            if cloudmap_namespaces:
+                output_data['cloudmap'] = fetch_cloudmap_config(cloudmap_namespaces, use_custom_identifier=True)
+            else:
+                matching_namespaces = find_cloudmap_namespaces(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
+                cloudmap_namespaces = [{"namespaceName": namespace_id} for namespace_id in matching_namespaces]
+                output_data['cloudmap'] = fetch_cloudmap_config(cloudmap_namespaces, use_custom_identifier=False) if matching_namespaces else {}
         else:
             print("Env configs not found, fetching configs by ApplicationShortName: ", ApplicationShortName)
             # Fall back to original behavior
             matching_clusters = find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
             ecs_clusters = [{"clusterName": cluster_name} for cluster_name, _ in matching_clusters]
+            
+            # Find matching meshes and namespaces
+            matching_meshes = find_appmesh_meshes(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
+            appmesh_meshes = [{"meshName": mesh_name} for mesh_name in matching_meshes]
+            
+            matching_namespaces = find_cloudmap_namespaces(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
+            cloudmap_namespaces = [{"namespaceName": namespace_id} for namespace_id in matching_namespaces]
+            
             output_data = {
                 'ecs': fetch_ecs_service_config(ecs_clusters, use_custom_identifier=False) if matching_clusters else {},
                 'rds': fetch_rds_config(ApplicationShortName, use_instance_ids=False),
@@ -1430,7 +1632,8 @@ if __name__ == "__main__":
                 'kinesis': fetch_kinesis_config(ApplicationShortName, use_stream_names=False),
                 'route53': fetch_route53_config(ApplicationShortName, use_zone_ids=False),
                 'cloudwatch': fetch_cloudwatch_alarms(ApplicationShortName, use_alarm_names=False),
-                'appmesh': fetch_appmesh_config([{"meshName": ApplicationShortName}], use_custom_identifier=False)
+                'appmesh': fetch_appmesh_config(appmesh_meshes, use_custom_identifier=False) if matching_meshes else {},
+                'cloudmap': fetch_cloudmap_config(cloudmap_namespaces, use_custom_identifier=False) if matching_namespaces else {}
             }
 
         # Write to the output file
