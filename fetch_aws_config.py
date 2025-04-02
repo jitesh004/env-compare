@@ -1503,6 +1503,359 @@ def find_cloudmap_namespaces(team_tag_key='ApplicationShortName', team_tag_value
         sys.exit(1)
 
 
+def fetch_eventbridge_config(event_bus_configs, use_custom_identifier=False):
+    """
+    Fetches EventBridge configurations for specified event buses.
+    Returns all resources in a single dictionary with hierarchical keys.
+    
+    event_bus_configs format:
+    [
+        {
+            "eventBusName": "bus1",
+            "ruleNames": ["rule1", "rule2"]
+        }
+    ]
+    """
+    events_client = boto3.client('events', region_name='us-east-1')
+    all_eventbridge_configs = {}
+    bus_index = 0
+
+    try:
+        for bus_config in event_bus_configs:
+            bus_index += 1
+            event_bus_name = bus_config['eventBusName']
+            rule_names = bus_config.get('ruleNames', [])
+
+            try:
+                # Get event bus details
+                bus_response = events_client.describe_event_bus(Name=event_bus_name)
+                bus_data = bus_response.get('EventBus', {})
+                
+                # Get event bus tags
+                try:
+                    tags_response = events_client.list_tags_for_resource(
+                        ResourceARN=bus_data.get('Arn', '')
+                    )
+                    bus_data['tags'] = tags_response.get('Tags', [])
+                except Exception as e:
+                    print(f"Error fetching tags for EventBridge bus {event_bus_name}: {e}")
+                    bus_data['tags'] = []
+
+                # Get API destinations
+                try:
+                    api_destinations = []
+                    paginator = events_client.get_paginator('list_api_destinations')
+                    for page in paginator.paginate():
+                        for destination in page.get('ApiDestinations', []):
+                            try:
+                                destination_details = events_client.describe_api_destination(
+                                    Name=destination.get('Name')
+                                )
+                                api_destinations.append(destination_details.get('ApiDestination', {}))
+                            except Exception as e:
+                                print(f"Error fetching details for API destination {destination.get('Name')}: {e}")
+                                api_destinations.append(destination)
+                    bus_data['api_destinations'] = api_destinations
+                except Exception as e:
+                    print(f"Error fetching API destinations for EventBridge bus {event_bus_name}: {e}")
+                    bus_data['api_destinations'] = []
+
+                # Get connections
+                try:
+                    connections = []
+                    paginator = events_client.get_paginator('list_connections')
+                    for page in paginator.paginate():
+                        for connection in page.get('Connections', []):
+                            try:
+                                connection_details = events_client.describe_connection(
+                                    Name=connection.get('Name')
+                                )
+                                connections.append(connection_details.get('Connection', {}))
+                            except Exception as e:
+                                print(f"Error fetching details for connection {connection.get('Name')}: {e}")
+                                connections.append(connection)
+                    bus_data['connections'] = connections
+                except Exception as e:
+                    print(f"Error fetching connections for EventBridge bus {event_bus_name}: {e}")
+                    bus_data['connections'] = []
+
+                # Get endpoints
+                try:
+                    endpoints = []
+                    paginator = events_client.get_paginator('list_endpoints')
+                    for page in paginator.paginate():
+                        for endpoint in page.get('Endpoints', []):
+                            try:
+                                endpoint_details = events_client.describe_endpoint(
+                                    Name=endpoint.get('Name')
+                                )
+                                endpoints.append(endpoint_details.get('Endpoint', {}))
+                            except Exception as e:
+                                print(f"Error fetching details for endpoint {endpoint.get('Name')}: {e}")
+                                endpoints.append(endpoint)
+                    bus_data['endpoints'] = endpoints
+                except Exception as e:
+                    print(f"Error fetching endpoints for EventBridge bus {event_bus_name}: {e}")
+                    bus_data['endpoints'] = []
+
+                # Get event sources
+                try:
+                    event_sources = []
+                    paginator = events_client.get_paginator('list_event_sources')
+                    for page in paginator.paginate():
+                        for source in page.get('EventSources', []):
+                            try:
+                                source_details = events_client.describe_event_source(
+                                    Name=source.get('Name')
+                                )
+                                event_sources.append(source_details.get('EventSource', {}))
+                            except Exception as e:
+                                print(f"Error fetching details for event source {source.get('Name')}: {e}")
+                                event_sources.append(source)
+                    bus_data['event_sources'] = event_sources
+                except Exception as e:
+                    print(f"Error fetching event sources for EventBridge bus {event_bus_name}: {e}")
+                    bus_data['event_sources'] = []
+
+                # Get partner event sources
+                try:
+                    partner_sources = []
+                    paginator = events_client.get_paginator('list_partner_event_sources')
+                    for page in paginator.paginate():
+                        for source in page.get('PartnerEventSources', []):
+                            try:
+                                source_details = events_client.describe_partner_event_source(
+                                    Name=source.get('Name')
+                                )
+                                partner_sources.append(source_details.get('PartnerEventSource', {}))
+                            except Exception as e:
+                                print(f"Error fetching details for partner event source {source.get('Name')}: {e}")
+                                partner_sources.append(source)
+                    bus_data['partner_event_sources'] = partner_sources
+                except Exception as e:
+                    print(f"Error fetching partner event sources for EventBridge bus {event_bus_name}: {e}")
+                    bus_data['partner_event_sources'] = []
+
+                # Get event bus archives with details
+                try:
+                    archives = []
+                    paginator = events_client.get_paginator('list_archives')
+                    for page in paginator.paginate(EventSourceArn=bus_data.get('Arn', '')):
+                        for archive in page.get('Archives', []):
+                            try:
+                                archive_details = events_client.describe_archive(
+                                    ArchiveName=archive.get('ArchiveName')
+                                )
+                                archives.append(archive_details.get('Archive', {}))
+                            except Exception as e:
+                                print(f"Error fetching details for archive {archive.get('ArchiveName')}: {e}")
+                                archives.append(archive)
+                    bus_data['archives'] = archives
+                except Exception as e:
+                    print(f"Error fetching archives for EventBridge bus {event_bus_name}: {e}")
+                    bus_data['archives'] = []
+
+                # Get event bus replays with details
+                try:
+                    replays = []
+                    paginator = events_client.get_paginator('list_replays')
+                    for page in paginator.paginate(EventSourceArn=bus_data.get('Arn', '')):
+                        for replay in page.get('Replays', []):
+                            try:
+                                replay_details = events_client.describe_replay(
+                                    ReplayName=replay.get('ReplayName')
+                                )
+                                replays.append(replay_details.get('Replay', {}))
+                            except Exception as e:
+                                print(f"Error fetching details for replay {replay.get('ReplayName')}: {e}")
+                                replays.append(replay)
+                    bus_data['replays'] = replays
+                except Exception as e:
+                    print(f"Error fetching replays for EventBridge bus {event_bus_name}: {e}")
+                    bus_data['replays'] = []
+
+                # Store event bus configuration
+                bus_key = f"eventbridge_{bus_index}" if use_custom_identifier else event_bus_name
+                all_eventbridge_configs[bus_key] = {
+                    "compareIdentifier": event_bus_name if use_custom_identifier else None,
+                    **bus_data
+                }
+
+                # If no specific rules specified, fetch all
+                if not rule_names:
+                    try:
+                        rule_paginator = events_client.get_paginator('list_rules')
+                        for rule_page in rule_paginator.paginate(EventBusName=event_bus_name):
+                            for rule in rule_page.get('Rules', []):
+                                rule_names.append(rule.get('Name'))
+                    except Exception as e:
+                        print(f"Error listing rules for event bus {event_bus_name}: {e}")
+
+                # Fetch rule details
+                rule_index = 0
+                for rule_name in rule_names:
+                    rule_index += 1
+                    try:
+                        rule_response = events_client.describe_rule(
+                            Name=rule_name,
+                            EventBusName=event_bus_name
+                        )
+                        rule_data = rule_response.get('Rule', {})
+                        
+                        # Get rule tags
+                        try:
+                            rule_tags = events_client.list_tags_for_resource(
+                                ResourceARN=rule_data.get('Arn', '')
+                            )
+                            rule_data['tags'] = rule_tags.get('Tags', [])
+                        except Exception as e:
+                            print(f"Error fetching tags for rule {rule_name}: {e}")
+                            rule_data['tags'] = []
+
+                        # Store rule configuration
+                        rule_key = f"{bus_key}/rule_{rule_index}" if use_custom_identifier else f"{event_bus_name}/rule/{rule_name}"
+                        all_eventbridge_configs[rule_key] = {
+                            "compareIdentifier": f"{event_bus_name}/{rule_name}" if use_custom_identifier else None,
+                            **rule_data
+                        }
+
+                        # Fetch targets for the rule
+                        target_index = 0
+                        try:
+                            target_paginator = events_client.get_paginator('list_targets_by_rule')
+                            for target_page in target_paginator.paginate(Rule=rule_name, EventBusName=event_bus_name):
+                                for target in target_page.get('Targets', []):
+                                    target_index += 1
+                                    target_key = f"{rule_key}/target_{target_index}" if use_custom_identifier else f"{event_bus_name}/rule/{rule_name}/target/{target.get('Id')}"
+                                    all_eventbridge_configs[target_key] = {
+                                        "compareIdentifier": f"{event_bus_name}/{rule_name}/{target.get('Id')}" if use_custom_identifier else None,
+                                        **target
+                                    }
+                        except Exception as e:
+                            print(f"Error fetching targets for rule {rule_name}: {e}")
+
+                    except Exception as e:
+                        print(f"Error fetching rule {rule_name}: {e}")
+
+            except events_client.exceptions.ResourceNotFoundException:
+                print(f"EventBridge bus not found: {event_bus_name}")
+                continue
+            except Exception as e:
+                print(f"Error processing event bus {event_bus_name}: {e}")
+                continue
+
+        return all_eventbridge_configs
+    except Exception as e:
+        print(f"Error fetching EventBridge configurations: {e}")
+        sys.exit(1)
+
+def find_eventbridge_buses(team_tag_key='ApplicationShortName', team_tag_value=''):
+    """
+    Finds all EventBridge event buses for a given ApplicationShortName tag value.
+    """
+    events_client = boto3.client('events', region_name='us-east-1')
+    matching_buses = []
+
+    try:
+        # List all event buses with pagination
+        paginator = events_client.get_paginator('list_event_buses')
+        for page in paginator.paginate():
+            for bus in page.get('EventBuses', []):
+                try:
+                    # Get event bus tags
+                    tags_response = events_client.list_tags_for_resource(
+                        ResourceARN=bus.get('Arn', '')
+                    )
+                    tags = tags_response.get('Tags', [])
+
+                    # Check if the event bus has the desired team tag
+                    for tag in tags:
+                        if tag['Key'] == team_tag_key and tag['Value'] == team_tag_value:
+                            matching_buses.append(bus.get('Name'))
+                except Exception as e:
+                    print(f"Error fetching tags for event bus {bus.get('Name')}: {e}")
+                    continue
+
+        if not matching_buses:
+            print(f"No EventBridge buses found for {team_tag_key} = {team_tag_value}")
+        return matching_buses
+    except Exception as e:
+        print(f"Error finding EventBridge buses: {e}")
+        sys.exit(1)
+
+def fetch_service_config(service_name, service_config, ApplicationShortName, use_custom_identifier=False):
+    """
+    Helper function to fetch service configurations based on env_config values.
+    Returns None if service is set to False in env_config.
+    """
+    if service_config is False:
+        return None
+        
+    if service_config:
+        # Use specific configuration
+        if service_name == 'ecs':
+            return fetch_ecs_service_config(service_config, use_custom_identifier=True)
+        elif service_name == 'rds':
+            return fetch_rds_config(service_config, use_instance_ids=True)
+        elif service_name == 'lambda':
+            return fetch_lambda_config(service_config, use_function_names=True)
+        elif service_name == 'parameterStore':
+            return fetch_parameter_store_config(service_config, use_custom_names=True)
+        elif service_name == 'elb':
+            return fetch_elb_config(service_config, use_lb_names=True)
+        elif service_name == 'sqs':
+            return fetch_sqs_config(service_config, ApplicationShortName)
+        elif service_name == 'sns':
+            return fetch_sns_config(service_config, use_topic_names=True)
+        elif service_name == 'kinesis':
+            return fetch_kinesis_config(service_config, use_stream_names=True)
+        elif service_name == 'route53':
+            return fetch_route53_config(service_config, use_zone_ids=True)
+        elif service_name == 'appmesh':
+            return fetch_appmesh_config(service_config, use_custom_identifier=True)
+        elif service_name == 'cloudwatch':
+            return fetch_cloudwatch_alarms(service_config, use_alarm_names=True)
+        elif service_name == 'cloudmap':
+            return fetch_cloudmap_config(service_config, use_custom_identifier=True)
+        elif service_name == 'eventbridge':
+            return fetch_eventbridge_config(service_config, use_custom_identifier=True)
+    else:
+        # Use ApplicationShortName
+        if service_name == 'ecs':
+            matching_clusters = find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
+            ecs_clusters = [{"clusterName": cluster_name} for cluster_name, _ in matching_clusters]
+            return fetch_ecs_service_config(ecs_clusters, use_custom_identifier=False) if matching_clusters else {}
+        elif service_name == 'rds':
+            return fetch_rds_config(ApplicationShortName, use_instance_ids=False)
+        elif service_name == 'lambda':
+            return fetch_lambda_config(ApplicationShortName, use_function_names=False)
+        elif service_name == 'parameterStore':
+            return fetch_parameter_store_config([ApplicationShortName], use_custom_names=False)
+        elif service_name == 'elb':
+            return fetch_elb_config(ApplicationShortName, use_lb_names=False)
+        elif service_name == 'sqs':
+            return fetch_sqs_config([], ApplicationShortName)
+        elif service_name == 'sns':
+            return fetch_sns_config(ApplicationShortName, use_topic_names=False)
+        elif service_name == 'kinesis':
+            return fetch_kinesis_config(ApplicationShortName, use_stream_names=False)
+        elif service_name == 'route53':
+            return fetch_route53_config(ApplicationShortName, use_zone_ids=False)
+        elif service_name == 'appmesh':
+            matching_meshes = find_appmesh_meshes(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
+            appmesh_meshes = [{"meshName": mesh_name} for mesh_name in matching_meshes]
+            return fetch_appmesh_config(appmesh_meshes, use_custom_identifier=False) if matching_meshes else {}
+        elif service_name == 'cloudwatch':
+            return fetch_cloudwatch_alarms(ApplicationShortName, use_alarm_names=False)
+        elif service_name == 'cloudmap':
+            matching_namespaces = find_cloudmap_namespaces(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
+            cloudmap_namespaces = [{"namespaceName": namespace_id} for namespace_id in matching_namespaces]
+            return fetch_cloudmap_config(cloudmap_namespaces, use_custom_identifier=False) if matching_namespaces else {}
+        elif service_name == 'eventbridge':
+            matching_buses = find_eventbridge_buses(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
+            eventbridge_buses = [{"eventBusName": bus_name} for bus_name in matching_buses]
+            return fetch_eventbridge_config(eventbridge_buses, use_custom_identifier=False) if matching_buses else {}
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python fetch_aws_config.py <ApplicationShortName> <output_file> <env_index>")
@@ -1518,123 +1871,26 @@ if __name__ == "__main__":
         output_data = {}
         print("Env config: ", env_config)
 
-        if env_config:
-            # Fetch ECS configurations if ecs array is not empty
-            ecs_clusters = env_config.get('ecs', [])
-            if ecs_clusters:
-                output_data['ecs'] = fetch_ecs_service_config(ecs_clusters, use_custom_identifier=True)
-            else:
-                matching_clusters = find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
-                ecs_clusters = [{"clusterName": cluster_name} for cluster_name, _ in matching_clusters]
-                output_data['ecs'] = fetch_ecs_service_config(ecs_clusters, use_custom_identifier=False) if matching_clusters else {}
-            
-            # Fetch RDS configurations if rds array is not empty
-            rds_instances = env_config.get('rds', [])
-            if rds_instances:
-                output_data['rds'] = fetch_rds_config(rds_instances, use_instance_ids=True)
-            else:
-                output_data['rds'] = fetch_rds_config(ApplicationShortName, use_instance_ids=False)
-            
-            # Fetch Lambda configurations if lambda array is not empty
-            lambda_functions = env_config.get('lambda', [])
-            if lambda_functions:
-                output_data['lambda'] = fetch_lambda_config(lambda_functions, use_function_names=True)
-            else:
-                output_data['lambda'] = fetch_lambda_config(ApplicationShortName, use_function_names=False)
+        # List of services to fetch
+        services = [
+            'ecs', 'rds', 'lambda', 'parameterStore', 'elb', 'sqs', 'sns',
+            'kinesis', 'route53', 'appmesh', 'cloudwatch', 'cloudmap', 'eventbridge'
+        ]
 
-            # Fetch Parameter Store configurations if parameterStore prefixes are provided
-            parameter_store_prefixes = env_config.get('parameterStore')
-            if parameter_store_prefixes:
-                output_data['parameterStore'] = fetch_parameter_store_config(parameter_store_prefixes, use_custom_names=True)
-            else:
-                output_data['parameterStore'] = fetch_parameter_store_config([ApplicationShortName], use_custom_names=False)
-            
-            # Fetch EC2 load balancer configurations if elb array is not empty
-            elb_names = env_config.get('elb', [])
-            if elb_names:
-                output_data['elb'] = fetch_elb_config(elb_names, use_lb_names=True)
-            else:
-                output_data['elb'] = fetch_elb_config(ApplicationShortName, use_lb_names=False)
-            
-            # Fetch SQS configurations if sqs array is not empty
-            sqs_queues = env_config.get('sqs', [])
-            if sqs_queues:
-                output_data['sqs'] = fetch_sqs_config(sqs_queues, ApplicationShortName)
-            else:
-                output_data['sqs'] = fetch_sqs_config([], ApplicationShortName)
-                
-            # Fetch SNS configurations if sns array is not empty
-            sns_topics = env_config.get('sns', [])
-            if sns_topics:
-                output_data['sns'] = fetch_sns_config(sns_topics, use_topic_names=True)
-            else:
-                output_data['sns'] = fetch_sns_config(ApplicationShortName, use_topic_names=False)
-                
-            # Fetch Kinesis configurations if kinesis array is not empty
-            kinesis_streams = env_config.get('kinesis', [])
-            if kinesis_streams:
-                output_data['kinesis'] = fetch_kinesis_config(kinesis_streams, use_stream_names=True)
-            else:
-                output_data['kinesis'] = fetch_kinesis_config(ApplicationShortName, use_stream_names=False)
-                
-            # Fetch Route53 configurations if route53 array is not empty
-            route53_zones = env_config.get('route53', [])
-            if route53_zones:
-                output_data['route53'] = fetch_route53_config(route53_zones, use_zone_ids=True)
-            else:
-                output_data['route53'] = fetch_route53_config(ApplicationShortName, use_zone_ids=False)
-            
-            # Fetch App Mesh configurations if appmesh array is not empty
-            appmesh_meshes = env_config.get('appmesh', [])
-            if appmesh_meshes:
-                output_data['appmesh'] = fetch_appmesh_config(appmesh_meshes, use_custom_identifier=True)
-            else:
-                matching_meshes = find_appmesh_meshes(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
-                appmesh_meshes = [{"meshName": mesh_name} for mesh_name in matching_meshes]
-                output_data['appmesh'] = fetch_appmesh_config(appmesh_meshes, use_custom_identifier=False) if matching_meshes else {}
-            
-            # Fetch CloudWatch alarm configurations if cloudwatch array is not empty
-            cloudwatch_alarms = env_config.get('cloudwatch', [])
-            if cloudwatch_alarms:
-                output_data['cloudwatch'] = fetch_cloudwatch_alarms(cloudwatch_alarms, use_alarm_names=True)
-            else:
-                output_data['cloudwatch'] = fetch_cloudwatch_alarms(ApplicationShortName, use_alarm_names=False)
-            
-            # Fetch Cloud Map configurations if cloudmap array is not empty
-            cloudmap_namespaces = env_config.get('cloudmap', [])
-            if cloudmap_namespaces:
-                output_data['cloudmap'] = fetch_cloudmap_config(cloudmap_namespaces, use_custom_identifier=True)
-            else:
-                matching_namespaces = find_cloudmap_namespaces(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
-                cloudmap_namespaces = [{"namespaceName": namespace_id} for namespace_id in matching_namespaces]
-                output_data['cloudmap'] = fetch_cloudmap_config(cloudmap_namespaces, use_custom_identifier=False) if matching_namespaces else {}
+        if env_config:
+            # Fetch configurations for each service
+            for service in services:
+                service_config = env_config.get(service, [])
+                result = fetch_service_config(service, service_config, ApplicationShortName, use_custom_identifier=True)
+                if result is not None:
+                    output_data[service] = result
         else:
             print("Env configs not found, fetching configs by ApplicationShortName: ", ApplicationShortName)
-            # Fall back to original behavior
-            matching_clusters = find_team_cluster(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
-            ecs_clusters = [{"clusterName": cluster_name} for cluster_name, _ in matching_clusters]
-            
-            # Find matching meshes and namespaces
-            matching_meshes = find_appmesh_meshes(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
-            appmesh_meshes = [{"meshName": mesh_name} for mesh_name in matching_meshes]
-            
-            matching_namespaces = find_cloudmap_namespaces(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
-            cloudmap_namespaces = [{"namespaceName": namespace_id} for namespace_id in matching_namespaces]
-            
-            output_data = {
-                'ecs': fetch_ecs_service_config(ecs_clusters, use_custom_identifier=False) if matching_clusters else {},
-                'rds': fetch_rds_config(ApplicationShortName, use_instance_ids=False),
-                'lambda': fetch_lambda_config(ApplicationShortName, use_function_names=False),
-                'parameterStore': fetch_parameter_store_config([ApplicationShortName], use_custom_names=False),
-                'elb': fetch_elb_config(ApplicationShortName, use_lb_names=False),
-                'sqs': fetch_sqs_config([], ApplicationShortName),
-                'sns': fetch_sns_config(ApplicationShortName, use_topic_names=False),
-                'kinesis': fetch_kinesis_config(ApplicationShortName, use_stream_names=False),
-                'route53': fetch_route53_config(ApplicationShortName, use_zone_ids=False),
-                'cloudwatch': fetch_cloudwatch_alarms(ApplicationShortName, use_alarm_names=False),
-                'appmesh': fetch_appmesh_config(appmesh_meshes, use_custom_identifier=False) if matching_meshes else {},
-                'cloudmap': fetch_cloudmap_config(cloudmap_namespaces, use_custom_identifier=False) if matching_namespaces else {}
-            }
+            # Fetch all services using ApplicationShortName
+            for service in services:
+                result = fetch_service_config(service, [], ApplicationShortName, use_custom_identifier=False)
+                if result is not None:
+                    output_data[service] = result
 
         # Write to the output file
         with open(output_file, 'w') as f:
