@@ -691,7 +691,7 @@ def fetch_kinesis_config(identifier, use_stream_names=False):
         return all_stream_configs
     except Exception as e:
         print(f"Error fetching Kinesis configurations: {e}")
-        sys.exit(1)
+        return {}
 
 def fetch_route53_config(identifier, use_zone_ids=False):
     """
@@ -794,8 +794,7 @@ def fetch_route53_config(identifier, use_zone_ids=False):
         return all_zone_configs
     except Exception as e:
         print(f"Error fetching Route 53 configurations: {e}")
-        sys.exit(1)
-
+        return {}
 
 def fetch_cloudwatch_alarms(identifier, use_alarm_names=False):
     """
@@ -1531,144 +1530,138 @@ def fetch_eventbridge_config(event_bus_configs, use_custom_identifier=False):
                 bus_response = events_client.describe_event_bus(Name=event_bus_name)
                 bus_data = bus_response.get('EventBus', {})
                 
-                # Get event bus tags
-                try:
-                    tags_response = events_client.list_tags_for_resource(
-                        ResourceARN=bus_data.get('Arn', '')
-                    )
-                    bus_data['tags'] = tags_response.get('Tags', [])
-                except Exception as e:
-                    print(f"Error fetching tags for EventBridge bus {event_bus_name}: {e}")
-                    bus_data['tags'] = []
+                # Get event bus tags if ARN exists
+                if bus_data.get('Arn'):
+                    try:
+                        tags_response = events_client.list_tags_for_resource(
+                            ResourceARN=bus_data['Arn']
+                        )
+                        bus_data['tags'] = tags_response.get('Tags', [])
+                    except Exception as e:
+                        print(f"Error fetching tags for EventBridge bus {event_bus_name}: {e}")
+                        bus_data['tags'] = []
 
-                # Get API destinations
+                # Get API destinations (no pagination)
                 try:
+                    api_destinations_response = events_client.list_api_destinations()
                     api_destinations = []
-                    paginator = events_client.get_paginator('list_api_destinations')
-                    for page in paginator.paginate():
-                        for destination in page.get('ApiDestinations', []):
-                            try:
-                                destination_details = events_client.describe_api_destination(
-                                    Name=destination.get('Name')
-                                )
-                                api_destinations.append(destination_details.get('ApiDestination', {}))
-                            except Exception as e:
-                                print(f"Error fetching details for API destination {destination.get('Name')}: {e}")
-                                api_destinations.append(destination)
+                    for destination in api_destinations_response.get('ApiDestinations', []):
+                        try:
+                            destination_details = events_client.describe_api_destination(
+                                Name=destination.get('Name')
+                            )
+                            api_destinations.append(destination_details.get('ApiDestination', {}))
+                        except Exception as e:
+                            print(f"Error fetching details for API destination {destination.get('Name')}: {e}")
+                            api_destinations.append(destination)
                     bus_data['api_destinations'] = api_destinations
                 except Exception as e:
                     print(f"Error fetching API destinations for EventBridge bus {event_bus_name}: {e}")
                     bus_data['api_destinations'] = []
 
-                # Get connections
+                # Get connections (no pagination)
                 try:
+                    connections_response = events_client.list_connections()
                     connections = []
-                    paginator = events_client.get_paginator('list_connections')
-                    for page in paginator.paginate():
-                        for connection in page.get('Connections', []):
-                            try:
-                                connection_details = events_client.describe_connection(
-                                    Name=connection.get('Name')
-                                )
-                                connections.append(connection_details.get('Connection', {}))
-                            except Exception as e:
-                                print(f"Error fetching details for connection {connection.get('Name')}: {e}")
-                                connections.append(connection)
+                    for connection in connections_response.get('Connections', []):
+                        try:
+                            connection_details = events_client.describe_connection(
+                                Name=connection.get('Name')
+                            )
+                            connections.append(connection_details.get('Connection', {}))
+                        except Exception as e:
+                            print(f"Error fetching details for connection {connection.get('Name')}: {e}")
+                            connections.append(connection)
                     bus_data['connections'] = connections
                 except Exception as e:
                     print(f"Error fetching connections for EventBridge bus {event_bus_name}: {e}")
                     bus_data['connections'] = []
 
-                # Get endpoints
+                # Get endpoints (no pagination)
                 try:
+                    endpoints_response = events_client.list_endpoints()
                     endpoints = []
-                    paginator = events_client.get_paginator('list_endpoints')
-                    for page in paginator.paginate():
-                        for endpoint in page.get('Endpoints', []):
-                            try:
-                                endpoint_details = events_client.describe_endpoint(
-                                    Name=endpoint.get('Name')
-                                )
-                                endpoints.append(endpoint_details.get('Endpoint', {}))
-                            except Exception as e:
-                                print(f"Error fetching details for endpoint {endpoint.get('Name')}: {e}")
-                                endpoints.append(endpoint)
+                    for endpoint in endpoints_response.get('Endpoints', []):
+                        try:
+                            endpoint_details = events_client.describe_endpoint(
+                                Name=endpoint.get('Name')
+                            )
+                            endpoints.append(endpoint_details.get('Endpoint', {}))
+                        except Exception as e:
+                            print(f"Error fetching details for endpoint {endpoint.get('Name')}: {e}")
+                            endpoints.append(endpoint)
                     bus_data['endpoints'] = endpoints
                 except Exception as e:
                     print(f"Error fetching endpoints for EventBridge bus {event_bus_name}: {e}")
                     bus_data['endpoints'] = []
 
-                # Get event sources
+                # Get event sources (no pagination)
                 try:
+                    event_sources_response = events_client.list_event_sources()
                     event_sources = []
-                    paginator = events_client.get_paginator('list_event_sources')
-                    for page in paginator.paginate():
-                        for source in page.get('EventSources', []):
-                            try:
-                                source_details = events_client.describe_event_source(
-                                    Name=source.get('Name')
-                                )
-                                event_sources.append(source_details.get('EventSource', {}))
-                            except Exception as e:
-                                print(f"Error fetching details for event source {source.get('Name')}: {e}")
-                                event_sources.append(source)
+                    for source in event_sources_response.get('EventSources', []):
+                        try:
+                            source_details = events_client.describe_event_source(
+                                Name=source.get('Name')
+                            )
+                            event_sources.append(source_details.get('EventSource', {}))
+                        except Exception as e:
+                            print(f"Error fetching details for event source {source.get('Name')}: {e}")
+                            event_sources.append(source)
                     bus_data['event_sources'] = event_sources
                 except Exception as e:
                     print(f"Error fetching event sources for EventBridge bus {event_bus_name}: {e}")
                     bus_data['event_sources'] = []
 
-                # Get partner event sources
+                # Get partner event sources (no pagination)
                 try:
+                    partner_sources_response = events_client.list_partner_event_sources()
                     partner_sources = []
-                    paginator = events_client.get_paginator('list_partner_event_sources')
-                    for page in paginator.paginate():
-                        for source in page.get('PartnerEventSources', []):
-                            try:
-                                source_details = events_client.describe_partner_event_source(
-                                    Name=source.get('Name')
-                                )
-                                partner_sources.append(source_details.get('PartnerEventSource', {}))
-                            except Exception as e:
-                                print(f"Error fetching details for partner event source {source.get('Name')}: {e}")
-                                partner_sources.append(source)
+                    for source in partner_sources_response.get('PartnerEventSources', []):
+                        try:
+                            source_details = events_client.describe_partner_event_source(
+                                Name=source.get('Name')
+                            )
+                            partner_sources.append(source_details.get('PartnerEventSource', {}))
+                        except Exception as e:
+                            print(f"Error fetching details for partner event source {source.get('Name')}: {e}")
+                            partner_sources.append(source)
                     bus_data['partner_event_sources'] = partner_sources
                 except Exception as e:
                     print(f"Error fetching partner event sources for EventBridge bus {event_bus_name}: {e}")
                     bus_data['partner_event_sources'] = []
 
-                # Get event bus archives with details
+                # Get event bus archives (no pagination)
                 try:
+                    archives_response = events_client.list_archives()
                     archives = []
-                    paginator = events_client.get_paginator('list_archives')
-                    for page in paginator.paginate(EventSourceArn=bus_data.get('Arn', '')):
-                        for archive in page.get('Archives', []):
-                            try:
-                                archive_details = events_client.describe_archive(
-                                    ArchiveName=archive.get('ArchiveName')
-                                )
-                                archives.append(archive_details.get('Archive', {}))
-                            except Exception as e:
-                                print(f"Error fetching details for archive {archive.get('ArchiveName')}: {e}")
-                                archives.append(archive)
+                    for archive in archives_response.get('Archives', []):
+                        try:
+                            archive_details = events_client.describe_archive(
+                                ArchiveName=archive.get('ArchiveName')
+                            )
+                            archives.append(archive_details.get('Archive', {}))
+                        except Exception as e:
+                            print(f"Error fetching details for archive {archive.get('ArchiveName')}: {e}")
+                            archives.append(archive)
                     bus_data['archives'] = archives
                 except Exception as e:
                     print(f"Error fetching archives for EventBridge bus {event_bus_name}: {e}")
                     bus_data['archives'] = []
 
-                # Get event bus replays with details
+                # Get event bus replays (no pagination)
                 try:
+                    replays_response = events_client.list_replays()
                     replays = []
-                    paginator = events_client.get_paginator('list_replays')
-                    for page in paginator.paginate(EventSourceArn=bus_data.get('Arn', '')):
-                        for replay in page.get('Replays', []):
-                            try:
-                                replay_details = events_client.describe_replay(
-                                    ReplayName=replay.get('ReplayName')
-                                )
-                                replays.append(replay_details.get('Replay', {}))
-                            except Exception as e:
-                                print(f"Error fetching details for replay {replay.get('ReplayName')}: {e}")
-                                replays.append(replay)
+                    for replay in replays_response.get('Replays', []):
+                        try:
+                            replay_details = events_client.describe_replay(
+                                ReplayName=replay.get('ReplayName')
+                            )
+                            replays.append(replay_details.get('Replay', {}))
+                        except Exception as e:
+                            print(f"Error fetching details for replay {replay.get('ReplayName')}: {e}")
+                            replays.append(replay)
                     bus_data['replays'] = replays
                 except Exception as e:
                     print(f"Error fetching replays for EventBridge bus {event_bus_name}: {e}")
@@ -1702,15 +1695,16 @@ def fetch_eventbridge_config(event_bus_configs, use_custom_identifier=False):
                         )
                         rule_data = rule_response.get('Rule', {})
                         
-                        # Get rule tags
-                        try:
-                            rule_tags = events_client.list_tags_for_resource(
-                                ResourceARN=rule_data.get('Arn', '')
-                            )
-                            rule_data['tags'] = rule_tags.get('Tags', [])
-                        except Exception as e:
-                            print(f"Error fetching tags for rule {rule_name}: {e}")
-                            rule_data['tags'] = []
+                        # Get rule tags if ARN exists
+                        if rule_data.get('Arn'):
+                            try:
+                                rule_tags = events_client.list_tags_for_resource(
+                                    ResourceARN=rule_data['Arn']
+                                )
+                                rule_data['tags'] = rule_tags.get('Tags', [])
+                            except Exception as e:
+                                print(f"Error fetching tags for rule {rule_name}: {e}")
+                                rule_data['tags'] = []
 
                         # Store rule configuration
                         rule_key = f"{bus_key}/rule_{rule_index}" if use_custom_identifier else f"{event_bus_name}/rule/{rule_name}"
