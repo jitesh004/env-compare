@@ -1777,6 +1777,160 @@ def find_eventbridge_buses(team_tag_key='ApplicationShortName', team_tag_value='
         print(f"Error finding EventBridge buses: {e}")
         sys.exit(1)
 
+def fetch_dynamodb_config(identifier, use_table_names=False):
+    """
+    Fetches DynamoDB table configurations either by table names or ApplicationShortName.
+    Returns tables with indexed keys or table names as keys based on the mode.
+    Includes comprehensive details such as global secondary indexes, local secondary indexes,
+    stream specifications, provisioned throughput, and other important table attributes.
+    """
+    dynamodb_client = boto3.client('dynamodb', region_name='us-east-1')
+    all_dynamodb_configs = {}
+    table_index = 0
+
+    try:
+        if use_table_names:
+            # Fetch specific tables by name - use indexed keys
+            for table_name in identifier:
+                table_index += 1
+                try:
+                    # Get basic table configuration
+                    table_config = dynamodb_client.describe_table(TableName=table_name)['Table']
+                    
+                    # Get tags for the table
+                    tags_response = dynamodb_client.list_tags_of_resource(
+                        ResourceArn=table_config['TableArn']
+                    )
+                    table_config['Tags'] = tags_response.get('Tags', [])
+                    
+                    # Get continuous backups and point-in-time recovery status
+                    try:
+                        backup_response = dynamodb_client.describe_continuous_backups(
+                            TableName=table_name
+                        )
+                        table_config['ContinuousBackups'] = backup_response.get('ContinuousBackupsDescription', {})
+                    except Exception as backup_error:
+                        print(f"Warning: Could not fetch continuous backup info for {table_name}: {backup_error}")
+                    
+                    # Get auto scaling configuration if available
+                    try:
+                        application_auto_scaling = boto3.client('application-autoscaling', region_name='us-east-1')
+                        scaling_policies = application_auto_scaling.describe_scaling_policies(
+                            ServiceNamespace='dynamodb',
+                            ResourceId=f'table/{table_name}'
+                        )
+                        if scaling_policies.get('ScalingPolicies'):
+                            table_config['AutoScalingPolicies'] = scaling_policies.get('ScalingPolicies', [])
+                    except Exception as scaling_error:
+                        print(f"Warning: Could not fetch auto scaling info for {table_name}: {scaling_error}")
+                    
+                    # Get table's TTL settings
+                    try:
+                        ttl_response = dynamodb_client.describe_time_to_live(
+                            TableName=table_name
+                        )
+                        table_config['TimeToLiveDescription'] = ttl_response.get('TimeToLiveDescription', {})
+                    except Exception as ttl_error:
+                        print(f"Warning: Could not fetch TTL info for {table_name}: {ttl_error}")
+                    
+                    # Store with indexed key and include original table name in config
+                    all_dynamodb_configs[f"dynamodb_table_{table_index}"] = {
+                        "compareIdentifier": table_name,
+                        **table_config
+                    }
+                    
+                    # If table has global tables configuration, fetch it
+                    try:
+                        global_tables = dynamodb_client.describe_global_table(
+                            GlobalTableName=table_name
+                        )
+                        all_dynamodb_configs[f"dynamodb_table_{table_index}/global_table_config"] = {
+                            "compareIdentifier": f"{table_name}_global_config",
+                            **global_tables
+                        }
+                    except Exception:
+                        # Not a global table, skip silently
+                        pass
+                    
+                except dynamodb_client.exceptions.ResourceNotFoundException:
+                    print(f"DynamoDB table not found: {table_name}")
+                    continue
+                except Exception as e:
+                    print(f"Error fetching configuration for DynamoDB table {table_name}: {e}")
+                    continue
+        else:
+            # Fetch all tables and filter by ApplicationShortName tag - use table names as keys
+            paginator = dynamodb_client.get_paginator('list_tables')
+            for page in paginator.paginate():
+                for table_name in page.get('TableNames', []):
+                    try:
+                        # Get basic table configuration
+                        table_config = dynamodb_client.describe_table(TableName=table_name)['Table']
+                        
+                        # Get tags for the table
+                        tags_response = dynamodb_client.list_tags_of_resource(
+                            ResourceArn=table_config['TableArn']
+                        )
+                        tags = tags_response.get('Tags', [])
+                        
+                        # Check if table has matching ApplicationShortName tag
+                        if any(tag['Key'] == 'ApplicationShortName' and tag['Value'] == identifier for tag in tags):
+                            table_config['Tags'] = tags
+                            
+                            # Get continuous backups and point-in-time recovery status
+                            try:
+                                backup_response = dynamodb_client.describe_continuous_backups(
+                                    TableName=table_name
+                                )
+                                table_config['ContinuousBackups'] = backup_response.get('ContinuousBackupsDescription', {})
+                            except Exception as backup_error:
+                                print(f"Warning: Could not fetch continuous backup info for {table_name}: {backup_error}")
+                            
+                            # Get auto scaling configuration if available
+                            try:
+                                application_auto_scaling = boto3.client('application-autoscaling', region_name='us-east-1')
+                                scaling_policies = application_auto_scaling.describe_scaling_policies(
+                                    ServiceNamespace='dynamodb',
+                                    ResourceId=f'table/{table_name}'
+                                )
+                                if scaling_policies.get('ScalingPolicies'):
+                                    table_config['AutoScalingPolicies'] = scaling_policies.get('ScalingPolicies', [])
+                            except Exception as scaling_error:
+                                print(f"Warning: Could not fetch auto scaling info for {table_name}: {scaling_error}")
+                            
+                            # Get table's TTL settings
+                            try:
+                                ttl_response = dynamodb_client.describe_time_to_live(
+                                    TableName=table_name
+                                )
+                                table_config['TimeToLiveDescription'] = ttl_response.get('TimeToLiveDescription', {})
+                            except Exception as ttl_error:
+                                print(f"Warning: Could not fetch TTL info for {table_name}: {ttl_error}")
+                            
+                            # Store the table configuration
+                            all_dynamodb_configs[table_name] = table_config
+                            
+                            # If table has global tables configuration, fetch it
+                            try:
+                                global_tables = dynamodb_client.describe_global_table(
+                                    GlobalTableName=table_name
+                                )
+                                all_dynamodb_configs[f"{table_name}/global_table_config"] = global_tables
+                            except Exception:
+                                # Not a global table, skip silently
+                                pass
+                    except Exception as e:
+                        print(f"Error processing DynamoDB table {table_name}: {e}")
+                        continue
+
+        if not all_dynamodb_configs:
+            print(f"No DynamoDB tables found for {'table names' if use_table_names else 'ApplicationShortName'} = {identifier}")
+
+        return all_dynamodb_configs
+    except Exception as e:
+        print(f"Error fetching DynamoDB configurations: {e}")
+        sys.exit(1)
+
 def fetch_service_config(service_name, service_config, ApplicationShortName, use_custom_identifier=False):
     """
     Helper function to fetch service configurations based on env_config values.
@@ -1813,6 +1967,8 @@ def fetch_service_config(service_name, service_config, ApplicationShortName, use
             return fetch_cloudmap_config(service_config, use_custom_identifier=True)
         elif service_name == 'eventbridge':
             return fetch_eventbridge_config(service_config, use_custom_identifier=True)
+        elif service_name == 'dynamodb':
+            return fetch_dynamodb_config(service_config, use_table_names=True)
     else:
         # Use ApplicationShortName
         if service_name == 'ecs':
@@ -1849,6 +2005,8 @@ def fetch_service_config(service_name, service_config, ApplicationShortName, use
             matching_buses = find_eventbridge_buses(team_tag_key='ApplicationShortName', team_tag_value=ApplicationShortName)
             eventbridge_buses = [{"eventBusName": bus_name} for bus_name in matching_buses]
             return fetch_eventbridge_config(eventbridge_buses, use_custom_identifier=False) if matching_buses else {}
+        elif service_name == 'dynamodb':
+            return fetch_dynamodb_config(ApplicationShortName, use_table_names=False)
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -1868,7 +2026,7 @@ if __name__ == "__main__":
         # List of services to fetch
         services = [
             'ecs', 'rds', 'lambda', 'parameterStore', 'elb', 'sqs', 'sns',
-            'kinesis', 'route53', 'appmesh', 'cloudwatch', 'cloudmap', 'eventbridge'
+            'kinesis', 'route53', 'appmesh', 'cloudwatch', 'cloudmap', 'eventbridge', 'dynamodb'
         ]
 
         if env_config:
