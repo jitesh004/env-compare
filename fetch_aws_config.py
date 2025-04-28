@@ -1931,6 +1931,202 @@ def fetch_dynamodb_config(identifier, use_table_names=False):
         print(f"Error fetching DynamoDB configurations: {e}")
         sys.exit(1)
 
+def fetch_athena_config(identifier, use_workgroup_names=False):
+    """
+    Fetches Athena configurations either by workgroup names or ApplicationShortName.
+    Returns workgroups with indexed keys or workgroup names as keys based on the mode.
+    Includes details about workgroups, named queries, data catalogs, and database metadata.
+    """
+    athena_client = boto3.client('athena', region_name='us-east-1')
+    all_athena_configs = {}
+    workgroup_index = 0
+
+    try:
+        if use_workgroup_names:
+            # Fetch specific workgroups by name - use indexed keys
+            for workgroup_name in identifier:
+                workgroup_index += 1
+                try:
+                    # Get workgroup configuration
+                    workgroup_response = athena_client.get_work_group(WorkGroup=workgroup_name)
+                    workgroup_config = workgroup_response.get('WorkGroup', {})
+                    
+                    # Get tags for the workgroup
+                    try:
+                        tags_response = athena_client.list_tags_for_resource(
+                            ResourceARN=workgroup_config.get('WorkGroupConfiguration', {}).get('WorkGroupConfigurationUpdates', {}).get('EngineVersion', {}).get('SelectedEngineVersion', '')
+                        )
+                        workgroup_config['Tags'] = tags_response.get('Tags', [])
+                    except Exception as tag_error:
+                        print(f"Warning: Could not fetch tags for workgroup {workgroup_name}: {tag_error}")
+                        workgroup_config['Tags'] = []
+                    
+                    # Get prepared statements
+                    prepared_statements = []
+                    try:
+                        paginator = athena_client.get_paginator('list_prepared_statements')
+                        for page in paginator.paginate(WorkGroup=workgroup_name):
+                            for stmt in page.get('PreparedStatements', []):
+                                try:
+                                    stmt_details = athena_client.get_prepared_statement(
+                                        StatementName=stmt.get('StatementName'),
+                                        WorkGroup=workgroup_name
+                                    )
+                                    prepared_statements.append(stmt_details.get('PreparedStatement', {}))
+                                except Exception as e:
+                                    print(f"Error fetching prepared statement {stmt.get('StatementName')}: {e}")
+                                    prepared_statements.append(stmt)
+                        workgroup_config['PreparedStatements'] = prepared_statements
+                    except Exception as e:
+                        print(f"Error listing prepared statements for workgroup {workgroup_name}: {e}")
+                        workgroup_config['PreparedStatements'] = []
+                    
+                    # Get named queries (limited to recent ones to avoid excessive API calls)
+                    named_queries = []
+                    try:
+                        query_paginator = athena_client.get_paginator('list_named_queries')
+                        for page in query_paginator.paginate(WorkGroup=workgroup_name, MaxResults=20):
+                            for query_id in page.get('NamedQueryIds', []):
+                                try:
+                                    query_details = athena_client.get_named_query(NamedQueryId=query_id)
+                                    named_queries.append(query_details.get('NamedQuery', {}))
+                                except Exception as e:
+                                    print(f"Error fetching named query {query_id}: {e}")
+                            # Limit to 20 named queries to avoid excessive API calls
+                            if len(named_queries) >= 20:
+                                break
+                        workgroup_config['NamedQueries'] = named_queries
+                    except Exception as e:
+                        print(f"Error listing named queries for workgroup {workgroup_name}: {e}")
+                        workgroup_config['NamedQueries'] = []
+                    
+                    # Store with indexed key and include original workgroup name in config
+                    all_athena_configs[f"athena_workgroup_{workgroup_index}"] = {
+                        "compareIdentifier": workgroup_name,
+                        **workgroup_config
+                    }
+                    
+                except athena_client.exceptions.InvalidRequestException:
+                    print(f"Athena workgroup not found: {workgroup_name}")
+                    continue
+                except Exception as e:
+                    print(f"Error fetching configuration for Athena workgroup {workgroup_name}: {e}")
+                    continue
+        else:
+            # Fetch all workgroups and filter by ApplicationShortName tag
+            paginator = athena_client.get_paginator('list_work_groups')
+            for page in paginator.paginate():
+                for workgroup in page.get('WorkGroups', []):
+                    workgroup_name = workgroup.get('Name')
+                    try:
+                        # Get full workgroup details
+                        workgroup_response = athena_client.get_work_group(WorkGroup=workgroup_name)
+                        workgroup_config = workgroup_response.get('WorkGroup', {})
+                        
+                        # Get tags for the workgroup
+                        has_matching_tag = False
+                        try:
+                            tags_response = athena_client.list_tags_for_resource(
+                                ResourceARN=workgroup_config.get('WorkGroupConfiguration', {}).get('WorkGroupConfigurationUpdates', {}).get('EngineVersion', {}).get('SelectedEngineVersion', '')
+                            )
+                            tags = tags_response.get('Tags', [])
+                            workgroup_config['Tags'] = tags
+                            
+                            # Check if workgroup has matching ApplicationShortName tag
+                            for tag in tags:
+                                if tag.get('Key') == 'ApplicationShortName' and tag.get('Value') == identifier:
+                                    has_matching_tag = True
+                                    break
+                        except Exception as tag_error:
+                            print(f"Warning: Could not fetch tags for workgroup {workgroup_name}: {tag_error}")
+                            workgroup_config['Tags'] = []
+                        
+                        if has_matching_tag:
+                            # Get prepared statements
+                            prepared_statements = []
+                            try:
+                                stmt_paginator = athena_client.get_paginator('list_prepared_statements')
+                                for stmt_page in stmt_paginator.paginate(WorkGroup=workgroup_name):
+                                    for stmt in stmt_page.get('PreparedStatements', []):
+                                        try:
+                                            stmt_details = athena_client.get_prepared_statement(
+                                                StatementName=stmt.get('StatementName'),
+                                                WorkGroup=workgroup_name
+                                            )
+                                            prepared_statements.append(stmt_details.get('PreparedStatement', {}))
+                                        except Exception as e:
+                                            print(f"Error fetching prepared statement {stmt.get('StatementName')}: {e}")
+                                            prepared_statements.append(stmt)
+                                workgroup_config['PreparedStatements'] = prepared_statements
+                            except Exception as e:
+                                print(f"Error listing prepared statements for workgroup {workgroup_name}: {e}")
+                                workgroup_config['PreparedStatements'] = []
+                            
+                            # Get named queries (limited to recent ones to avoid excessive API calls)
+                            named_queries = []
+                            try:
+                                query_paginator = athena_client.get_paginator('list_named_queries')
+                                for page in query_paginator.paginate(WorkGroup=workgroup_name, MaxResults=20):
+                                    for query_id in page.get('NamedQueryIds', []):
+                                        try:
+                                            query_details = athena_client.get_named_query(NamedQueryId=query_id)
+                                            named_queries.append(query_details.get('NamedQuery', {}))
+                                        except Exception as e:
+                                            print(f"Error fetching named query {query_id}: {e}")
+                                    # Limit to 20 named queries to avoid excessive API calls
+                                    if len(named_queries) >= 20:
+                                        break
+                                workgroup_config['NamedQueries'] = named_queries
+                            except Exception as e:
+                                print(f"Error listing named queries for workgroup {workgroup_name}: {e}")
+                                workgroup_config['NamedQueries'] = []
+                            
+                            # Store the workgroup configuration
+                            all_athena_configs[workgroup_name] = workgroup_config
+                            
+                    except Exception as e:
+                        print(f"Error processing Athena workgroup {workgroup_name}: {e}")
+                        continue
+        
+        # Get data catalogs (regardless of mode)
+        try:
+            catalog_paginator = athena_client.get_paginator('list_data_catalogs')
+            catalog_index = 0
+            for catalog_page in catalog_paginator.paginate():
+                for catalog in catalog_page.get('DataCatalogsSummary', []):
+                    catalog_name = catalog.get('CatalogName')
+                    catalog_index += 1
+                    try:
+                        catalog_details = athena_client.get_data_catalog(Name=catalog_name)
+                        catalog_key = f"data_catalog_{catalog_index}" if use_workgroup_names else f"catalog/{catalog_name}"
+                        all_athena_configs[catalog_key] = catalog_details.get('DataCatalog', {})
+                        
+                        # Get databases in this catalog
+                        try:
+                            db_paginator = athena_client.get_paginator('list_databases')
+                            db_index = 0
+                            for db_page in db_paginator.paginate(CatalogName=catalog_name):
+                                for database in db_page.get('DatabaseList', []):
+                                    db_name = database.get('Name')
+                                    db_index += 1
+                                    db_key = f"{catalog_key}/database_{db_index}" if use_workgroup_names else f"catalog/{catalog_name}/database/{db_name}"
+                                    all_athena_configs[db_key] = database
+                        except Exception as e:
+                            print(f"Error listing databases for catalog {catalog_name}: {e}")
+                    except Exception as e:
+                        print(f"Error fetching data catalog {catalog_name}: {e}")
+            
+        except Exception as e:
+            print(f"Error listing data catalogs: {e}")
+
+        if not all_athena_configs:
+            print(f"No Athena resources found for {'workgroup names' if use_workgroup_names else 'ApplicationShortName'} = {identifier}")
+            
+        return all_athena_configs
+    except Exception as e:
+        print(f"Error fetching Athena configurations: {e}")
+        return {}
+
 def fetch_service_config(service_name, service_config, ApplicationShortName, use_custom_identifier=False):
     """
     Helper function to fetch service configurations based on env_config values.
@@ -1969,6 +2165,8 @@ def fetch_service_config(service_name, service_config, ApplicationShortName, use
             return fetch_eventbridge_config(service_config, use_custom_identifier=True)
         elif service_name == 'dynamodb':
             return fetch_dynamodb_config(service_config, use_table_names=True)
+        elif service_name == 'athena':
+            return fetch_athena_config(service_config, use_workgroup_names=True)
     else:
         # Use ApplicationShortName
         if service_name == 'ecs':
@@ -2007,6 +2205,8 @@ def fetch_service_config(service_name, service_config, ApplicationShortName, use
             return fetch_eventbridge_config(eventbridge_buses, use_custom_identifier=False) if matching_buses else {}
         elif service_name == 'dynamodb':
             return fetch_dynamodb_config(ApplicationShortName, use_table_names=False)
+        elif service_name == 'athena':
+            return fetch_athena_config(ApplicationShortName, use_workgroup_names=False)
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -2026,7 +2226,7 @@ if __name__ == "__main__":
         # List of services to fetch
         services = [
             'ecs', 'rds', 'lambda', 'parameterStore', 'elb', 'sqs', 'sns',
-            'kinesis', 'route53', 'appmesh', 'cloudwatch', 'cloudmap', 'eventbridge', 'dynamodb'
+            'kinesis', 'route53', 'appmesh', 'cloudwatch', 'cloudmap', 'eventbridge', 'dynamodb', 'athena'
         ]
 
         if env_config:
