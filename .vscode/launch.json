@@ -12,6 +12,7 @@
             "console": "integratedTerminal",
             "args": [
                 "DEVL", "TEST", "template.html", "output.html", "None", "None", "None", "None", "False", "True", "awsConfigs/awsConfig_nfr_devl.json", "awsConfigs/awsConfig_nfr_test.json"
+                // "ACPT", "PROD", "template.html", "output.html", "tf", "None", "None", "None", "False", "False", "None", "None"
             ]
         }
     ]

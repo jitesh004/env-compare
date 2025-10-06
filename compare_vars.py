@@ -734,10 +734,13 @@ def main(
             comparison_results, summary = compare_tfvars_data(data1, data2, env1, env2)
             
             # Generate summary
-            summary_html = f"""
-            <h3>Summary</h3>
-            <p><strong>Branch:</strong> {escape_html(branch_name)}</p>
-            <p><strong>Latest Commit:</strong> {escape_html(commit_id)} - {escape_html(commit_message)}</p>
+            summary_html = "<h3>Summary</h3>"
+            if branch_name != 'None' and commit_id != 'None' and commit_message != 'None':
+                summary_html += f"""
+                <p><strong>Branch:</strong> {escape_html(branch_name)}</p>
+                <p><strong>Latest Commit:</strong> {escape_html(commit_id)} - {escape_html(commit_message)}</p>
+                """
+            summary_html += f"""
             <p><strong>Comparing ENVs:</strong> {env1.upper()} & {env2.upper()}</p>
             """
 
@@ -745,6 +748,7 @@ def main(
             with open(template_path, "r") as template_file:
                 template = template_file.read()
                 template = template.replace("{summary}", summary_html)
+                template = template.replace("{tabs}", '')  # No tabs for single file comparison
                 with open(output_file, "w") as file:
                     file.write(template)
 
