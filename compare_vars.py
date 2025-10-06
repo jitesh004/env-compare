@@ -73,7 +73,8 @@ def parse_properties(file_path):
         sys.exit(1)
 
 # Differentiating environment-specific keys
-def is_environment_specific(key, env1, env2):
+def is_environment_specific(key, env1, env2, value1=None, value2=None):
+    # Keys that typically differ across environments
     environment_specific_keys = [
         "account",
         "region",
@@ -88,13 +89,90 @@ def is_environment_specific(key, env1, env2):
         "created",
         "time",
         "arn",
+        "cidr",
+        "availability_zone",
+        "az",
+        "support",
+        "owner",
+        "delegate",
+        "size",
+        "instance",
+        "storage",
+        "retention",
+        "ami",
+        "key_prefix",
     ]
-    environment_indicators = [env1.lower(), env2.lower(), "prod", "staging", "dev"]
 
+    # Resource capacity/sizing related keys
+    capacity_keys = [
+        "min_size",
+        "max_size",
+        "desired",
+        "capacity",
+        "count",
+        "instance_type",
+        "type",
+        "storage",
+        "size",
+        "retention",
+        "concurrency",
+        "errors",
+    ]
+
+    # Configuration flags and versioning
+    config_keys = [
+        "version",
+        "versioning",
+        "multi_az",
+        "enable",
+        "enabled",
+        "feature",
+        "flag",
+    ]
+
+    # Environment name indicators
+    environment_indicators = [env1.lower(), env2.lower(), "prod", "staging", "dev", "acpt", "devl", "test"]
+
+    # Check if key contains environment indicators
     if any(indicator in key.lower() for indicator in environment_indicators):
         return True
+
+    # Check if key matches common environment-specific patterns
     if any(es_key in key.lower() for es_key in environment_specific_keys):
         return True
+
+    # Check for capacity/sizing related keys
+    if any(cap_key in key.lower() for cap_key in capacity_keys):
+        return True
+
+    # Check for configuration flags
+    if any(cfg_key in key.lower() for cfg_key in config_keys):
+        return True
+
+    # Value-based intelligence: Check if values contain environment indicators
+    if value1 is not None and value2 is not None:
+        val1_str = str(value1).lower()
+        val2_str = str(value2).lower()
+
+        # Check if values contain environment names
+        if any(indicator in val1_str or indicator in val2_str for indicator in environment_indicators):
+            return True
+
+        # Check if values differ in a pattern suggesting environment differences
+        # (e.g., different AWS account IDs, regions, instance types)
+        if isinstance(value1, str) and isinstance(value2, str):
+            # Different regions (us-east-1 vs us-west-2)
+            if 'us-' in val1_str and 'us-' in val2_str and val1_str != val2_str:
+                return True
+            # Different AWS account-like numbers
+            if val1_str.isdigit() and val2_str.isdigit() and len(val1_str) == len(val2_str) and len(val1_str) >= 12:
+                return True
+
+        # Check for numeric differences in sizing (likely environment-specific)
+        if isinstance(value1, (int, float)) and isinstance(value2, (int, float)) and value1 != value2:
+            if any(size_key in key.lower() for size_key in ['size', 'storage', 'retention', 'capacity', 'count']):
+                return True
+
     return False
 
 # Extract diff
@@ -174,12 +252,12 @@ def compare_tfvars_data(data1, data2, env1, env2):
         # Filter out compareIdentifier from both data sets
         data1_filtered = {k: v for k, v in data1.items() if k != 'compareIdentifier'}
         data2_filtered = {k: v for k, v in data2.items() if k != 'compareIdentifier'}
-        
+
         all_keys = set(data1_filtered.keys()).union(set(data2_filtered.keys()))
         all_keys = sorted(all_keys, key=str.lower)
         comparison_results = []
         summary = {"equal": 0, "undefined": 0, "red": 0, "blue": 0}
-        
+
         for key in all_keys:
             value1 = data1_filtered.get(key, "undefined")
             value2 = data2_filtered.get(key, "undefined")
@@ -191,7 +269,7 @@ def compare_tfvars_data(data1, data2, env1, env2):
                     exact_diff = extract_diff(diff, value1, value2, key_path)
                     row_class = (
                         "blue"
-                        if is_environment_specific(key_path, env1, env2)
+                        if is_environment_specific(key_path, env1, env2, value1, value2)
                         else "red"
                     )
                     status = (
@@ -249,7 +327,7 @@ def compare_properties_data(data1, data2, env1, env2):
                     exact_diff = extract_diff(diff, value1, value2, key_path)
                     row_class = (
                         "blue"
-                        if is_environment_specific(key_path, env1, env2)
+                        if is_environment_specific(key_path, env1, env2, value1, value2)
                         else "red"
                     )
                     status = (
